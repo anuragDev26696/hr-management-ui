@@ -1,0 +1,44 @@
+<main class="flex-column">
+    <h1 class="visually-hidden">login - HR Management</h1>
+    <p class="text-center fw-medium fs-4">HR-Management</p>
+
+    <div class="card w-100 shadow-sm border-white rounded-3">
+        <div class="card-body">
+            <div class="h4 text-center mb-4">Login</div>
+            <form novalidate class="form" [formGroup]="loginForm">
+                <div class="mb-3">
+                    <label for="emailInput" class="form-label">Email</label>
+                    <input type="email" inputmode="email" class="form-control" [class.is-invalid]="loginForm.controls['email'].touched && loginForm.controls['email'].invalid" [class.is-valid]="loginForm.controls['email'].valid" autocomplete="email" id="emailInput" aria-describedby="emailFeedback" [minLength]="10" [maxLength]="100" formControlName="email">
+                    <div class="invalid-feedback" id="emailFeedback">
+                        @if (loginForm.controls['email'].touched || loginForm.dirty) {
+                            @if (loginForm.controls['email'].hasError('email') || loginForm.controls['email'].hasError('minlength')) {Enter a valid email.} @else {Email is required.}
+                        }
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="passwordInput" class="form-label">Password</label>
+                    <div class="input-group has-validation">
+                        <input [type]="!showPassword ? 'password' : 'text'" class="form-control" [class.is-invalid]="loginForm.controls['password'].touched && loginForm.controls['password'].invalid" [class.is-valid]="loginForm.controls['password'].valid" autocomplete="current-password" id="passwordInput" aria-describedby="passFeedback passToggleBtn" [minLength]="6" [maxLength]="25" formControlName="password">
+                        <div role="button" id="passToggleBtn" class="input-group-text" [tabIndex]="-1"(click)="showPassword = !showPassword" title="Toggle password">
+                            <i [class]="!showPassword ? 'bi bi-eye' : 'bi bi-eye-slash'" aria-hidden="true"></i>
+                            <span class="visually-hidden">Toggle Password</span>
+                        </div>
+                        <div class="invalid-feedback" id="passFeedback">
+                            @if (loginForm.controls['password'].touched || loginForm.dirty) {
+                                @if (loginForm.controls['password'].hasError('password') || loginForm.controls['password'].hasError('minlength')) {Enter a valid password.} @else {Password is required.}
+                            }
+                        </div>
+                    </div>
+                </div>
+            </form>
+
+            <div class="text-end pb-4">
+                <a routerLink="/forgot-password" class="link">Forgot password?</a>
+            </div>
+            <br>
+            <button type="button" class="btn w-100 mb-2 btn-primary fw-medium fs-5" [disabled]="loginForm.invalid" (click)="ngSubmit($event)">Login</button>
+            
+        </div>
+    </div>
+</main>
