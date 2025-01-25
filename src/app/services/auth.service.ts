@@ -17,6 +17,7 @@ export class AuthService {
   constructor(private http: HttpClient, @Inject(PLATFORM_ID) private platformId: Object,) {
     if (isPlatformBrowser(platformId)) {
       this.tokenSub = new BehaviorSubject(localStorage.getItem('token') || "");
+      this.userId = new BehaviorSubject(localStorage.getItem('uuid') || "");
     }
     // Subscribe to variable for getting updated value and set header
     this.tokenSub.subscribe({
@@ -69,5 +70,15 @@ export class AuthService {
       }
       return value;
     }));
+  }
+
+  public getProfile(): Observable<APIResponse<any>> {
+    return this.http.get<APIResponse<any>>(`${environment.api}user/${this.userId.getValue()}`, {headers: this.header});
+  }
+
+  public logout(): void {
+    this.tokenSub.next('');
+    this.userId.next('');
+    localStorage.clear();
   }
 }
