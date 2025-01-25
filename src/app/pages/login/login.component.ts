@@ -22,7 +22,7 @@ export class LoginComponent {
   constructor(){
     const tokenVal = this.auth.currentToken();
     const {token, userId, observeToken} = tokenVal();
-    console.log(tokenVal().userId, tokenVal().userId);
+    console.log(tokenVal().token, tokenVal().userId);
     observeToken.subscribe({
       next: (value) => {
         console.info("token value: ", value);
@@ -35,9 +35,13 @@ export class LoginComponent {
   
   public ngSubmit(event: Event): void {
     if(!event.isTrusted || this.loginForm.invalid) return;
+    this.loginForm.disable();
     this.auth.login(this.loginForm.value).subscribe({
       next: (value) => {
-        console.log(value);
+        this.loginForm.reset();
+        this.loginForm.markAsPristine();
+        this.loginForm.updateValueAndValidity();
+        this.router.navigate(['home']);
       },
       error: (err) => {
         const {error, message} = err.error;
@@ -45,6 +49,7 @@ export class LoginComponent {
           this.router.navigate(['set-password']);
         }
         console.log(err.message);
+        this.loginForm.enable();
       },
     });
   }

@@ -1,0 +1,6 @@
+:host{--bs-navbar-toggler-focus-width: 0;}
+.dropdown-toggle::after{border-color: transparent; border: 0; margin-inline: 0;}
+@media screen and (max-width: 768px) {
+    :host > .container-fluid {justify-content: flex-start; gap: 0.5rem;}
+    .navbar-toggler{order: -1;}
+}

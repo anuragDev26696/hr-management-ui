@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -7,5 +8,16 @@ import { Component } from '@angular/core';
   styleUrl: './dashboard.component.scss'
 })
 export class DashboardComponent {
+  auth = inject(AuthService);
 
+  constructor(){
+    const tokenVal = this.auth.currentToken();
+    const {token, userId, observeToken} = tokenVal();
+    console.log(tokenVal().userId, tokenVal().userId);
+    observeToken.subscribe({
+      next: (value) => {
+        console.info("token value: ", value);
+      },
+    })
+  }
 }
