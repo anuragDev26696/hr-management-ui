@@ -1,0 +1,50 @@
+<div class="row gy-2 hasValidate" [formGroup]="parentController">
+    <div class="col-12 col-sm-6 col-lg-7">
+        <label for="nameCtrl">Department Name <i class="text-danger">*</i></label>
+        <input type="text" id="nameCtrl" class="form-control" formControlName="name" autocomplete="off" [minLength]="2" [maxLength]="35" aria-describedby="nameFeed">
+        <div class="invalid-feedback" id="nameFeed">Name is required.</div>
+    </div>
+    <div class="col-12 col-sm-6 col-lg-5">
+        <label for="codeCtrl">Code <i class="text-danger">*</i></label>
+        <input type="email" id="codeCtrl" class="form-control" formControlName="code" autocomplete="off" [minLength]="4" [maxLength]="25" aria-describedby="codeFeed">
+        <div class="invalid-feedback" id="codeFeed">Code is required.</div>
+    </div>
+    <div class="col-12">
+        <label for="descCtrl">Description</label>
+        <textarea [rows]="2" id="descCtrl" class="form-control" formControlName="description" [maxLength]="25" aria-describedby="descriptionFeed" aria-placeholder="Description"></textarea>
+        <div class="invalid-feedback" id="descriptionFeed">Description should be max 400 caracter's.</div>
+    </div>
+</div>
+<br>
+<ng-container [formGroup]="parentController">
+    <p class="h6">Sub Departments</p>
+    <hr class="">
+    @for (subDepart of subDepartmentArray.controls; track $index) {
+        <div class="row gy-2 {{$index > 0 ? 'mt-3 border-top' : 'mt-0'}}" formArrayName="subDepartments">
+            <ng-container [formGroupName]="$index">
+                <div class="col-12 col-sm-7">
+                    <label for="departNameCtrl_{{$index}}">Sub-department Name <i class="text-danger">*</i></label>
+                    <input type="text" id="departNameCtrl_{{$index}}" class="form-control" formControlName="name" autocomplete="off" [minLength]="3" [maxLength]="40" [attr.aria-describedby]="'departNameFeed_'+$index">
+                    <div class="invalid-feedback" id="departNameFeed_{{$index}}">Sub-department is required.</div>
+                </div>
+                <div class="col-12 col-sm-5">
+                    <label for="departCodeCtrl_{{$index}}">Code <i class="text-danger">*</i></label>
+                    <input type="email" id="departCodeCtrl_{{$index}}" class="form-control" formControlName="code" autocomplete="off" [minLength]="4" [maxLength]="25" [attr.aria-describedby]="'codeFeed_'+$index">
+                    <div class="invalid-feedback" id="codeFeed_{{$index}}">Code is required.</div>
+                </div>
+                <div class="col-12">
+                    <div class="d-flex gap-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" formControlName="isActive" id="statusCtrl_{{$index}}">
+                            <label class="form-check-label" for="statusCtrl_{{$index}}">Is active.</label>
+                        </div>
+                        @if ($count > 1) {
+                            <button class="btn mt-auto btn-outline-danger btn-sm ms-auto" type="button" aria-label="Delete Sub-department" (click)="removeSubDepartment($event, $index)"><i class="bi bi-trash"></i> Delete</button>
+                        }
+                    </div>
+                </div>
+            </ng-container>
+        </div>
+    }
+    <button class="btn btn-primary btn-sm" type="button" (click)="$event.stopImmediatePropagation(); addSubDepartment();">Add Sub-category</button>
+</ng-container>

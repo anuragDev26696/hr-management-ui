@@ -1,0 +1,27 @@
+<ng-container [formGroup]="leaveForm">
+    <span>From: </span>
+    <div class="input-group has-validation" formGroupName="startDate">
+        <input type="date" id="startDateCtrl" class="form-control" formControlName="date" autocomplete="off" aria-label="Start Date" placeholder="Start Date" aria-describedby="startDateFeed">
+        <select formControlName="leaveType" id="startDayLeaveType" class="form-select" aria-describedby="startLeaveType">
+            <option value="half_day">Half Day</option>
+            <option value="full_day">Full Day</option>
+        </select>
+        <div class="invalid-feedback" id="startDateFeed">Date is required.</div>
+        <div class="invalid-feedback" id="startLeaveType">Leave type is required.</div>
+    </div>
+    <br>
+    <span>To: </span>
+    <div class="input-group has-vlidation" formGroupName="endDate">
+        <input type="date" id="endDateCtrl" class="form-control" formControlName="date" autocomplete="off" aria-label="End Date" placeholder="End Date" aria-describedby="endDateFeed">
+        <select formControlName="leaveType" id="startDayLeaveType" class="form-select" aria-describedby="endLeaveType">
+            <option value="half_day">Half Day</option>
+            <option value="full_day">Full Day</option>
+        </select>
+        <div class="invalid-feedback" id="endDateFeed">Date is required.</div>
+        <div class="invalid-feedback" id="endLeaveType">Leave type is required.</div>
+    </div>
+    <br>
+    <label for="descCtrl">Reason</label>
+    <textarea [rows]="2" id="descCtrl" class="form-control" formControlName="reason" [maxLength]="500" [minLength]="10" aria-describedby="descriptionFeed" aria-placeholder="Description"></textarea>
+    <div class="invalid-feedback" id="descriptionFeed">Reason should be max 500 caracter's.</div>
+</ng-container>

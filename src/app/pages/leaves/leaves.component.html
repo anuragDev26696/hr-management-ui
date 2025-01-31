@@ -1,0 +1,130 @@
+<main class="container-xl py-3 bg-light">
+    <h1 class="visually-hidden">Leave Request List</h1>
+    <div class="card shadow border-light">
+        <div class="card-header border-light bg-white d-flex gap-2 align-items-center">
+            <span  class="fs-5 fw-medium">Request List <br><small class="small text-secondary fw-normal">{{totalDocs}} Requests</small></span>
+            <button class="btn btn-primary ms-auto" type="button" data-bs-toggle="modal" data-bs-target="#leaveFormModal" (click)="formAction = 'apply'"><i class="bi bi-plus"></i> Apply Leave</button>
+        </div>
+        <div class="card-body">
+            @if (selectedLeaves.length > 0 && userRole === 'admin') {
+                <button class="btn btn-sm mb-2 me-2 btn-success btn-shadow-sm" type="button"><i class="bi bi-check"></i> {{allChecked.isAll ? 'Accept All' : 'Accept' }}</button>
+                <button class="btn btn-sm mb-2 me-2 btn-danger btn-shadow-sm" type="button"><i class="bi bi-x"></i> {{allChecked.isAll ? 'Reject All' : 'Reject' }}</button>
+            }
+            <div class="table-responsive mt-2">
+                <table class="table table-hover table-sm align-middle">
+                    <thead>
+                        <tr>
+                            @for (item of tableColumns; track $index) {
+                                <th class="text-nowrap {{$first ? '' : 'cell_'+item.trim()}}">
+                                    @if ($first) {
+                                        <div>
+                                            @if (userRole === 'admin') {
+                                                <input class="form-check-input" type="checkbox" id="selectAllCheck" [indeterminate]="allChecked.isSome" [checked]="allChecked.isAll" value="" aria-label="select all action" (change)="selectAll($event)" [ariaDisabled]="isAllDisabled" [disabled]="isAllDisabled">
+                                            } @else { # }
+                                        </div>
+                                    } @else {
+                                        {{item.replaceAll('_', ' ') | titlecase}}
+                                    }
+                                </th>
+                            }
+                        </tr>
+                    </thead>
+                    <tbody class="table-group-divider">
+                        @for (item of leaveList; track (item.uuid+'_'+i); let i = $index;) {
+                            <tr>
+                                @for (col of tableColumns; track col; let isFirst = $first;) {
+                                    @if (isFirst) {
+                                        <td class="{{$first ? '' : 'cell_'+col.trim()}}">
+                                            <div>
+                                            @if (userRole === 'admin') {
+                                                <input class="form-check-input" type="checkbox" [id]="item._id" [value]="item.uuid" aria-label="select for action" [checked]="selectedLeaves.includes(item.uuid)" (change)="leaveSelection($event, item.uuid)" [disabled]="item.status != 'pending'">
+                                            } @else {
+                                                {{i+1}}
+                                            }
+                                            </div>
+                                        </td>
+                                    } @else if(col === 'name'){
+                                        <td class="{{$first ? '' : 'cell_'+col.trim()}}">
+                                            {{item.employeeName}}<br>
+                                            <span class="badge rounded-pill text-bg-light border-secondary text-secondary">{{item.employeePosition}}</span>
+                                        </td>
+                                    } @else if (col === 'leave_days') {
+                                        <td class="{{$first ? '' : 'cell_'+col.trim()}}">
+                                            @if (leaveDetail(item).isSame) {
+                                                {{strToDate(item.startDate.date) | date}} - {{item.startDate.leaveType.replaceAll('_', ' ') | titlecase}}
+                                                <!-- <span>{{}}</span> -->
+                                            } @else {
+                                                {{strToDate(item.startDate.date) | date}} - {{strToDate(item.endDate.date) | date}}<br/>
+                                                <span class="badge rounded-pill text-bg-light border-secondary text-secondary">{{item.leaveDays.length}} days</span>
+                                            }
+                                        </td>
+                                    } @else if (col === 'applied_at') {
+                                        <td class="{{$first ? '' : 'cell_'+col.trim()}}">
+                                            {{strToDate(item.createdAt) | date}}
+                                        </td>
+                                    } @else if (col === 'status') {
+                                        <td class="{{$first ? '' : 'cell_'+col.trim()}}">
+                                            <div class="badge text-bg-{{item.status === 'approved' ? 'success' : item.status === 'rejected' ? 'danger' : 'warning' }} rounded-pill">{{item.status | titlecase}}</div>
+                                        </td>
+                                    } @else {
+                                        <td class="{{$first ? '' : 'cell_'+col.trim()}}">
+                                            @if (userRole === 'admin' && item.status === 'pending') {
+                                                <button type="button" class="btn btn-sm icon-btn btn-success border-0 outline-0 rounded-circle shadow mb-1 me-2" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Accept" data-bs-html="true" [tabIndex]="-1" (click)="updateStatus($event, [item.uuid], 'approve')">
+                                                    <i class="bi bi-check fs-4"></i>
+                                                </button>
+                                                <button type="button" class="btn btn-sm icon-btn btn-danger border-0 outline-0 rounded-circle shadow mb-1" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Reject" [tabIndex]="-1" aria-label="Reject Leave" (click)="updateStatus($event, [item.uuid], 'reject')">
+                                                    <i class="bi bi-x fs-4"></i>
+                                                </button>
+                                            } @else if(item.status === 'pending') {
+                                                <button type="button" class="btn btn-sm icon-btn btn-danger border-0 outline-0 rounded-circle shadow " data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Cancel" [tabIndex]="-1" aria-label="Cancel Leave" (click)="requestTrash($event, item.uuid)">
+                                                    <i class="bi bi-x fs-4"></i>
+                                                </button>
+                                            }
+                                            <!-- <div class="dropdown">
+                                                <button class="btn btn-sm dropdown-toggle border-0 outline-0" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false" [tabIndex]="-1" [attr.aria-controls]="'#userMenu_'+i" aria-label="Options">
+                                                    <i class="bi bi-three-dots-vertical"></i>
+                                                </button>
+                                                <ul class="dropdown-menu dropdown-menu-end border-light shadow rounded-3" [id]="'#userMenu_'+i">
+                                                    <li><button class="dropdown-item small success-item" (click)="updateStatus($event, [item.uuid], 'approved')">Approve</button></li>
+                                                    <li><button class="dropdown-item small danger-item" (click)="updateStatus($event, [item.uuid], 'rejected')">Reject</button></li>
+                                                    <li><button class="dropdown-item small danger-item" (click)="requestTrash($event, item.uuid)">Cancel</button></li>
+                                                </ul>
+                                            </div> -->
+                                        </td>
+                                    }
+                                }
+                            </tr>
+                        } @empty {
+                            <tr>
+                                <td [colSpan]="tableColumns.length" class="text-center">
+                                    <p class="my-3">Leaves not found</p>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Employee Modal -->
+<div class="modal fade" id="leaveFormModal" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="modalLabel"  tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalLabel">{{formAction | titlecase}} Leaves</h5>
+          <button type="button" class="btn-close" [tabIndex]="-1" data-bs-dismiss="modal" aria-label="Close" data-bs-toggle="tooltip" title="Close modal" aria-label="Close table"[id]="'closeModalBtn'"></button>
+        </div>
+        <div class="modal-body">
+            <form [formGroup]="requestForm">
+                <app-leave-form></app-leave-form>
+            </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary" [disabled]="requestForm.invalid" (click)="onSubmit($event)">Apply Leave</button>
+        </div>
+      </div>
+    </div>
+</div>

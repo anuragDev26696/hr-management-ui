@@ -1,0 +1,61 @@
+<div aria-live="polite" aria-atomic="true" class="position-relative">
+    <div class="toast-container px-3 pb-3" [class]="placementClass">
+      <!-- Displaying all toasts dynamically -->
+       
+        @for (toast of toasts; track $index) {
+        <div class="toast" [class]="getToastClass(toast).toast" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body">
+                {{ toast.message }}
+                </div>
+                <button type="button" [class]="getToastClass(toast).btn" class="btn-close m-auto me-2" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>        
+        }
+    </div>
+
+    
+    <!-- position-relative for top div -->
+    <!-- Position it: -->
+    <!-- - `.toast-container` for spacing between toasts -->
+    <!-- - `top-0` & `end-0` to position the toasts in the upper right corner -->
+    <!-- - `.p-3` to prevent the toasts from sticking to the edge of the container  -->
+    <div class="toast-container bottom-0 end-0 px-3 pb-3">
+        <!-- Then put toasts within -->
+        <!-- <div class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+          <div class="toast-header">
+            <img src="..." class="rounded me-2" alt="...">
+            <strong class="me-auto">Bootstrap</strong>
+            <small class="text-body-secondary">just now</small>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+          </div>
+          <div class="toast-body">
+            See? Just like this.
+          </div>
+        </div> -->
+    
+          <!-- <div role="alert" aria-live="assertive" aria-atomic="true" class="toast" data-bs-autohide="false">
+              <div class="toast-body d-flex">
+                  <span class="messageText">Hello, world! This is a toast message.</span>
+                  <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+              </div>
+          </div> -->
+        <div role="alert" aria-live="assertive" aria-atomic="true" class="toast show text-bg-primary border-primary" data-bs-autohide="false">
+            <div class="d-flex">
+                <div class="toast-body">
+                    Hello, world! This is a toast message.
+                </div>
+                <button type="button" class="btn-close btn-close-white m-auto me-2" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+        <div role="alert" aria-live="assertive" aria-atomic="true" class="toast bg-white" data-bs-delay="10000">
+            <div class="d-flex">
+                <div class="toast-body">
+                    Hello, world! This is a toast message.
+                </div>
+                <button type="button" class="btn-close m-auto me-2" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+</div>
+  

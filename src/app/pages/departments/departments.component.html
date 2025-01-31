@@ -1,0 +1,82 @@
+<main class="container-xl py-3 bg-light">
+    <h1 class="visually-hidden">Department List</h1>
+    <div class="card shadow border-light">
+        <div class="card-header border-light bg-white d-flex gap-2 align-items-center">
+            <span  class="fs-5 fw-medium">Department List <br><small class="small text-secondary fw-normal">{{totalDocs}} Department</small></span>
+            <button class="btn btn-primary ms-auto" type="button" data-bs-toggle="modal" data-bs-target="#departmentModal" (click)="formAction = 'add'"><i class="bi bi-plus"></i> Add Department</button>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover table-sm align-middle">
+                    <thead>
+                        <tr>
+                            @for (item of tableColumns; track $index) {
+                                <th class="text-nowrap {{$first ? '' : 'cell_'+item.trim()}}">{{$first ? '#' : item | titlecase}}</th>
+                            }
+                        </tr>
+                    </thead>
+                    <tbody class="table-group-divider">
+                        @for (department of departmentList; track department.uuid; let i = $index;) {
+                            <tr>
+                                @for (col of tableColumns; track col; let isFirst = $first;) {
+                                    @if (isFirst) {
+                                        <td class="{{$first ? '' : 'cell_'+col.trim()}}">{{i+1}}</td>
+                                    } @else if(col === 'name'){
+                                        <td class="{{$first ? '' : 'cell_'+col.trim()}}">
+                                            {{department.name}}<br>
+                                            <span class="badge rounded-pill text-bg-light border-secondary text-secondary">{{department.code}}</span>
+                                        </td>
+                                    } @else if (col === 'sub-departments') {
+                                        <td class="{{$first ? '' : 'cell_'+col.trim()}}">
+                                            @for (item of department.subDepartments; track $index) {
+                                                <span class="badge rounded-pill text-bg-light me-1 mb-1 fw-normal border-secondary text-secondary">{{item.name}}</span>
+                                            }
+                                        </td>
+                                    } @else if (col === 'created At') {
+                                        <td class="{{$first ? '' : 'cell_'+col.trim()}}">
+                                            {{strToDate(department.createdAt) | date}}
+                                        </td>
+                                    } @else {
+                                        <td class="{{$first ? '' : 'cell_'+col.trim()}}">
+                                            <div class="dropdown">
+                                                <button class="btn btn-sm dropdown-toggle border-0 outline-0" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false" [tabIndex]="-1" [attr.aria-controls]="'#userMenu_'+i" aria-label="Options">
+                                                    <i class="bi bi-three-dots-vertical"></i>
+                                                </button>
+                                                <ul class="dropdown-menu dropdown-menu-end border-light shadow rounded-3" [id]="'#userMenu_'+i">
+                                                    <li><button class="dropdown-item small" data-bs-toggle="modal" data-bs-target="#departmentModal" (click)="actionUpdate($event, department)">Edit</button></li>
+                                                    <li><button class="dropdown-item small">Deactive</button></li>
+                                                    <li><button class="dropdown-item small danger-item" (click)="requestTrash($event, department.uuid)">Delete</button></li>
+                                                </ul>
+                                            </div>
+                                        </td>
+                                    }
+                                }
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Employee Modal -->
+<div class="modal fade" id="departmentModal" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="modalLabel" aria-hidden="true" tabindex="-1">
+    <div class="modal-dialog modal-fullscreen-lg-down modal-dialog-centered modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalLabel">{{formAction | titlecase}} Department</h5>
+          <button type="button" class="btn-close" [tabIndex]="-1" data-bs-dismiss="modal" aria-label="Close" data-bs-toggle="tooltip" title="Close modal" aria-label="Close table"[id]="'closeModalBtn'"></button>
+        </div>
+        <div class="modal-body">
+            <form [formGroup]="departmentForm">
+                <app-department-form></app-department-form>
+            </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary" [disabled]="departmentForm.invalid" (click)="onSubmit($event)">Save changes</button>
+        </div>
+      </div>
+    </div>
+</div>

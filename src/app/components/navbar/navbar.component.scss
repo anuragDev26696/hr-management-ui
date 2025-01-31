@@ -3,4 +3,5 @@
 @media screen and (max-width: 768px) {
     :host > .container-fluid {justify-content: flex-start; gap: 0.5rem;}
     .navbar-toggler{order: -1;}
+    .navbar-collapse{ order: 1;}
 }

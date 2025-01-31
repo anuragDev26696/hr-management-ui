@@ -13,10 +13,8 @@ export class DashboardComponent {
   constructor(){
     const tokenVal = this.auth.currentToken();
     const {token, userId, observeToken} = tokenVal();
-    console.log(tokenVal().userId, tokenVal().userId);
     observeToken.subscribe({
       next: (value) => {
-        console.info("token value: ", value);
       },
     })
   }

@@ -13,3 +13,13 @@ export interface ILogin {
         role: string,
     }
 }
+export interface IGeneric {
+    isDeleted: boolean;
+    createdBy: string;
+    uuid: string;
+    createdAt: string; // Optional, for when you use timestamps in MongoDB
+    updatedAt: string; // Optional, for when you use timestamps in MongoDB
+    _id: string | null;
+}
+
+export interface pagination {skip: number; limit: number;}
