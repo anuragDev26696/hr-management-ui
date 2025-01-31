@@ -19,16 +19,7 @@ export class LoginComponent {
   auth = inject(AuthService);
   router = inject(Router);
 
-  constructor(){
-    const tokenVal = this.auth.currentToken();
-    const {token, userId, observeToken} = tokenVal();
-    console.log(tokenVal().token, tokenVal().userId);
-    observeToken.subscribe({
-      next: (value) => {
-        console.info("token value: ", value);
-      },
-    })
-  }
+  constructor(){}
 
   ngOnInit(): void {
   }
@@ -41,7 +32,7 @@ export class LoginComponent {
         this.loginForm.reset();
         this.loginForm.markAsPristine();
         this.loginForm.updateValueAndValidity();
-        this.router.navigate(['home']);
+        this.router.navigate(['/']);
       },
       error: (err) => {
         const {error, message} = err.error;

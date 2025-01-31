@@ -1,0 +1,6 @@
+main {height: calc(100dvh - 100px)}
+.table {--bs-table-color: var(--gray-700);}
+.table-group-divider{border-top-color: darkgray}
+.modal {--bs-modal-width: 900px;}
+// .dropdown-item:not(.active, :active), 
+.dropdown-menu{--bs-dropdown-link-color: rgba(var(--bs-secondary-rgb), 1);}

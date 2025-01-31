@@ -7,7 +7,6 @@ export const unauthGuard: CanDeactivateFn<unknown> = (component, currentRoute, c
   const router = inject(Router);
   // Check if token and userId are invalid
   if (auth().token.trim() === '' || auth().userId.trim() === '') {
-    console.log(auth().token, auth().userId);
     return true; // Allow deactivation, hence navigate away
   }
   router.navigate(['/']);  // If there is a valid token, redirect to the dashboard or home page

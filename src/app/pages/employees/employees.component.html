@@ -1,0 +1,87 @@
+<main class="container-xl py-3 bg-light">
+    <h1 class="visually-hidden">Employees List</h1>
+    <div class="card shadow border-light">
+        <div class="card-header border-light bg-white d-flex gap-2 align-items-center">
+            <span  class="fs-5 fw-medium">Employee List <br><small class="small text-secondary fw-normal">{{totalDocs}} Emplloyees</small></span>
+            @if (userRole === 'admin') {
+                <button class="btn btn-primary ms-auto" type="button" data-bs-toggle="modal" data-bs-target="#employeeModal" (click)="formAction = 'add'" (click)="toggleReset()"><i class="bi bi-plus"></i> Add Employee</button>
+            }
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover table-sm align-middle">
+                    <thead>
+                        <tr>
+                            @for (item of tableColumns; track $index) {
+                                <th class="">{{$first ? '#' : item | titlecase}}</th>
+                            }
+                        </tr>
+                    </thead>
+                    <tbody class="table-group-divider">
+                        @for (user of userList; track user.uuid; let i = $index;) {
+                            <tr>
+                                @for (col of tableColumns; track col; let isFirst = $first;) {
+                                    @if (isFirst) {
+                                        <td>{{i+1}}</td>
+                                    } @else if(col === 'name'){
+                                        <td>
+                                            <span class="float-start me-3 mb-1"><i class="bi bi-person-circle fs-2"></i></span>
+                                            <span class="mb-0">{{user.name}}</span><br>
+                                            <small class="text-secondary">{{user.email}}</small>
+                                        </td>
+                                    } @else if (col === 'role') {
+                                        <td>
+                                            {{user.role | titlecase}}
+                                        </td>
+                                    } @else if (col === 'designation') {
+                                        <td>
+                                            <small>{{user.designation | titlecase}}</small>
+                                        </td>
+                                    } @else if (col === 'created At') {
+                                        <td>
+                                            {{strToDate(user.createdAt) | date}}
+                                        </td>
+                                    } @else {
+                                        <td>
+                                            <div class="dropdown">
+                                                <button class="btn btn-sm dropdown-toggle border-0 outline-0" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false" [tabIndex]="-1" [attr.aria-controls]="'#userMenu_'+i" aria-label="Options">
+                                                    <i class="bi bi-three-dots-vertical"></i>
+                                                </button>
+                                                <ul class="dropdown-menu dropdown-menu-end border-light shadow rounded-3" [id]="'#userMenu_'+i">
+                                                    <li><button class="dropdown-item small" data-bs-toggle="modal" data-bs-target="#employeeModal" (click)="actionUpdate($event, user)">Edit</button></li>
+                                                    <li><button class="dropdown-item small">Deactive</button></li>
+                                                    <li><button class="dropdown-item small danger-item" (click)="requestTrash($event, user.uuid)">Delete</button></li>
+                                                </ul>
+                                            </div>
+                                        </td>
+                                    }
+                                }
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Employee Modal -->
+<div class="modal fade" id="employeeModal" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="modalLabel" aria-hidden="true" tabindex="-1">
+    <div class="modal-dialog modal-fullscreen-lg-down modal-dialog-centered modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalLabel">{{formAction | titlecase}} Employee</h5>
+          <button type="button" class="btn-close" [tabIndex]="-1" data-bs-dismiss="modal" aria-label="Close" data-bs-toggle="tooltip" title="Close modal" aria-label="Close table"[id]="'closeModalBtn'" (click)="toggleReset()"></button>
+        </div>
+        <div class="modal-body">
+            <form [formGroup]="employeeForm">
+                <app-employee-form></app-employee-form>
+            </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal" (click)="toggleReset()">Close</button>
+          <button type="button" class="btn btn-primary" [disabled]="employeeForm.invalid" (click)="onSubmit($event)">Save changes</button>
+        </div>
+      </div>
+    </div>
+</div>

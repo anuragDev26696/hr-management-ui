@@ -5,14 +5,16 @@ import { environment } from '../../environments/environment';
 import { PlatformLocation, isPlatformBrowser  } from '@angular/common';
 import { PLATFORM_ID } from '@angular/core';
 import { APIResponse, ILogin } from '../interfaces/IResponse';
+import { IUserRes } from '../interfaces/IUser';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  private header: HttpHeaders = new HttpHeaders();
+  public header: HttpHeaders = new HttpHeaders();
   private tokenSub: BehaviorSubject<string> = new BehaviorSubject(""); // Get initial value from localstorage if available
   private userId: BehaviorSubject<string> = new BehaviorSubject('');  // assuming 'userId' might be used elsewhere
+  public loggedinUser: BehaviorSubject<IUserRes | null> = new BehaviorSubject<IUserRes | null>(null);
 
   constructor(private http: HttpClient, @Inject(PLATFORM_ID) private platformId: Object,) {
     if (isPlatformBrowser(platformId)) {
@@ -61,24 +63,18 @@ export class AuthService {
   }
 
   public setPassword(req: any): Observable<APIResponse<any>> {
-    return this.http.post<APIResponse<any>>(`${environment.api}auth/setPassword`, req, {headers: this.header}).pipe(map((value) => {
-      console.log(value);
-      this.tokenSub.next('dfaf908asdfa');
-      if (isPlatformBrowser(this.platformId)) {
-        localStorage.setItem('token', this.tokenSub.value);
-        localStorage.setItem('uuid', this.userId.value);
-      }
-      return value;
-    }));
+    return this.http.post<APIResponse<any>>(`${environment.api}auth/setPassword`, req, {headers: this.header});
   }
 
-  public getProfile(): Observable<APIResponse<any>> {
-    return this.http.get<APIResponse<any>>(`${environment.api}user/${this.userId.getValue()}`, {headers: this.header});
+  public getProfile(): Observable<APIResponse<IUserRes>> {
+    this.loggedinUser = new BehaviorSubject<IUserRes | null>(null);
+    return this.http.get<APIResponse<IUserRes>>(`${environment.api}user/${this.userId.getValue()}`, {headers: this.header});
   }
 
   public logout(): void {
     this.tokenSub.next('');
     this.userId.next('');
+    this.loggedinUser.next(null);
     localStorage.clear();
   }
 }

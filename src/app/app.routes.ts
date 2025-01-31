@@ -10,7 +10,6 @@ export const routes: Routes = [
   // },
   {
     path: '',
-    pathMatch: 'full',
     loadComponent: () => import('./components/auth-component/auth.component').then(m => m.AuthComponent),
     canActivate: [authGuard],
     canActivateChild: [authGuard],
@@ -25,7 +24,19 @@ export const routes: Routes = [
       {
         path: 'employees',
         title: 'Employees',
-        loadComponent: () => import('./pages/employee/employee.module').then(m => m.EmployeeModule),
+        loadComponent: () => import('./pages/employees/employees.component').then(m => m.EmployeesComponent),
+        canActivate: [authGuard],
+      },
+      {
+        path: 'departments',
+        title: 'Departments',
+        loadComponent: () => import('./pages/departments/departments.component').then(m => m.DepartmentsComponent),
+        canActivate: [authGuard],
+      },
+      {
+        path: 'leaves',
+        title: 'Leave Requests',
+        loadComponent: () => import('./pages/leaves/leaves.component').then(m => m.LeavesComponent),
         canActivate: [authGuard],
       },
     ]

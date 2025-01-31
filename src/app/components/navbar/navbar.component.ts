@@ -1,6 +1,8 @@
 import { Component, ElementRef } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterLinkWithHref } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { IUserRes } from '../../interfaces/IUser';
+import { BehaviorSubject } from 'rxjs';
 
 @Component({
   selector: 'app-navbar',
@@ -9,22 +11,44 @@ import { AuthService } from '../../services/auth.service';
   styleUrl: './navbar.component.scss'
 })
 export class NavbarComponent {
-  user: any = null;
+  user!: IUserRes;
+  userLoaded: boolean = false;
 
   constructor(private ele: ElementRef, private authServ: AuthService,){
-    ele.nativeElement.className = 'navbar navbar-expand-lg bg-body-tertiary';
+    ele.nativeElement.className = 'navbar navbar-expand-md sticky-top bg-primary';
+    ele.nativeElement.setAttribute('data-bs-theme',  "dark");
     const auth = authServ.currentToken();
     auth().observeToken.subscribe({
       next: (value)=> {
         if (value.trim() !== '') {
           authServ.getProfile().subscribe({
             next: (value)=> {
-              this.user = value;
+              authServ.loggedinUser.next(value.data);
+              localStorage.setItem('uuid', value.data.uuid);
+              localStorage.setItem('role', value.data.role);
+              this.user = value.data;
             },
+            error: (err) => {
+              this.userLoaded = true;
+              const {status, statusText, error} = err;
+              console.log(error.message, " :Error message");
+              if (status === 401 || statusText === '"Unauthorized"' || "TokenExpiredError") {
+                this.authServ.logout();
+                window.location.reload();
+              }
+            },
+            complete: () => {
+              this.userLoaded = true;
+            }
           });
         }
       },
-    })
+    });
   }
 
+  public signout(event: Event): void {
+    event.stopImmediatePropagation();
+    this.authServ.logout();
+    window.location.reload();
+  }
 }
