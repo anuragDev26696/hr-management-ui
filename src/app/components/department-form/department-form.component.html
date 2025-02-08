@@ -19,9 +19,9 @@
 <ng-container [formGroup]="parentController">
     <p class="h6">Sub Departments</p>
     <hr class="">
-    @for (subDepart of subDepartmentArray.controls; track $index) {
-        <div class="row gy-2 {{$index > 0 ? 'mt-3 border-top' : 'mt-0'}}" formArrayName="subDepartments">
-            <ng-container [formGroupName]="$index">
+    <ng-container formArrayName="subDepartments">
+        @for (subDepart of subDepartmentArray.controls; track $index) {
+            <div class="row gy-2 {{$index > 0 ? 'mt-3 border-top' : 'mt-0'}}" [formGroupName]="$index">
                 <div class="col-12 col-sm-7">
                     <label for="departNameCtrl_{{$index}}">Sub-department Name <i class="text-danger">*</i></label>
                     <input type="text" id="departNameCtrl_{{$index}}" class="form-control" formControlName="name" autocomplete="off" [minLength]="3" [maxLength]="40" [attr.aria-describedby]="'departNameFeed_'+$index">
@@ -43,8 +43,8 @@
                         }
                     </div>
                 </div>
-            </ng-container>
-        </div>
-    }
+            </div>
+        }
+    </ng-container>
     <button class="btn btn-primary btn-sm" type="button" (click)="$event.stopImmediatePropagation(); addSubDepartment();">Add Sub-category</button>
 </ng-container>

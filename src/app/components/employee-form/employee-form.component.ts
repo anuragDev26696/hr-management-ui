@@ -15,7 +15,7 @@ export class EmployeeFormComponent implements OnChanges {
   @Input() resetAll: boolean = true;
   parentForm = inject(ControlContainer);
   public departments: Array<DepartmentRes> = [];
-  public supDepartments: Array<SubDepartment> = [];
+  public subDepartments: Array<SubDepartment> = [];
   public departLoaded: boolean = false;
   public get parentController(): FormGroup {return this.parentForm.control as FormGroup;}
   public maxJoinDate: string = '';
@@ -33,7 +33,7 @@ export class EmployeeFormComponent implements OnChanges {
         this.minResignDate = this.todayDate;
       }
       
-      if (this.resignDateCtrl.valid) {
+      if (this.resignDateCtrl.value) {
         this.maxJoinDate = this.shareServ.dateForInput(this.resignDateCtrl.value);
       } else {
         this.maxJoinDate = this.todayDate;
@@ -48,7 +48,7 @@ export class EmployeeFormComponent implements OnChanges {
         if (value) {
           const index = this.departments.findIndex((item) => item.uuid === value);
           if (index > -1) {
-            this.supDepartments = this.departments[index].subDepartments;
+            this.subDepartments = this.departments[index].subDepartments.sort((a,b)=>a.name.localeCompare(b.name));
           }
         }
       },
@@ -75,7 +75,7 @@ export class EmployeeFormComponent implements OnChanges {
     
     this.resignDateCtrl.valueChanges.pipe(debounceTime(300)).subscribe({
       next: (value) => {
-        if (this.resignDateCtrl.valid) {
+        if (value) {
           this.maxJoinDate = this.shareServ.dateForInput(value);
         } else {
           this.maxJoinDate = this.shareServ.dateForInput(new Date());
@@ -90,7 +90,7 @@ export class EmployeeFormComponent implements OnChanges {
   private fetchDepartments(): void {
     this.departServ.searchDepartments({skip: 0, limit: 100}).subscribe({
       next: (value) => {
-        this.departments = value.data.docs;
+        this.departments = value.data.docs.sort((a,b)=> a.name.localeCompare(b.name));
         this.departLoaded = true;
       },
       error: (err) => {

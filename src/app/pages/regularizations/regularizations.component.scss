@@ -1,0 +1,9 @@
+main {height: calc(100dvh - 100px)}
+.table {--bs-table-color: var(--gray-700);}
+.table-group-divider{border-top-color: darkgray}
+.userProfile{font-size: 35px;}
+.cell_name{min-width: 200px; small{max-width: calc(100% - 24px - 3rem);}}
+.cell_details p {min-width: 200px; display: -webkit-box; -webkit-box-orient: vertical; overflow: hidden; -webkit-line-clamp: 2; line-clamp: 2; text-overflow: ellipsis;}
+.cell_created_at, .cell_action{min-width: 100px;}
+// .dropdown-item:not(.active, :active), 
+.dropdown-menu{--bs-dropdown-link-color: rgba(var(--bs-secondary-rgb), 1);}

@@ -30,12 +30,14 @@ export class EmployeesComponent {
   constructor(private shareServ: ShareService, private authServ: AuthService,){
     authServ.loggedinUser.subscribe({
       next: (value) => {
-        if (value?.role !== 'admin') {
-          this.tableColumns = ['sr', 'name', 'designation', 'created At'];
-        }
         this.userRole = value?.role || "";
+        if (this.userRole !== 'admin') {
+          this.tableColumns = ['sr', 'name', 'designation', 'created At'];
+        } else { 
+          this.tableColumns = ['sr', 'name', 'role', 'created At', ''];
+        }
       },
-    })
+    });
   }
 
   ngOnInit(): void {
@@ -97,9 +99,15 @@ export class EmployeesComponent {
     event.stopImmediatePropagation();
     this.formAction = 'update';
     this.employeeForm.patchValue(user);
-    const dateStr = this.shareServ.dateForInput(user.joiningDate);
+    const dateStr = this.shareServ.dateForInput(new Date(user.joiningDate));
     this.employeeForm.controls['joiningDate'].patchValue(dateStr);
     this.employeeId = user.uuid;
+    if(user.isActive){
+      this.employeeForm.controls['resignationDate'].removeValidators([Validators.required]);
+    } else {
+      this.employeeForm.controls['resignationDate'].addValidators([Validators.required]);
+    }
+    this.employeeForm.updateValueAndValidity();
     this.toggleReset();
   }
 
@@ -123,11 +131,11 @@ export class EmployeesComponent {
         this.paginate.skip = this.formAction === 'add' ? 0 : this.paginate.skip;
         this.formAction = 'add';
         this.employeeId = '';
+        this.toggleReset();
         this.employeeForm.reset();
         this.employeeForm.markAsPristine();
         this.employeeForm.updateValueAndValidity();
         this.buildForm();
-        this.toggleReset();
         this.fetchUsers();
       },
       error: (err) => {
@@ -138,16 +146,17 @@ export class EmployeesComponent {
 
   public requestTrash(event: Event, userId: string): void {
     event.stopImmediatePropagation();
+    document.getElementById("clickableItem")?.click();
     const isPermit = window.confirm('Are you sure, you want to delete this User?');
     if(isPermit)
       this.deleteProfile(userId);
   }
 
-  private deleteProfile(departId: string): void {
-    this.shareServ.deleteUser(departId).subscribe({
+  private deleteProfile(userId: string): void {
+    this.shareServ.deleteUser(userId).subscribe({
       next: (value) => {
         if(this.userList.length > 2) {
-          this.userList = this.userList.filter((item) => item.uuid);
+          this.userList = this.userList.filter((item) => item.uuid !== userId);
         } else{
           this.paginate.skip = Math.abs(this.paginate.skip-1);
           this.fetchUsers();

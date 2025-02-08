@@ -1,10 +1,10 @@
-<div class="container-fluid">
-  <a class="navbar-brand" [routerLink]="['/']" [routerLinkActive]="'active'">HR-Management</a>
+<div class="container-fluid" id="headerNav">
   <button class="navbar-toggler border-0 px-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
     <span class="navbar-toggler-icon"></span>
   </button>
+  <a class="navbar-brand" [routerLink]="['/']" [routerLinkActive]="'active'">HR-Management</a>
   <div class="collapse navbar-collapse" id="navbarSupportedContent">
-    <ul class="navbar-nav ms-auto mb-2 gap-lg-3 mb-lg-0">
+    <ul class="navbar-nav ms-auto mb-2 gap-xl-3 mb-lg-0 navbar-nav-scroll">
       <li class="nav-item">
         <a class="nav-link" [routerLink]="['/']" [routerLinkActive]="'active'" [routerLinkActiveOptions]="{exact: true}" aria-current="page">Home</a>
       </li>
@@ -12,13 +12,28 @@
         <a class="nav-link" [routerLink]="['/employees']" [routerLinkActive]="'active'" [routerLinkActiveOptions]="{exact: true}" [ariaCurrentWhenActive]="'page'">Employees</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" [routerLink]="['attendance']" [routerLinkActive]="'active'" [routerLinkActiveOptions]="{exact: true}" [ariaCurrentWhenActive]="'page'">Attendance</a>
-      </li>
-      <li class="nav-item">
         <a class="nav-link" [routerLink]="['leaves']" [routerLinkActive]="'active'" [routerLinkActiveOptions]="{exact: true}" [ariaCurrentWhenActive]="'page'">Leaves</a>
       </li>
-      <li class="nav-item">
-        <a class="nav-link" [routerLink]="['departments']" [routerLinkActive]="'active'" [routerLinkActiveOptions]="{exact: true}" [ariaCurrentWhenActive]="'page'">Departments</a>
+      @if (user && user.role === 'admin') {
+        <li class="nav-item">
+          <a class="nav-link" [routerLink]="['departments']" [routerLinkActive]="'active'" [routerLinkActiveOptions]="{exact: true}" [ariaCurrentWhenActive]="'page'">Departments</a>
+        </li>
+      }
+      <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="javascript:void(0);" role="button" data-bs-toggle="dropdown" aria-expanded="false">Payroll Management</a>
+        <ul class="dropdown-menu dropdown-menu-lg-end border-light shadow rounded-3" data-bs-theme="light">
+          <li><a class="dropdown-item" [routerLink]="['salary-structure']" [routerLinkActive]="'active'" [routerLinkActiveOptions]="{exact: true}" [ariaCurrentWhenActive]="'page'">Salary Structure</a></li>
+          <li><a class="dropdown-item" [routerLink]="['payroll']" [routerLinkActive]="'active'" [routerLinkActiveOptions]="{exact: true}" [ariaCurrentWhenActive]="'page'">Payroll</a></li>
+        </ul>
+      </li>
+      <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="javascript:void(0);" role="button" data-bs-toggle="dropdown" aria-expanded="false">Attendance Management</a>
+        <ul class="dropdown-menu dropdown-menu-lg-end border-light shadow rounded-3" data-bs-theme="light">
+          <li><a class="dropdown-item" [routerLink]="['attendance']" [routerLinkActive]="'active'" [routerLinkActiveOptions]="{exact: true}" [ariaCurrentWhenActive]="'page'">Attendance</a></li>
+          <li><a class="dropdown-item" [routerLink]="['regularizations']" [routerLinkActive]="'active'" [routerLinkActiveOptions]="{exact: true}" [ariaCurrentWhenActive]="'page'">Regularization</a></li>
+          <li><a class="dropdown-item" [routerLink]="['holidays']" [routerLinkActive]="'active'" [routerLinkActiveOptions]="{exact: true}" [ariaCurrentWhenActive]="'page'">Holidays</a></li>
+          <li><a class="dropdown-item" [routerLink]="['calendar']" [routerLinkActive]="'active'" [routerLinkActiveOptions]="{exact: true}" [ariaCurrentWhenActive]="'page'">Calendar</a></li>
+        </ul>
       </li>
     </ul>
   </div>
@@ -33,9 +48,9 @@
           {{user.name}}<br><small class="text-truncate d-block">{{user.email}}</small>
         </div></li>
         <li><hr class="dropdown-divider"></li>
-        <li><a class="dropdown-item" href="#">Menu item</a></li>
-        <li><a class="dropdown-item" href="#">Menu item</a></li>
-        <li><span class="dropdown-item text-danger" role="button" [tabIndex]="-1" (click)="signout($event)">Logout</span></li>
+        <li><a class="dropdown-item" href="#">My Profile</a></li>
+        <li><a class="dropdown-item" href="#">Change Password</a></li>
+        <li><span class="dropdown-item danger-item" role="button" [tabIndex]="-1" (click)="signout($event)">Logout</span></li>
       </ul>
     }
   </div>

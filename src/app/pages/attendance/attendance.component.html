@@ -1,0 +1,66 @@
+<main class="container-xl py-3">
+    <h1 class="visually-hidden">Attendance List</h1>
+    <div class="card shadow border-light">
+        <div class="card-header border-light bg-white d-flex gap-2 align-items-center">
+            <span  class="fs-5 fw-medium">Attendance List <br><small class="small text-secondary fw-normal">{{totalDocs}} Attendance</small></span>
+            <button class="btn btn-primary ms-auto" type="button" (click)="markAttendance($event)"><i class="bi bi-clock"></i>&nbsp; Clock In</button>
+            <button class="btn btn-primary ms-2" type="button" data-bs-target="#regularizationModal" data-bs-toggle="modal">Regularization</button>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover table-sm align-middle">
+                    <thead>
+                        <tr>
+                            @for (item of tableColumns; track $index) {
+                                <th class="text-nowrap {{$first ? '' : 'cell_'+item.trim()}}">{{$first ? '#' : item | titlecase}}</th>
+                            }
+                        </tr>
+                    </thead>
+                    <tbody class="table-group-divider">
+                        @for (department of attendanceList; track department.uuid; let i = $index;) {
+                            <tr>
+                                @for (col of tableColumns; track col; let isFirst = $first;) {
+                                    @if (isFirst) {
+                                        <td class="{{$first ? '' : 'cell_'+col.trim()}}">{{i+1}}</td>
+                                    }
+                                }
+                            </tr>
+                        } @empty {
+                            <td class="text-center" [colSpan]="tableColumns.length">
+                                @if (attendanceLoaded) {
+                                    No attendance available.
+                                } @else {
+                                    <div class="d-flex align-items-center justify-content-center py-3 gap-2">
+                                        <span class="text-muted">Loading...</span>
+                                        <span class="spinner-border spinner-border-sm text-primary-emphasis"></span>
+                                    </div>
+                                }
+                            </td>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Employee Modal -->
+<div class="modal fade" id="regularizationModal" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="modalLabel" aria-hidden="false" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalLabel">Regularization</h5>
+          <button type="button" class="btn-close" [tabIndex]="-1" data-bs-dismiss="modal" aria-label="Close" data-bs-toggle="tooltip" data-bs-title="Close modal" [id]="'closeModalBtn'"></button>
+        </div>
+        <div class="modal-body">
+            <form [formGroup]="regularizationForm">
+                <app-regularization-form></app-regularization-form>
+            </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary" [disabled]="regularizationForm.invalid" (click)="onSubmit($event)">Submit Request</button>
+        </div>
+      </div>
+    </div>
+</div>

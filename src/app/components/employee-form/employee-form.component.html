@@ -31,18 +31,8 @@
         <div class="invalid-feedback" id="roleFeed">Role is required.</div>
     </div>
     <div class="col-12 col-sm-6">
-        <label for="designationCtrl">Designation <i class="text-danger">*</i></label>
-        <input type="string" id="designationCtrl" class="form-control" autocomplete="off" [minLength]="5" [maxLength]="35" formControlName="designation" aria-describedby="designationFeed">
-        <div class="invalid-feedback" id="designationFeed">Designation is required.</div>
-    </div>
-    <div class="col-12 col-sm-6">
-        <label for="positionCtrl">Position <i class="text-danger">*</i></label>
-        <input type="string" id="positionCtrl" class="form-control" autocomplete="off" [minLength]="5" [maxLength]="35" formControlName="position" aria-describedby="positionFeed">
-        <div class="invalid-feedback" id="positionFeed">Position is required.</div>
-    </div>
-    <div class="col-12 col-sm-6">
         <label for="departCtrl">Department <i class="text-danger">*</i></label>
-        <select name="department" id="departCtrl" aria-placeholder="Select" class="form-select" formControlName="department" [required]="true"aria-describedby="departFeed">
+        <select id="departCtrl" aria-placeholder="Select" class="form-select" formControlName="department" [required]="true" aria-describedby="departFeed">
             @for (depart of departments; track depart.code) {
                 <option [value]="depart.uuid">{{depart.name}}</option>
             }
@@ -51,12 +41,22 @@
     </div>
     <div class="col-12 col-sm-6">
         <label for="subdepartmentCtrl">Sub-department <i class="text-danger">*</i></label>
-        <select name="subDepartment" id="subdepartmentCtrl" aria-placeholder="Select" class="form-select" formControlName="subDepartment" [required]="true"aria-describedby="subdepartFeed">
-            @for (item of supDepartments; track item.code) {
+        <select id="subdepartmentCtrl" aria-placeholder="Select" class="form-select" formControlName="subDepartment" [required]="true" aria-describedby="subdepartFeed">
+            @for (item of subDepartments; track item.code) {
                 <option [value]="item.code">{{item.name}}</option>
             }
         </select>
         <div class="invalid-feedback" id="subdepartFeed">Sub department is required.</div>
+    </div>
+    <div class="col-12 col-sm-6">
+        <label for="designationCtrl">Designation <i class="text-danger">*</i></label>
+        <input type="string" id="designationCtrl" class="form-control" autocomplete="off" [minLength]="5" [maxLength]="35" formControlName="designation" aria-describedby="designationFeed">
+        <div class="invalid-feedback" id="designationFeed">Designation is required.</div>
+    </div>
+    <div class="col-12 col-sm-6">
+        <label for="positionCtrl">Position <i class="text-danger">*</i></label>
+        <input type="string" id="positionCtrl" class="form-control" autocomplete="off" [minLength]="5" [maxLength]="35" formControlName="position" aria-describedby="positionFeed">
+        <div class="invalid-feedback" id="positionFeed">Position is required.</div>
     </div>
     <div class="col-12 col-sm-6">
         <label for="joiningCtrl">Joining Date <i class="text-danger">*</i></label>

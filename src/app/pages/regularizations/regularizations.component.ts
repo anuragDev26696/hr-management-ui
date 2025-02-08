@@ -1,0 +1,148 @@
+import { Component } from '@angular/core';
+import { IRegularizationRes, RegularizationStatus } from '../../interfaces/IAttendance';
+import { pagination } from '../../interfaces/IResponse';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ShareService } from '../../services/share.service';
+import { AuthService } from '../../services/auth.service';
+import { AttendanceService } from '../../services/attendance.service';
+import { DatePipe, TitleCasePipe } from '@angular/common';
+import { RegularizationFormComponent } from '../../components/regularization-form/regularization-form.component';
+
+@Component({
+  selector: 'app-regularizations',
+  imports: [ReactiveFormsModule, TitleCasePipe, DatePipe, RegularizationFormComponent],
+  templateUrl: './regularizations.component.html',
+  styleUrl: './regularizations.component.scss'
+})
+export class RegularizationsComponent {
+  requestList: Array<IRegularizationRes> = [];
+  totalDocs: number = 0;
+  isNext: boolean = false;
+  listLoaded: boolean = false;
+  isLoading: boolean = false;
+  paginate: pagination = {skip: 0, limit: 20};
+  tableColumns: Array<string> = ['sr', 'name', 'details', 'created_at', ''];
+  userRole: string = '';
+  userId: string = '';
+  regularizationForm: FormGroup = new FormGroup({});
+
+  constructor(
+    private shareServ: ShareService,
+    private authServ: AuthService,
+    private attendanceServ: AttendanceService,
+  ){
+    authServ.loggedinUser.subscribe({
+      next: (value) => {
+        this.userRole = value?.role || "";
+        this.userId = value?.uuid || "";
+      },
+      complete: () => {
+        if(!this.listLoaded && !this.isLoading && this.userId.trim() !== '') {
+          this.fetchRequestList();
+        }
+      },
+    });
+  }
+
+  ngOnInit(): void {
+    this.buildForm();
+    this.fetchRequestList();
+  }
+  
+  public buildForm(): void {
+    this.regularizationForm = new FormGroup({
+      attendanceDate: new FormControl({value: null, disabled: false}, Validators.required),
+      clockInTime: new FormControl({value: null, disabled: true}, Validators.required),
+      clockOutTime: new FormControl({value: null, disabled: true}, Validators.required),
+      reason: new FormControl({value: null, disabled: false}, [Validators.required, Validators.minLength(20), Validators.maxLength(400)]),
+    });
+  }
+
+  private fetchRequestList(): void {
+    this.isLoading = true;
+    this.listLoaded = false;
+    const subsc = this.userRole === 'admin' ? this.attendanceServ.getRequestList(this.paginate) : this.attendanceServ.getRequestList(this.paginate) ;
+    subsc.subscribe({
+      next: (value)=> {
+        if (Array.isArray(value.data.docs)) {
+          this.requestList = value.data.docs;
+        }
+        this.totalDocs = value.data.totalCount;
+        this.listLoaded = true;
+      },
+      complete: () => {
+        this.isLoading = false;
+      },
+    });
+  }
+
+  public markAttendance(event: Event): void {
+    event.stopImmediatePropagation();
+    if(!event.isTrusted) return;
+    this.attendanceServ.clockin().subscribe({
+      next: (value) => {
+        console.log(value, " :clock in val");
+      },
+      error: (err) => {
+        console.log(err, " :clock in error.");
+      },
+    });
+  }
+
+  public onSubmit(event: Event): void {
+    event.stopImmediatePropagation();
+    if(!event.isTrusted) return;
+    console.log(this.regularizationForm.value);
+    this.attendanceServ.newRegularizationRequest(this.regularizationForm.value).subscribe({
+      next: (value) => {
+        document.getElementById('closeModalBtn')?.click();
+        this.regularizationForm.reset();
+        this.regularizationForm.markAsPristine();
+        this.regularizationForm.updateValueAndValidity();
+        this.buildForm();
+        this.paginate.skip = 0;
+        this.fetchRequestList();
+      },
+      error: (err) => {
+        console.log(err, " :req error");
+      },
+    })
+  }
+  public strToDate(str: string | Date): Date {return new Date(str);}
+
+  public updateStatus(event: Event, uuid: string, status: RegularizationStatus): void {
+    event.stopPropagation();
+    event.preventDefault();
+    document.getElementById("clickableItem")?.click();
+    if (!event.isTrusted) return;
+    this.attendanceServ.changeStatus(uuid, status).subscribe({
+      next: (value) => {
+
+        this.requestList.forEach((item) => {
+          if (item.uuid === uuid) {
+            item.status = value.data.status;
+          }
+        });
+      },
+      error: (err) => {
+        console.log(err, ' error');
+      },
+    });
+  }
+
+  public requestTrash(event: Event, requestUUID: string): void {
+    event.stopImmediatePropagation();
+    document.getElementById("clickableItem")?.click();
+    const isPermit = window.confirm('Are you sure, you want to delete this request?');
+    if(isPermit)
+      this.cancelRequest(requestUUID);
+  }
+
+  private cancelRequest(requestUUID: string): void {
+    this.attendanceServ.deleteRequest(requestUUID).subscribe({
+      next: (value) => {
+        console.log(value);
+      },
+    });
+  }
+}
