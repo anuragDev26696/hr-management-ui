@@ -37,7 +37,7 @@
   -moz-osx-font-smoothing: grayscale;
 }
 *{scrollbar-width: thin;}
-html, body {height: 100%;}
+html, body {height: 100%; background-color: var(--bs-light, #f8f9fa);}
 h1 {
   font-size: 3.125rem;
   color: var(--gray-900);
@@ -139,7 +139,7 @@ a {text-decoration: none; outline: none;}
 .dropdown-item.danger-item{--bs-dropdown-link-color: rgba(var(--bs-danger-rgb), 0.8); --bs-dropdown-link-hover-color: rgba(var(--bs-danger-rgb), 1); --bs-dropdown-link-active-color: #fff; --bs-dropdown-link-active-bg: rgba(var(--bs-danger-rgb), 1);}
 .dropdown-item.success-item{--bs-dropdown-link-color: rgba(var(--bs-success-rgb), 0.8); --bs-dropdown-link-hover-color: rgba(var(--bs-success-rgb), 1); --bs-dropdown-link-active-color: #fff; --bs-dropdown-link-active-bg: rgba(var(--bs-success-rgb), 1);}
 
-main {height: calc(100dvh - 100px)}
+main {min-height: calc(100dvh - 100px)}
 
 // Table styles
 .table {--bs-table-color: var(--gray-700);}
@@ -148,8 +148,8 @@ th{font-weight: 500;}
 .dropdown-menu{--bs-dropdown-link-color: rgba(var(--bs-secondary-rgb), 1);}
 .table tr td:first-child {min-width: 40px;}
 .cell_created{min-width: 100px;}
-.table-responsive{min-height: 300px;}
-.table .dropdown-toggle::after{border-width: 0; margin: 0;}
+.table-responsive{min-height: 300px; max-height: 70dvh;}
+.table .icon-btn.dropdown-toggle::after{border-width: 0; margin: 0;}
 
 @media screen and (max-width: 650px) {
   .divider {

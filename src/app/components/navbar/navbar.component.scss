@@ -1,7 +1,8 @@
-:host{--bs-navbar-toggler-focus-width: 0;}
-.dropdown-toggle::after{border-color: transparent; border: 0; margin-inline: 0;}
-@media screen and (max-width: 768px) {
+:host{--bs-navbar-toggler-focus-width: 0;
+    // --bs-scroll-height: 300px; // Set max height for navbar by default 75vh
+}
+button.dropdown-toggle::after{border-color: transparent; border: 0; margin-inline: 0;}
+@media screen and (max-width: 991px) {
     :host > .container-fluid {justify-content: flex-start; gap: 0.5rem;}
-    .navbar-toggler{order: -1;}
     .navbar-collapse{ order: 1;}
 }

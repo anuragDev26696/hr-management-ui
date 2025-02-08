@@ -1,0 +1,24 @@
+<form [formGroup]="regularizationFrom" class="row g-3">
+    <div class="col-12">
+        <label for="dateCtrl">Attendance Date <i class="text-danger">*</i></label>
+        <input type="date" id="dateCtrl" class="form-control {{inputClass(attendanceDate)}}" [required]="true" formControlName="attendanceDate" [max]="maxDate" aria-describedby="dateFeed">
+        <div class="invalid-feedback" id="dateFeed">Attendance date is required.</div>
+    </div>
+    <div class="col-6">
+        <label for="clockInTime">Clock In Time <i class="text-danger">*</i></label>
+        <input type="datetime-local" id="clockInTime" class="form-control {{inputClass(clockInCtrl)}}" [required]="true" formControlName="clockInTime" [min]="minInTime" [max]="maxInTime" aria-describedby="clockinFeed" />
+        <div class="invalid-feedback" id="clockinFeed">Clock in time is required.</div>
+    </div>
+    <div class="col-6">
+        <label for="clockOutTime">Clock Out Time <i class="text-danger">*</i></label>
+        <input type="datetime-local" id="clockOutTime" class="form-control {{inputClass(clockOutCtrl)}}" [required]="true"  [min]="minOutTime" [max]="maxTime" formControlName="clockOutTime" aria-describedby="clockoutFeed" />
+        <div class="invalid-feedback" id="clockoutFeed">Clock out time is required.</div>
+    </div>
+    <div class="col-12">
+        <label for="reasonCtrl">Reason <i class="text-danger">*</i></label>
+        <textarea name="reason" id="reasonCtrl" class="form-control {{inputClass(reasonCtrl)}}" [required]="true" [rows]="2" formControlName="reason" [maxLength]="400" [minLength]="20" aria-describedby="reasonFeed"></textarea>
+        <div class="invalid-feedback" id="reasonFeed">
+            {{reasonCtrl.hasError('required') ? 'Description is required.' : 'Description should be in 20-400 character\'s.'}}
+        </div>
+    </div>
+</form>

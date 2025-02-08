@@ -1,4 +1,4 @@
-<main class="container-xl py-3 bg-light">
+<main class="container-xl py-3">
     <h1 class="visually-hidden">Employees List</h1>
     <div class="card shadow border-light">
         <div class="card-header border-light bg-white d-flex gap-2 align-items-center">
@@ -44,10 +44,10 @@
                                     } @else {
                                         <td>
                                             <div class="dropdown">
-                                                <button class="btn btn-sm dropdown-toggle border-0 outline-0" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false" [tabIndex]="-1" [attr.aria-controls]="'#userMenu_'+i" aria-label="Options">
+                                                <button class="btn btn-sm icon-btn dropdown-toggle border-0 outline-0" data-bs-toggle="dropdown" aria-expanded="false" [tabIndex]="-1" [attr.aria-controls]="'#userMenu_'+i" aria-label="Options">
                                                     <i class="bi bi-three-dots-vertical"></i>
                                                 </button>
-                                                <ul class="dropdown-menu dropdown-menu-end border-light shadow rounded-3" [id]="'#userMenu_'+i">
+                                                <ul class="dropdown-menu dropdown-menu-end border-light shadow rounded-3" [id]="'userMenu_'+i">
                                                     <li><button class="dropdown-item small" data-bs-toggle="modal" data-bs-target="#employeeModal" (click)="actionUpdate($event, user)">Edit</button></li>
                                                     <li><button class="dropdown-item small">Deactive</button></li>
                                                     <li><button class="dropdown-item small danger-item" (click)="requestTrash($event, user.uuid)">Delete</button></li>
@@ -75,7 +75,7 @@
         </div>
         <div class="modal-body">
             <form [formGroup]="employeeForm">
-                <app-employee-form></app-employee-form>
+                <app-employee-form [resetAll]="requiredReset"></app-employee-form>
             </form>
         </div>
         <div class="modal-footer">

@@ -39,6 +39,18 @@ export const routes: Routes = [
         loadComponent: () => import('./pages/leaves/leaves.component').then(m => m.LeavesComponent),
         canActivate: [authGuard],
       },
+      {
+        path: 'attendance',
+        title: 'Attendance',
+        loadComponent: () => import('./pages/attendance/attendance.component').then(m => m.AttendanceComponent),
+        canActivate: [authGuard],
+      },
+      {
+        path: 'regularizations',
+        title: 'Regularizations',
+        loadComponent: () => import('./pages/regularizations/regularizations.component').then(m => m.RegularizationsComponent),
+        canActivate: [authGuard],
+      },
     ]
   },
   {

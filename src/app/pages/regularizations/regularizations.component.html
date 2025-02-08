@@ -1,0 +1,97 @@
+<main class="container-xl py-3">
+    <h1 class="visually-hidden">Regularizations</h1>
+    <div class="card shadow border-light">
+        <div class="card-header border-light bg-white d-flex gap-2 align-items-center">
+            <span  class="fs-5 fw-medium">Regularizations <br><small class="small text-secondary fw-normal">{{totalDocs}} Requests</small></span>
+            <button class="btn btn-primary ms-auto" type="button" data-bs-toggle="modal" data-bs-target="#regularizationModal"><i class="bi bi-plus"></i> New Request</button>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover table-sm align-middle">
+                    <thead>
+                        <tr>
+                            @for (item of tableColumns; track $index) {
+                                <th class="text-nowrap cell_{{item}}">{{$first ? '#' : item.trim().replaceAll('_', ' ')| titlecase}}</th>
+                            }
+                        </tr>
+                    </thead>
+                    <tbody class="table-group-divider">
+                        @for (request of requestList; track request.uuid; let i = $index;) {
+                            <tr>
+                                @for (col of tableColumns; track col; let isFirst = $first;) {
+                                    @if (isFirst) {
+                                        <td class="cell_{{col}}">{{i+1}}</td>
+                                    } @else if(col === 'name'){
+                                        <td class="cell_{{col}}">
+                                            <span class="float-start text-secondary me-3 mb-1 userProfile"><i class="bi bi-person-circle"></i></span>
+                                            <span class="mb-0">{{request.employeeDetail.name}}</span><br>
+                                            <small class="text-secondary text-truncate d-inline-block">{{request.employeeDetail.position || ''}}</small>
+                                        </td>
+                                    } @else if (col === 'created_at') {
+                                        <td class="cell_{{col}}">
+                                            {{strToDate(request.createdAt) | date}}
+                                        </td>
+                                    } @else if (col === 'details') {
+                                        <td class="cell_{{col}}">
+                                            {{strToDate(request.attendanceDate) | date}} &dash; <span class="badge rounded-pill text-bg-light me-1 mb-1 fw-normal border-secondary text-secondary">{{strToDate(request.clockInTime) | date:'hh:mm a'}} - {{strToDate(request.clockOutTime) | date:'hh:mm a'}}</span> <br>
+                                            <p class="mb-0 small text-muted">{{request.reason}}</p>
+                                        </td>
+                                    } @else {
+                                        <td>
+                                            <div class="btn-group">
+                                                <button class="btn btn-sm btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" [attr.aria-controls]="'actionMenu_'+i">Action</button>
+                                                <ul class="dropdown-menu dropdown-menu-end border-light shadow rounded-3" [id]="'actionMenu_'+i">
+                                                    @if (userRole === 'admin' && request.status === 'Pending') {
+                                                        <li><button class="dropdown-item small success-item" (click)="updateStatus($event, request.uuid, 'Approved')">Accept</button></li>
+                                                        <li><button class="dropdown-item small danger-item" (click)="updateStatus($event, request.uuid, 'Rejected')">Reject</button></li>
+                                                    }
+                                                    @if((userId == request.createdBy) && request.status === 'Pending') {
+                                                        <li><button class="dropdown-item small danger-item" (click)="requestTrash($event, request.uuid)">Delete Request</button></li>
+                                                    }
+                                                </ul>
+                                            </div>
+                                        </td>
+                                    }
+                                }
+                            </tr>
+                        }@empty {
+                            <tr>
+                                <td class="text-center" [colSpan]="tableColumns.length">
+                                    @if (listLoaded) {
+                                        <p class="py-3">Records not found.</p>
+                                    } @else {
+                                        <div class="d-flex align-items-center justify-content-center py-2">
+                                            <strong role="status">Loading...</strong>
+                                            <div class="spinner-border text-primary ms-2" aria-hidden="true"></div>
+                                        </div>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Regularization Modal -->
+<div class="modal fade" id="regularizationModal" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="modalLabel" aria-hidden="false" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalLabel">Regularization</h5>
+          <button type="button" class="btn-close" [tabIndex]="-1" data-bs-dismiss="modal" aria-label="Close" data-bs-toggle="tooltip" data-bs-title="Close modal" [id]="'closeModalBtn'"></button>
+        </div>
+        <div class="modal-body">
+            <form [formGroup]="regularizationForm">
+                <app-regularization-form />
+            </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary" [disabled]="regularizationForm.invalid" (click)="onSubmit($event)">Submit Request</button>
+        </div>
+      </div>
+    </div>
+</div>

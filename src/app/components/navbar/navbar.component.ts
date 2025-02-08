@@ -1,8 +1,7 @@
-import { Component, ElementRef } from '@angular/core';
+import { AfterViewChecked, Component, ElementRef } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterLinkWithHref } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { IUserRes } from '../../interfaces/IUser';
-import { BehaviorSubject } from 'rxjs';
 
 @Component({
   selector: 'app-navbar',
@@ -10,12 +9,12 @@ import { BehaviorSubject } from 'rxjs';
   templateUrl: './navbar.component.html',
   styleUrl: './navbar.component.scss'
 })
-export class NavbarComponent {
+export class NavbarComponent implements AfterViewChecked {
   user!: IUserRes;
   userLoaded: boolean = false;
 
-  constructor(private ele: ElementRef, private authServ: AuthService,){
-    ele.nativeElement.className = 'navbar navbar-expand-md sticky-top bg-primary';
+  constructor(private ele: ElementRef, private authServ: AuthService ){
+    ele.nativeElement.className = 'navbar navbar-expand-lg sticky-top bg-primary';
     ele.nativeElement.setAttribute('data-bs-theme',  "dark");
     const auth = authServ.currentToken();
     auth().observeToken.subscribe({
@@ -43,6 +42,24 @@ export class NavbarComponent {
           });
         }
       },
+    });
+  }
+
+  ngAfterViewChecked(): void {
+    const navLinks = document.querySelectorAll('#headerNav a.nav-link');
+    const navbarToggler = document.querySelector('#headerNav .navbar-toggler');
+    const navbar = document.querySelector('#navbarSupportedContent');
+    navLinks.forEach((e) => {
+      if(!e.classList.contains('dropdown-toggle')){
+        e.addEventListener('click', (ev) => {
+          ev.stopImmediatePropagation();
+          if(window.innerWidth < 992) {
+            navbarToggler?.classList.add('collapsed');
+            navbar?.classList.remove('show');
+          }
+          e.parentNode?.parentElement?.classList.remove('show');
+        });
+      }
     });
   }
 

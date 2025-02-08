@@ -16,6 +16,7 @@ import { DepartmentService } from '../../services/department.service';
 })
 export class DepartmentsComponent {
   departmentList: Array<DepartmentRes> = [];
+  department: DepartmentRes | null = null;
   totalDocs: number = 0;
   isNext: boolean = false;
   listLoaded: boolean = false;
@@ -24,6 +25,7 @@ export class DepartmentsComponent {
   departmentForm: FormGroup = new FormGroup({});
   formAction: 'add' | 'update' = 'add';
   departmentId: string = "";
+  nameRegx: RegExp = /^[a-zA-Z]+([a-zA-Z0-9 ]*[a-zA-Z0-9]+)*$/;
 
   constructor(private shareServ: ShareService, private departmentServ: DepartmentService, private authServ: AuthService,){}
 
@@ -51,16 +53,17 @@ export class DepartmentsComponent {
 
   private buildForm(): void {
     this.departmentForm = new FormGroup({
-      name: new FormControl<string | null>({value: null, disabled: false}, [Validators.required, Validators.minLength(2), Validators.maxLength(35), Validators.pattern(/^[a-zA-Z ]*$/)]),
+      name: new FormControl<string | null>({value: null, disabled: false}, [Validators.required, Validators.minLength(2), Validators.maxLength(35), Validators.pattern(this.nameRegx)]),
       code: new FormControl<string | null>({value: null, disabled: false}, [Validators.required, Validators.minLength(2), Validators.maxLength(10), Validators.pattern(/^[a-zA-Z]+[0-9]*$/)]),
       description: new FormControl<string | null>({value: null, disabled: false}, [Validators.minLength(2), Validators.maxLength(400)]),
-      subDepartments: new FormArray([this.NewSubdepartment]),
+      subDepartments: new FormArray([]),
     });
+    this.subDepartmentArray.push(this.NewSubdepartment);
   }
 
   private get NewSubdepartment(): FormGroup {
     return new FormGroup({
-      name: new FormControl<string | null>({value: null, disabled: false}, [Validators.required, Validators.minLength(2), Validators.maxLength(35), Validators.pattern(/^[a-zA-Z ]*$/)]),
+      name: new FormControl<string | null>({value: null, disabled: false}, [Validators.required, Validators.minLength(2), Validators.maxLength(35), Validators.pattern(this.nameRegx)]),
       code: new FormControl<string | null>({value: null, disabled: false}, [Validators.required, Validators.minLength(2), Validators.maxLength(10), Validators.pattern(/^[a-zA-Z]+[0-9]*$/)]),
       isActive: new FormControl<boolean>({value: true, disabled: false}, Validators.required)
     });
@@ -72,6 +75,7 @@ export class DepartmentsComponent {
   public actionUpdate(event: Event, department: DepartmentRes): void {
     event.stopImmediatePropagation();
     this.formAction = 'update';
+    this.department = department;
     department.subDepartments.forEach((value, i) => {
       if (i > 0) {
         this.subDepartmentArray.push(this.NewSubdepartment);
@@ -79,6 +83,11 @@ export class DepartmentsComponent {
     });
     this.departmentForm.patchValue(department);
     this.departmentId = department.uuid;
+  }
+
+  public submit(event: FormGroup): void {
+    console.log(event.valid);
+    console.log(event.value);
   }
 
   public onSubmit(event: Event): void {
@@ -111,6 +120,7 @@ export class DepartmentsComponent {
 
   public requestTrash(event: Event, departId: string): void {
     event.stopImmediatePropagation();
+    document.getElementById("clickableItem")?.click();
     const isPermit = window.confirm('Are you sure, you want to delete this department?');
     if(isPermit)
       this.deleteDepart(departId);
