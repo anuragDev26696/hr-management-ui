@@ -1,44 +1,138 @@
 <main class="container-xl py-3">
     <h1 class="visually-hidden">Attendance List</h1>
-    <div class="card shadow border-light">
-        <div class="card-header border-light bg-white d-flex gap-2 align-items-center">
-            <span  class="fs-5 fw-medium">Attendance List <br><small class="small text-secondary fw-normal">{{totalDocs}} Attendance</small></span>
-            <button class="btn btn-primary ms-auto" type="button" (click)="markAttendance($event)"><i class="bi bi-clock"></i>&nbsp; Clock In</button>
-            <button class="btn btn-primary ms-2" type="button" data-bs-target="#regularizationModal" data-bs-toggle="modal">Regularization</button>
-        </div>
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-hover table-sm align-middle">
-                    <thead>
-                        <tr>
-                            @for (item of tableColumns; track $index) {
-                                <th class="text-nowrap {{$first ? '' : 'cell_'+item.trim()}}">{{$first ? '#' : item | titlecase}}</th>
-                            }
-                        </tr>
-                    </thead>
-                    <tbody class="table-group-divider">
-                        @for (department of attendanceList; track department.uuid; let i = $index;) {
-                            <tr>
-                                @for (col of tableColumns; track col; let isFirst = $first;) {
-                                    @if (isFirst) {
-                                        <td class="{{$first ? '' : 'cell_'+col.trim()}}">{{i+1}}</td>
+    <div class="row g-3">
+        @if(userRole === 'admin'){
+            <div class="col-12 col-lg-6">
+                <div class="card shadow border-light">
+                    <div class="card-header border-light bg-white d-flex align-items-baseline gap-2">
+                        <span  class="fs-5 fw-medium">Attendance List <br><small class="small text-secondary fw-normal">{{totalDocs}} Attendance</small></span>
+                        <div class="input-group ms-auto">
+                            <input type="date" class="form-control" aria-label="Select date form attendance" [value]="todayDateStr" (change)="selectDate($event)">
+                            <button class="btn btn-primary" id="monthChangeBtn" (click)="this.fetchAttendance(this.todayDateStr)">Search</button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover table-sm align-middle">
+                                <thead>
+                                    <tr>
+                                        @for (item of tableColumns; track $index) {
+                                            <th class="text-nowrap {{$first ? '' : 'cell_'+item.trim()}}">{{$first ? '#' : item.trim().replaceAll('_', ' ')| titlecase}}</th>
+                                        }
+                                    </tr>
+                                </thead>
+                                <tbody class="table-group-divider">
+                                    @for (item of attendanceList; track item; let i = $index;) {
+                                        <tr>
+                                            @for (col of tableColumns; track col; let isFirst = $first;) {
+                                                @if (isFirst) {
+                                                    <td class="{{$first ? '' : 'cell_'+col.trim()}}">{{i+1}}</td>
+                                                } @else if (col === 'employee') {
+                                                    <td [class]="'cell_'+col.trim()">
+                                                        <app-profile-tile>
+                                                            <profile-image icon="bi bi-person-circle text-muted"></profile-image>
+                                                            <profile-title>{{item.employeeName}}</profile-title>
+                                                            <profile-subtitle>{{item.employeePosition}}</profile-subtitle>
+                                                        </app-profile-tile>
+                                                    </td>
+                                                } @else if(col === 'clock_in') {
+                                                    <td [class]="'cell_'+col.trim()">
+                                                        @for (clockItem of item.attendance; track clockItem.clockOutTime) {
+                                                            <span class="badge rounded-pill text-bg-light text-secondary me-1 mb-1 fw-medium">{{clockItem.clockInTime | date:'hh:mm a'}}
+                                                                @if(clockItem.clockOutTime != null){
+                                                                    &dash; {{clockItem.clockOutTime | date:'hh:mm a'}}
+                                                                }
+                                                            </span>
+                                                        }
+                                                    </td>
+                                                } @else if(col === 'working_hours') {
+                                                    <td [class]="'cell_'+col.trim()">
+                                                        {{workingHour(item)}}
+                                                    </td>
+                                                } @else {
+                                                    <td [class]="'cell_'+col.trim()">
+                                                        <span class="{{item.status === 'Present' ? 'text-success' : 'text-warning'}} fw-meium small">{{item.status}}</span>
+                                                    </td>
+                                                }
+                                            }
+                                        </tr>
+                                    } @empty {
+                                        <td class="text-center" [colSpan]="tableColumns.length">
+                                            @if (attendanceLoaded) {
+                                                No attendance available.
+                                            } @else {
+                                                <div class="d-flex align-items-center justify-content-center py-3 gap-2">
+                                                    <span class="text-muted">Loading...</span>
+                                                    <span class="spinner-border spinner-border-sm text-primary-emphasis"></span>
+                                                </div>
+                                            }
+                                        </td>
                                     }
-                                }
-                            </tr>
-                        } @empty {
-                            <td class="text-center" [colSpan]="tableColumns.length">
-                                @if (attendanceLoaded) {
-                                    No attendance available.
-                                } @else {
-                                    <div class="d-flex align-items-center justify-content-center py-3 gap-2">
-                                        <span class="text-muted">Loading...</span>
-                                        <span class="spinner-border spinner-border-sm text-primary-emphasis"></span>
-                                    </div>
-                                }
-                            </td>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <nav class="pe-3" aria-label="Daily attendance navigation">
+                        <ul class="pagination pagination-sm justify-content-end">
+                          <li class="page-item" [class.disabled]="paginate.skip < 1">
+                            <a class="page-link" type="button" [tabindex]="-1">Previous</a>
+                          </li>
+                          <li class="page-item" [class.disabled]="!isNext">
+                            <a class="page-link" href="#" type="button" [tabindex]="-1">Next</a>
+                          </li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        }
+        <div class="col-12 col-lg-6">
+            <div class="card shadow border-light">
+                <div class="card-header border-light bg-white gap-2 d-flex flex-wrap align-items-center">
+                    <span  class="fs-5 fw-medium">Your month attendance</span>
+                    <div class="ms-auto">
+                        <input type="month" class="form-control" aria-label="Select month of attendance" [value]="todayStr" [max]="maxMonthYear" required (change)="selectMonth($event)">
+                        <!-- <button class="btn btn-primary" id="monthChangeBtn">Search</button> -->
+                    </div>
+                    <div class="d-flex gap-2 align-items-center">
+                        @if (clockinData | async) {
+                            <!-- Template: attendance.component.html -->
+                            <div class="clock-container fw-medium fs-4 overflow-hidden text-secondary">
+                                <!-- Hours -->
+                                <span [class]="workingTime.seconds === 0 && workingTime.minutes === 0 ? 'slide-down digit' : 'digit'">
+                                {{ workingTime.hours < 10 ? '0' + workingTime.hours : workingTime.hours }}
+                                </span> :
+                                <!-- Minutes -->
+                                <span [class]="workingTime.seconds === 0 ? 'slide-down digit' : 'digit'">
+                                    {{ workingTime.minutes < 10 ? '0' + workingTime.minutes : workingTime.minutes }}
+                                </span> :
+                                <!-- Seconds -->
+                                <span [className]="['slide-down digit second']">
+                                {{ workingTime.seconds < 10 ? '0' + workingTime.seconds : workingTime.seconds }}
+                                </span>
+                            </div>
+                            <button class="btn btn-primary ms-auto" type="button" (click)="clockOut($event)"><i class="bi bi-clock"></i>&nbsp; Clock Out</button>
+                        } @else if(clockinLoaded) {
+                            <button class="btn btn-primary ms-auto" type="button" (click)="markAttendance($event)"><i class="bi bi-clock"></i>&nbsp; Clock In</button>
                         }
-                    </tbody>
-                </table>
+                        <button class="btn btn-primary" type="button" data-bs-target="#regularizationModal" data-bs-toggle="modal">Regularization</button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        @for (item of monthAttendance; track item._id) {
+                            <div class="card mb-2 border-light-subtle">
+                                <div class="card-header bg-success-subtle text-success-emphasis border-success-subtle">
+                                    <span class="card-title fs-5 fw-medium">{{(item.date) | date}}</span>
+                                </div>
+                                <div class="card-body">
+                                    <span class="float-end fw-medium text-muted">Working hours: {{formatInTime(item.totalHours)}}</span>
+                                    <p class="mb-0 fs-6">Clock In: <small>{{item.clockInTime | date:'hh:mm a'}}</small></p>
+                                    <p class="mb-0 fs-6">Clock Out: <small>{{item.clockOutTime | date:'hh:mm a'}}</small></p>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
             </div>
         </div>
     </div>

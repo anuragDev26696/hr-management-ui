@@ -2,15 +2,17 @@ import { Component } from '@angular/core';
 import { ShareService } from '../../services/share.service';
 import { AuthService } from '../../services/auth.service';
 import { pagination } from '../../interfaces/IResponse';
-import { DatePipe, TitleCasePipe } from '@angular/common';
+import { DatePipe, NgTemplateOutlet, TitleCasePipe } from '@angular/common';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { debounceTime } from 'rxjs';
 import { IUserRes } from '../../interfaces/IUser';
 import { EmployeeFormComponent } from '../../components/employee-form/employee-form.component';
+import { ProfileTileModule } from '../../components/profile-tile/profile-tile.module';
+import { ToastService } from '../../services/toast.service';
 
 @Component({
   selector: 'app-employees',
-  imports: [TitleCasePipe, DatePipe, EmployeeFormComponent, ReactiveFormsModule],
+  imports: [TitleCasePipe, DatePipe, EmployeeFormComponent, ReactiveFormsModule, ProfileTileModule, NgTemplateOutlet],
   templateUrl: './employees.component.html',
   styleUrl: './employees.component.scss'
 })
@@ -26,8 +28,9 @@ export class EmployeesComponent {
   employeeId: string = "";
   requiredReset: boolean = false;
   userRole: string = '';
+  filterStatus: null | boolean = null;
 
-  constructor(private shareServ: ShareService, private authServ: AuthService,){
+  constructor(private shareServ: ShareService, private authServ: AuthService, private toast: ToastService,){
     authServ.loggedinUser.subscribe({
       next: (value) => {
         this.userRole = value?.role || "";
@@ -45,10 +48,9 @@ export class EmployeesComponent {
     this.buildForm();
   }
 
-  private fetchUsers(): void {
+  private fetchUsers(status: null | boolean = null): void {
     this.listLoaded = false;
-    this.listLoaded = true;
-    this.shareServ.getUsers(this.paginate, "").subscribe({
+    this.shareServ.getUsers(this.paginate, "", "", status).subscribe({
       next: (value) => {
         this.userList = value.data.docs;
         this.totalDocs = value.data.total;
@@ -57,8 +59,8 @@ export class EmployeesComponent {
       },
       error: (err) => {
         const {status, statusText, error} = err;
-        console.log(error.message, " :Error message");
         this.listLoaded = true;
+        this.toast.error(error);
       },
     });
   }
@@ -127,6 +129,7 @@ export class EmployeesComponent {
     subscriber.subscribe({
       next: (value) => {
         console.log(value);
+        this.toast.success(value.message);
         document.getElementById('closeModalBtn')?.click();
         this.paginate.skip = this.formAction === 'add' ? 0 : this.paginate.skip;
         this.formAction = 'add';
@@ -140,6 +143,7 @@ export class EmployeesComponent {
       },
       error: (err) => {
         console.log(err, " :error");
+        this.toast.error(err.error || err.message);
       },
     });
   }
@@ -155,6 +159,7 @@ export class EmployeesComponent {
   private deleteProfile(userId: string): void {
     this.shareServ.deleteUser(userId).subscribe({
       next: (value) => {
+        this.toast.success(value.message);
         if(this.userList.length > 2) {
           this.userList = this.userList.filter((item) => item.uuid !== userId);
         } else{
@@ -162,6 +167,19 @@ export class EmployeesComponent {
           this.fetchUsers();
         }
       },
+      error: (err) => {
+        this.toast.error(err.error.error || err.error.message || err.error);
+      },
     });
+  }
+
+  public filterByStatus(event: Event, status: null|boolean): void {
+    if(!event.isTrusted)return;
+    event.stopImmediatePropagation();
+    this.listLoaded = false;
+    document.getElementById("clickableItem")?.click();
+    this.filterStatus = status;
+    console.log(this.filterStatus);
+    this.fetchUsers(status);
   }
 }

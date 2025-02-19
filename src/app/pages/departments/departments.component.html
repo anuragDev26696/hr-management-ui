@@ -39,12 +39,12 @@
                                     } @else {
                                         <td class="{{$first ? '' : 'cell_'+col.trim()}}">
                                             <div class="dropdown">
-                                                <button class="btn btn-sm dropdown-toggle border-0 outline-0" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false" [tabIndex]="-1" [attr.aria-controls]="'#userMenu_'+i" aria-label="Options">
+                                                <button class="btn btn-sm icon-btn dropdown-toggle border-0 outline-0 rounded-5 btn-light" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false" [tabIndex]="-1" [attr.aria-controls]="'#userMenu_'+i" aria-label="Options">
                                                     <i class="bi bi-three-dots-vertical"></i>
                                                 </button>
                                                 <ul class="dropdown-menu dropdown-menu-end border-light shadow rounded-3" [id]="'#userMenu_'+i">
                                                     <li><button class="dropdown-item small" data-bs-toggle="modal" data-bs-target="#departmentModal" (click)="actionUpdate($event, department)">Edit</button></li>
-                                                    <li><button class="dropdown-item small">Deactive</button></li>
+                                                    <!-- <li><button class="dropdown-item small">Deactive</button></li> -->
                                                     <li><button class="dropdown-item small danger-item" (click)="requestTrash($event, department.uuid)">Delete</button></li>
                                                 </ul>
                                             </div>

@@ -3,11 +3,13 @@ import { Subject } from 'rxjs';
 
 export interface Toast {
   message: string;
-  type: 'success' | 'error' | 'warning' | 'normal';
-  placement: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' | 'top-center' | 'bottom-center';
+  type: toastType;
+  placement: toastPlacement;
   autoHide: boolean;
   timeout?: number; // Auto-hide timeout in ms
 }
+export type toastType = 'success' | 'error' | 'warning' | 'normal';
+export type toastPlacement = 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' | 'top-center' | 'bottom-center';
 
 @Injectable({
   providedIn: 'root',
@@ -24,7 +26,7 @@ export class ToastService {
   }
 
   // Add a new toast
-  showToast(message: string, type: 'success' | 'error' | 'warning' | 'normal', placement: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' | 'top-center' | 'bottom-center', autoHide: boolean = true, timeout: number = 3000) {
+  protected showToast(message: string, type: toastType, placement: toastPlacement, autoHide: boolean = true, timeout: number = 10000) {
     const newToast: Toast = {
       message,
       type,
@@ -46,5 +48,18 @@ export class ToastService {
   private removeToast(toast: Toast) {
     this.toasts = this.toasts.filter(t => t !== toast);
     this.toastSubject.next([...this.toasts]);
+  }
+
+  public success(message: string, autoHide: boolean = true): void {
+    this.showToast(message, "success", "bottom-left", autoHide);
+  }
+  public error(message: string, autoHide: boolean = true): void {
+    this.showToast(message, "error", "bottom-left", autoHide);
+  }
+  public warning(message: string, autoHide: boolean = true): void {
+    this.showToast(message, "warning", "bottom-left", autoHide);
+  }
+  public show(message: string, autoHide: boolean = true): void {
+    this.showToast(message, "normal", "bottom-left", autoHide);
   }
 }

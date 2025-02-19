@@ -4,7 +4,8 @@
         <div class="card-header border-light bg-white d-flex gap-2 align-items-center">
             <span  class="fs-5 fw-medium">Employee List <br><small class="small text-secondary fw-normal">{{totalDocs}} Emplloyees</small></span>
             @if (userRole === 'admin') {
-                <button class="btn btn-primary ms-auto" type="button" data-bs-toggle="modal" data-bs-target="#employeeModal" (click)="formAction = 'add'" (click)="toggleReset()"><i class="bi bi-plus"></i> Add Employee</button>
+                <ng-container [ngTemplateOutlet]="statusFilter"></ng-container>
+                <button class="btn btn-primary ms-1" type="button" data-bs-toggle="modal" data-bs-target="#employeeModal" (click)="formAction = 'add'" (click)="toggleReset()" [tabIndex]="0"><i class="bi bi-plus"></i> Add Employee</button>
             }
         </div>
         <div class="card-body">
@@ -25,9 +26,14 @@
                                         <td>{{i+1}}</td>
                                     } @else if(col === 'name'){
                                         <td>
-                                            <span class="float-start me-3 mb-1"><i class="bi bi-person-circle fs-2"></i></span>
+                                            <app-profile-tile>
+                                                <profile-image [showStatus]="true" [status]="user.isActive ? 'success' : 'danger'" icon="bi bi-person-circle text-muted"/>
+                                                <profile-title>{{user.name}}</profile-title>
+                                                <profile-subtitle>{{user.email}}</profile-subtitle>
+                                            </app-profile-tile>
+                                            <!-- <span class="float-start me-3 mb-1"><i class=""></i></span>
                                             <span class="mb-0">{{user.name}}</span><br>
-                                            <small class="text-secondary">{{user.email}}</small>
+                                            <small class="text-secondary">{{user.email}}</small> -->
                                         </td>
                                     } @else if (col === 'role') {
                                         <td>
@@ -38,18 +44,17 @@
                                             <small>{{user.designation | titlecase}}</small>
                                         </td>
                                     } @else if (col === 'created At') {
-                                        <td>
+                                        <td class="text-truncate">
                                             {{strToDate(user.createdAt) | date}}
                                         </td>
                                     } @else {
                                         <td>
                                             <div class="dropdown">
-                                                <button class="btn btn-sm icon-btn dropdown-toggle border-0 outline-0" data-bs-toggle="dropdown" aria-expanded="false" [tabIndex]="-1" [attr.aria-controls]="'#userMenu_'+i" aria-label="Options">
+                                                <button class="btn btn-sm icon-btn dropdown-toggle border-0 outline-0 rounded-5 btn-light" data-bs-toggle="dropdown" aria-expanded="false" [tabIndex]="-1" [attr.aria-controls]="'#userMenu_'+i" aria-label="Options">
                                                     <i class="bi bi-three-dots-vertical"></i>
                                                 </button>
                                                 <ul class="dropdown-menu dropdown-menu-end border-light shadow rounded-3" [id]="'userMenu_'+i">
                                                     <li><button class="dropdown-item small" data-bs-toggle="modal" data-bs-target="#employeeModal" (click)="actionUpdate($event, user)">Edit</button></li>
-                                                    <li><button class="dropdown-item small">Deactive</button></li>
                                                     <li><button class="dropdown-item small danger-item" (click)="requestTrash($event, user.uuid)">Delete</button></li>
                                                 </ul>
                                             </div>
@@ -64,6 +69,16 @@
         </div>
     </div>
 </main>
+<ng-template #statusFilter>
+    <div class="btn-group ms-auto">
+        <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-controls="statusMenu">{{filterStatus === null ? 'ALL' : filterStatus === true ? 'Active' : 'In Active'}}</button>
+        <ul class="dropdown-menu dropdown-menu-end border-light shadow rounded-3" id="statusMenu">
+            <li><button class="dropdown-item small" (click)="filterByStatus($event, null)">All</button></li>
+            <li><button class="dropdown-item small" (click)="filterByStatus($event, true)">Active</button></li>
+            <li><button class="dropdown-item small" (click)="filterByStatus($event, false)">In Active</button></li>
+        </ul>
+    </div>
+</ng-template>
 
 <!-- Employee Modal -->
 <div class="modal fade" id="employeeModal" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="modalLabel" aria-hidden="true" tabindex="-1">

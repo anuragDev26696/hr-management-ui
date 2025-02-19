@@ -1,1 +1,8 @@
 .cell_leave_days{min-width: 200px;} .cell_applied_at{min-width: 100px;}
+@media screen and (min-width: 768px) {
+    tr{position: relative;}
+    .table-sm .action-btns{padding: 0.25rem;}
+    .table .action-btns{padding: 0.5rem;}
+    .action-btns{position: absolute; opacity: 0; display: none; visibility: hidden; align-items: center; justify-content: flex-end; inset: 0.25rem; z-index: 1; max-width: fit-content; right: 0; left: auto; backdrop-filter: blur(100px); background-color: #ececec;}
+    tr:hover .action-btns{opacity: 1; display: flex; visibility: visible; transition: opacity 0.3s ease, all 0.5s ease;}
+}

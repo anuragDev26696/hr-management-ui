@@ -1,7 +1,7 @@
 <div class="row gy-2 hasValidate" [formGroup]="parentController">
     <div class="col-12 col-sm-6 col-lg-7">
         <label for="nameCtrl">Full Name <i class="text-danger">*</i></label>
-        <input type="text" id="nameCtrl" class="form-control" formControlName="name" autocomplete="username" [minLength]="2" [maxLength]="35" aria-describedby="nameFeed">
+        <input type="text" id="nameCtrl" class="form-control" formControlName="name" autocomplete="username" [minLength]="2" [maxLength]="35" aria-describedby="nameFeed" [tabIndex]="0" [autofocus]="true">
         <div class="invalid-feedback" id="nameFeed">Name is required.</div>
     </div>
     <div class="col-12 col-sm-6 col-lg-5">
@@ -14,7 +14,7 @@
         <input type="tel" id="mobileCtrl" class="form-control" formControlName="mobile" autocomplete="mobile" [minLength]="10" [maxLength]="10" aria-describedby="mobileFeed">
         <div class="invalid-feedback" id="mobileFeed">Mobile number is required.</div>
     </div>
-    <div class="col-12 col-sm-6 col-md-4">
+    <div class="col col-md-4">
         <label for="generCtrl">Gender <i class="text-danger">*</i></label>
         <select name="gender" id="generCtrl" aria-placeholder="Select" class="form-select" formControlName="gender" [required]="true" aria-describedby="genderFeed">
             <option value="Male">Male</option>
@@ -22,7 +22,7 @@
         </select>
         <div class="invalid-feedback" id="genderFeed">Gender is required.</div>
     </div>
-    <div class="col-12 col-sm-6 col-md-4">
+    <div class="col col-md-4">
         <label for="roleCtrl">Role <i class="text-danger">*</i></label>
         <select name="role" id="roleCtrl" aria-placeholder="Select" class="form-select" formControlName="role" [required]="true"aria-describedby="roleFeed">
             <option value="hr">HR</option>

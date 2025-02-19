@@ -34,13 +34,16 @@ export class LeavesComponent {
     this.employeeId = auth().userId;
     this.authServ.loggedinUser.subscribe({
       next: (value) => {
+        console.log(value);
         this.userRole = value?.role || '';
+        if(this.userRole.trim() !== '') this.fetchRequests();
+      },
+      complete: () => {
       },
     })
   }
   
   ngOnInit(): void {
-    this.fetchRequests();
     this.buildForm();
   }
   
@@ -175,12 +178,8 @@ export class LeavesComponent {
   private cancelRequest(leaveUUID: string): void {
     this.leaveServ.cancelLeave(leaveUUID).subscribe({
       next: (value) => {
-        if(this.leaveList.length > 2) {
-          this.leaveList = this.leaveList.filter((item) => item.uuid);
-        } else{
-          this.paginate.skip = Math.abs(this.paginate.skip-1);
-          this.fetchRequests();
-        }
+        this.paginate.skip = Math.abs(this.paginate.skip-1);
+        this.fetchRequests();
         this.selectedLeaves = [];
       },
     });

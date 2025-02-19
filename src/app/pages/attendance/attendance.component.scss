@@ -1,0 +1,22 @@
+.clock-container { display: flex; align-items: center; transition: transform 0.5s ease-in-out; width: 90px; filter: drop-shadow(2px 5px 10px gray);}
+.digit.slide { animation: slideDown 0.5s ease-in-out; }
+
+/* Slide-down animation */
+@keyframes slideDown {
+  0%, 20% { transform: translateY(-100%); }
+  50% { transform: translateY(0); }
+}
+
+.input-group{max-width: 230px;}
+/* Apply slide down when the digit changes */
+.slide-down {
+  animation-name: slideDown;
+  animation-duration: 0.5s;
+  animation-direction: alternate;
+  animation-timing-function: ease-in-out;
+  animation-timeline: initial;
+  animation-iteration-count: 1; 
+  animation-fill-mode: both;
+}
+.second.slide-down{animation-iteration-count: infinite;}
+input[type="month"]::-ms-clear, input[type="month"]::-webkit-clear-button { display: none; width: 0; height: 0; }
