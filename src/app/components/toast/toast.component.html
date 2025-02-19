@@ -1,9 +1,9 @@
 <div aria-live="polite" aria-atomic="true" class="position-relative">
-    <div class="toast-container px-3 pb-3" [class]="placementClass">
+    <div class="toast-container position-fixed" id="toastPlacement" [class]="placementClass">
       <!-- Displaying all toasts dynamically -->
        
         @for (toast of toasts; track $index) {
-        <div class="toast" [class]="getToastClass(toast).toast" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast show me-2" [class]="getToastClass(toast).toast" role="alert" aria-live="assertive" aria-atomic="true" [attr.data-bs-autohide]="toast.autoHide" [attr.data-bs-delay]="toast.timeout">
             <div class="d-flex">
                 <div class="toast-body">
                 {{ toast.message }}
@@ -20,7 +20,7 @@
     <!-- - `.toast-container` for spacing between toasts -->
     <!-- - `top-0` & `end-0` to position the toasts in the upper right corner -->
     <!-- - `.p-3` to prevent the toasts from sticking to the edge of the container  -->
-    <div class="toast-container bottom-0 end-0 px-3 pb-3">
+    <div class="toast-container position-fixed bottom-0 end-0 px-3 pb-3">
         <!-- Then put toasts within -->
         <!-- <div class="toast" role="alert" aria-live="assertive" aria-atomic="true">
           <div class="toast-header">
@@ -40,7 +40,7 @@
                   <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
               </div>
           </div> -->
-        <div role="alert" aria-live="assertive" aria-atomic="true" class="toast show text-bg-primary border-primary" data-bs-autohide="false">
+        <div role="alert" aria-live="assertive" aria-atomic="true" class="toast text-bg-primary border-primary" data-bs-autohide="false">
             <div class="d-flex">
                 <div class="toast-body">
                     Hello, world! This is a toast message.

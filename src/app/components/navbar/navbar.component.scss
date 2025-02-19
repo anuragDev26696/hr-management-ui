@@ -3,6 +3,6 @@
 }
 button.dropdown-toggle::after{border-color: transparent; border: 0; margin-inline: 0;}
 @media screen and (max-width: 991px) {
-    :host > .container-fluid {justify-content: flex-start; gap: 0.5rem;}
+    :host > .container-fluid {justify-content: flex-start;}
     .navbar-collapse{ order: 1;}
 }

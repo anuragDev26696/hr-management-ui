@@ -2,6 +2,7 @@ import { Component, inject } from '@angular/core';
 import { AuthService } from '../../services/auth.service';
 import { FormsModule, ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { ToastService } from '../../services/toast.service';
 
 @Component({
   selector: 'app-login',
@@ -18,6 +19,7 @@ export class LoginComponent {
   public showPassword: boolean = false;
   auth = inject(AuthService);
   router = inject(Router);
+  toastr = inject(ToastService);
 
   constructor(){}
 
@@ -29,6 +31,7 @@ export class LoginComponent {
     this.loginForm.disable();
     this.auth.login(this.loginForm.value).subscribe({
       next: (value) => {
+        this.toastr.success(value.message || 'Login successfull');
         this.loginForm.reset();
         this.loginForm.markAsPristine();
         this.loginForm.updateValueAndValidity();
@@ -37,8 +40,10 @@ export class LoginComponent {
       error: (err) => {
         const {error, message} = err.error;
         if(error && error === 'NO_PASSWORD') {
+          this.toastr.warning(error);
           this.router.navigate(['set-password']);
         }
+        this.toastr.error(error || message || 'Something went wrong');
         console.log(err.message);
         this.loginForm.enable();
       },

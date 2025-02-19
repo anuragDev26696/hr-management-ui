@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { AuthService } from './auth.service';
-import { Observable } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { APIResponse, pagination } from '../interfaces/IResponse';
 import { AttendanceStatus, IAttendance, IAttendanceList, IRegularizationList, IRegularizationReq, IRegularizationRes, RegularizationStatus } from '../interfaces/IAttendance';
 import { environment } from '../../environments/environment';
@@ -10,6 +10,7 @@ import { environment } from '../../environments/environment';
   providedIn: 'root'
 })
 export class AttendanceService {
+  lastClockin = new BehaviorSubject<IAttendance | null>(null);
 
   constructor(private http: HttpClient, private authServ: AuthService,) { }
 
@@ -23,8 +24,16 @@ export class AttendanceService {
   }
   
   public clockout(): Observable<APIResponse<IAttendance>> {
-    return this.http.patch<APIResponse<IAttendance>>(`${environment.api}attendance/clockout`,
+    return this.http.put<APIResponse<IAttendance>>(`${environment.api}attendance/clockout`,
       {},
+      {
+        headers: this.authServ.header
+      }
+    );
+  }
+  
+  public latestAttendance(): Observable<APIResponse<IAttendance>> {
+    return this.http.get<APIResponse<IAttendance>>(`${environment.api}attendance/latest-clockin`,
       {
         headers: this.authServ.header
       }
@@ -52,8 +61,8 @@ export class AttendanceService {
     );
   }
 
-  public monthAttendance(month: Number, year: Number): Observable<APIResponse<IAttendanceList>> {
-    return this.http.get<APIResponse<IAttendanceList>>(`${environment.api}attendance/monthAttendance/${month}/${year}`,
+  public monthAttendance(month: Number, year: Number): Observable<APIResponse<IAttendance[]>> {
+    return this.http.get<APIResponse<IAttendance[]>>(`${environment.api}attendance/month/${month}/${year}`,
       {
         headers: this.authServ.header
       }
@@ -81,5 +90,17 @@ export class AttendanceService {
     return this.http.delete<APIResponse<IRegularizationReq>>(`${environment.api}regularization/${requestId}`,
       {headers: this.authServ.header},
     );
+  }
+  
+  // Method to calculate the working time
+  calculateWorkingTime(clockInTime: Date): { hours: number, minutes: number, seconds: number } {
+    const currentTime = new Date();
+    const differenceInMilliseconds = currentTime.getTime() - new Date(clockInTime).getTime();
+
+    const hours = Math.floor(differenceInMilliseconds / (1000 * 60 * 60)); // Hours
+    const minutes = Math.floor((differenceInMilliseconds % (1000 * 60 * 60)) / (1000 * 60)); // Minutes
+    const seconds = Math.floor((differenceInMilliseconds % (1000 * 60)) / 1000); // Seconds
+
+    return { hours, minutes, seconds };
   }
 }

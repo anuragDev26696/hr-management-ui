@@ -7,6 +7,8 @@ export interface IAttendance extends IGeneric {
   status: AttendanceStatus;
   totalHours: number; // Total worked hours in a day
   date: Date;
+  employeeName: string;
+  employeePosition: string;
 }
 export type AttendanceStatus = "Present" | "Absent" | "Leave";
 export interface IAttendanceList {
@@ -34,4 +36,17 @@ export type RegularizationStatus = "Pending" | "Approved" | "Rejected";
 export interface IRegularizationList {
   docs: Array<IRegularizationRes>;
   totalCount: number;
+}
+
+export interface CompressAttendance {
+  employeeId: String,
+  employeeName: string,
+  employeePosition: string,
+  date: string,
+  status: AttendanceStatus,
+  attendance: Array<{
+    clockInTime: Date,
+    clockOutTime: Date | null,
+    totalHours: number,
+  }>
 }

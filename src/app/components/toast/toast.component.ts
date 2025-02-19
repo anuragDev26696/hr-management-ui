@@ -9,7 +9,7 @@ import { Toast, ToastService } from '../../services/toast.service';
 })
 export class ToastComponent implements OnInit {
   toasts: Toast[] = [];
-  placementClass: string = 'top-0 end-0';
+  placementClass: string = 'bottom-0 end-0';
 
   constructor(private toastService: ToastService, private ele: ElementRef) {}
 

@@ -3,7 +3,7 @@
     <div class="card shadow border-light">
         <div class="card-header border-light bg-white d-flex gap-2 align-items-center">
             <span  class="fs-5 fw-medium">Request List <br><small class="small text-secondary fw-normal">{{totalDocs}} Requests</small></span>
-            <button class="btn btn-primary ms-auto" type="button" data-bs-toggle="modal" data-bs-target="#leaveFormModal" (click)="formAction = 'apply'"><i class="bi bi-plus"></i> Apply Leave</button>
+            <button class="btn btn-primary shadow ms-auto" type="button" data-bs-toggle="modal" data-bs-target="#leaveFormModal" (click)="formAction = 'apply'"><i class="bi bi-plus"></i> Apply Leave</button>
         </div>
         <div class="card-body">
             @if (selectedLeaves.length > 0 && userRole === 'admin') {
@@ -31,7 +31,7 @@
                     </thead>
                     <tbody class="table-group-divider">
                         @for (item of leaveList; track (item.uuid+'_'+i); let i = $index;) {
-                            <tr>
+                            <tr (mouseenter)="trDetail.classList.remove('d-none')" (mouseleave)="trDetail.classList.add('d-none')">
                                 @for (col of tableColumns; track col; let isFirst = $first;) {
                                     @if (isFirst) {
                                         <td class="{{$first ? '' : 'cell_'+col.trim()}}">
@@ -49,7 +49,7 @@
                                             <span class="badge rounded-pill text-bg-light border-secondary text-secondary">{{item.employeePosition}}</span>
                                         </td>
                                     } @else if (col === 'leave_days') {
-                                        <td class="{{$first ? '' : 'cell_'+col.trim()}}">
+                                        <td class="{{'cell_'+col.trim()}} small">
                                             @if (leaveDetail(item).isSame) {
                                                 {{strToDate(item.startDate.date) | date}} - {{item.startDate.leaveType.replaceAll('_', ' ') | titlecase}}
                                                 <!-- <span>{{}}</span> -->
@@ -57,6 +57,7 @@
                                                 {{strToDate(item.startDate.date) | date}} - {{strToDate(item.endDate.date) | date}}<br/>
                                                 <span class="badge rounded-pill text-bg-light border-secondary text-secondary">{{item.leaveDays.length}} days</span>
                                             }
+                                            <p class="text-muted mb-0 text-truncate">{{item.reason}}</p>
                                         </td>
                                     } @else if (col === 'applied_at') {
                                         <td class="{{$first ? '' : 'cell_'+col.trim()}}">
@@ -68,18 +69,20 @@
                                         </td>
                                     } @else {
                                         <td class="{{$first ? '' : 'cell_'+col.trim()}}">
-                                            @if (userRole === 'admin' && item.status === 'pending') {
-                                                <button type="button" class="btn btn-sm icon-btn btn-success border-0 outline-0 rounded-circle shadow mb-1 me-2" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Accept" data-bs-html="true" [tabIndex]="-1" (click)="updateStatus($event, [item.uuid], 'approve')">
-                                                    <i class="bi bi-check fs-4"></i>
-                                                </button>
-                                                <button type="button" class="btn btn-sm icon-btn btn-danger border-0 outline-0 rounded-circle shadow mb-1" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Reject" [tabIndex]="-1" aria-label="Reject Leave" (click)="updateStatus($event, [item.uuid], 'reject')">
-                                                    <i class="bi bi-x fs-4"></i>
-                                                </button>
-                                            } @else if(item.status === 'pending') {
-                                                <button type="button" class="btn btn-sm icon-btn btn-danger border-0 outline-0 rounded-circle shadow " data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Cancel" [tabIndex]="-1" aria-label="Cancel Leave" (click)="requestTrash($event, item.uuid)">
-                                                    <i class="bi bi-x fs-4"></i>
-                                                </button>
-                                            }
+                                            <div class="action-btns">
+                                                @if (userRole === 'admin' && item.status === 'pending') {
+                                                    <button type="button" class="btn btn-sm icon-btn btn-light text-success border-0 outline-0 rounded-circle me-2" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Accept" data-bs-html="true" [tabIndex]="-1" (click)="updateStatus($event, [item.uuid], 'approve')">
+                                                        <i class="bi bi-check fs-4"></i>
+                                                    </button>
+                                                    <button type="button" class="btn btn-sm icon-btn btn-light text-danger border-0 outline-0 rounded-circle" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Reject" [tabIndex]="-1" aria-label="Reject Leave" (click)="updateStatus($event, [item.uuid], 'reject')">
+                                                        <i class="bi bi-x fs-4"></i>
+                                                    </button>
+                                                } @else if(item.status === 'pending') {
+                                                    <button type="button" class="btn btn-sm icon-btn btn-danger border-0 outline-0 rounded-circle " data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Cancel" [tabIndex]="-1" aria-label="Cancel Leave" (click)="requestTrash($event, item.uuid)">
+                                                        <i class="bi bi-x fs-4"></i>
+                                                    </button>
+                                                }
+                                            </div>
                                             <!-- <div class="dropdown">
                                                 <button class="btn btn-sm dropdown-toggle border-0 outline-0" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false" [tabIndex]="-1" [attr.aria-controls]="'#userMenu_'+i" aria-label="Options">
                                                     <i class="bi bi-three-dots-vertical"></i>
@@ -93,6 +96,10 @@
                                         </td>
                                     }
                                 }
+                            </tr>
+                            <tr class="d-none" #trDetail>
+                                <td class="bg-body-tertiary"></td>
+                                <td class="bg-body-tertiary" [colSpan]="tableColumns.length-1">{{item.reason}}</td>
                             </tr>
                         } @empty {
                             <tr>

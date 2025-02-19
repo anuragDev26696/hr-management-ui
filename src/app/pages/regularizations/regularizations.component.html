@@ -38,18 +38,22 @@
                                         </td>
                                     } @else {
                                         <td>
-                                            <div class="btn-group">
-                                                <button class="btn btn-sm btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" [attr.aria-controls]="'actionMenu_'+i">Action</button>
-                                                <ul class="dropdown-menu dropdown-menu-end border-light shadow rounded-3" [id]="'actionMenu_'+i">
-                                                    @if (userRole === 'admin' && request.status === 'Pending') {
-                                                        <li><button class="dropdown-item small success-item" (click)="updateStatus($event, request.uuid, 'Approved')">Accept</button></li>
-                                                        <li><button class="dropdown-item small danger-item" (click)="updateStatus($event, request.uuid, 'Rejected')">Reject</button></li>
-                                                    }
-                                                    @if((userId == request.createdBy) && request.status === 'Pending') {
-                                                        <li><button class="dropdown-item small danger-item" (click)="requestTrash($event, request.uuid)">Delete Request</button></li>
-                                                    }
-                                                </ul>
-                                            </div>
+                                            @if (request.status === 'Pending') {
+                                                <div class="btn-group">
+                                                    <button class="btn btn-sm btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" [attr.aria-controls]="'actionMenu_'+i">Action</button>
+                                                    <ul class="dropdown-menu dropdown-menu-end border-light shadow rounded-3" [id]="'actionMenu_'+i">
+                                                        @if (userRole === 'admin' && request.status === 'Pending') {
+                                                            <li><button class="dropdown-item small success-item" (click)="updateStatus($event, request.uuid, 'Approved')">Accept</button></li>
+                                                            <li><button class="dropdown-item small danger-item" (click)="updateStatus($event, request.uuid, 'Rejected')">Reject</button></li>
+                                                        }
+                                                        @if((userId == request.createdBy) && request.status === 'Pending') {
+                                                            <li><button class="dropdown-item small danger-item" (click)="requestTrash($event, request.uuid)">Delete Request</button></li>
+                                                        }
+                                                    </ul>
+                                                </div>
+                                            } @else {
+                                                <span class="badge rounded-pill text-bg-{{request.status === 'Approved' ? 'success' : 'danger'}}">{{request.status}}</span>
+                                            }
                                         </td>
                                     }
                                 }

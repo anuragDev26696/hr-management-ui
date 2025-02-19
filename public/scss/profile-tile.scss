@@ -1,0 +1,10 @@
+.profile-tile { display: flex; align-items: center; gap: 0.75rem; min-width: var(--tile-width, 180px);
+  -moz-user-select: none; -webkit-user-select: none; user-select: none; }
+.profile-image { min-width: fit-content; position: relative; }
+.profile-image img { max-width: 100%; object-fit: cover;}
+.profile-image[fit="contain"] img {object-fit: contain; }
+.profile-image[shape="circle"] img {border-radius: 50vh; }
+.profile-title, .profile-subtitle { text-overflow: ellipsis; overflow: hidden; text-wrap: nowrap; }
+.profile-subtitle { color: grey; font-size: small; }
+.tile-body {display: grid; flex-grow: 1;}
+.status{bottom: 1px; left: 80%;}

@@ -22,10 +22,9 @@ export class SetPasswordComponent {
   constructor(){
     const tokenVal = this.auth.currentToken();
     const {token, userId, observeToken} = tokenVal();
-    console.log(tokenVal().userId, tokenVal().userId);
     observeToken.subscribe({
       next: (value) => {
-        console.info("token value: ", value);
+        // console.info("token value: ", value);
       },
     })
   }
@@ -37,7 +36,6 @@ export class SetPasswordComponent {
     if(!event.isTrusted || this.setPasswordForm.invalid) return;
     this.auth.setPassword(this.setPasswordForm.value).subscribe({
       next: (value) => {
-        console.log(value);
         this.router.navigate(['login']);
       },
       error: (err) => {
