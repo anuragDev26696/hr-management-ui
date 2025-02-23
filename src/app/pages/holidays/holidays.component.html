@@ -1,0 +1,147 @@
+<main class="container-xl py-3">
+    <h1 class="visually-hidden">Holidays</h1>
+    <div class="card border-light">
+        <div class="card-header border-light bg-white d-sm-flex gap-2 align-items-center">
+            <span  class="fs-5 fw-medium">Holidays List <br><small class="small text-secondary fw-normal">{{holidayList.length}} Holidays</small></span>
+            <select id="holidayType" class="form-select listFilter mt-2 mt-sm-0 ms-auto" [ariaLabel]="'Filter by Holiday Type'" [(ngModel)]="typeSelectCtrl" (change)="filterList($event)">
+              <option value="">All</option>
+              <option value="Public">Public</option>
+              <option value="Government">Government</option>
+              <option value="Festival">Festival</option>
+            </select>
+            <div class="btn-group d-none d-sm-flex ms-2" role="group" aria-label="View type">
+                <button type="button" class="btn btn-{{view === 'list' ? 'primary' : 'outline-primary'}}" data-bs-toggle="tooltip" data-bs-title="List View" title="List View" (click)="view = 'list'">
+                    <i class="bi bi-list-ul" aria-hidden="true"></i> <s class="visually-hidden">List</s>
+                </button>
+                <button type="button" class="btn btn-{{view === 'grid' ? 'primary' : 'outline-primary'}}" data-bs-toggle="tooltip" data-bs-title="Grid View" title="Grid View" (click)="view = 'grid'">
+                    <i class="bi bi-grid" aria-hidden="true"></i> <s class="visually-hidden">Grid</s>
+                </button>
+            </div>
+            <button class="btn btn-primary ms-auto ms-sm-2" type="button" data-bs-toggle="modal" data-bs-target="#holidayModal" (click)="formAction = 'add'"><i class="bi bi-plus"></i> Add Holiday</button>
+        </div>
+        <div class="card-body">
+            @if (view === 'list') {
+                <div class="table-responsive">
+                    <table class="table table-hover table-sm align-middle">
+                        <thead>
+                            <tr>
+                                @for (item of tableColumns; track $index) {
+                                    <th class="text-nowrap {{$first ? '' : 'cell_'+item.trim()}}">{{$first ? '#' : item | titlecase}}</th>
+                                }
+                            </tr>
+                        </thead>
+                        <tbody class="table-group-divider">
+                            @for (event of filteredHolidayDataSubject | async; track event.uuid; let i = $index;) {
+                                <tr>
+                                    @for (col of tableColumns; track col; let isFirst = $first;) {
+                                        <td class="{{$first ? '' : 'cell_'+col.trim()}}">
+                                            @if(['name', 'type', 'sr'].includes(col)){
+                                                {{col === 'sr' ? i+1 : col === 'name' ? event.name : event.holidayType}}
+                                            } @else if (col === 'date') {
+                                                {{strToDate(event.date) | date}}
+                                            } @else {
+                                                <div class="dropdown">
+                                                    <button class="btn btn-sm icon-btn dropdown-toggle border-0 outline-0 rounded-5 btn-light" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false" [tabIndex]="-1" [attr.aria-controls]="'#userMenu_'+i" aria-label="Options">
+                                                        <i class="bi bi-three-dots-vertical"></i>
+                                                    </button>
+                                                    <ul class="dropdown-menu dropdown-menu-end border-light shadow rounded-3" [id]="'#userMenu_'+i">
+                                                        <li><button class="dropdown-item small" data-bs-toggle="modal" data-bs-target="#holidayModal" (click)="actionUpdate($event, event)">Edit</button></li>
+                                                        <!-- <li><button class="dropdown-item small">Deactive</button></li> -->
+                                                        <li><button class="dropdown-item small danger-item" (click)="requestTrash($event, event.uuid)">Delete</button></li>
+                                                    </ul>
+                                                </div>
+                                            }
+                                        </td>
+                                    }
+                                </tr>
+                            } @empty {
+                                <tr>
+                                    <td class="py-3" [colSpan]="tableColumns.length">
+                                        @if (listLoaded) {
+                                            <p class="mt-3 text-center">Records not found.</p>
+                                        } @else {
+                                            <div class="d-flex align-items-center justify-content-center">
+                                                <strong role="status">Loading...</strong>
+                                                <div class="spinner-border spinner-border-sm ms-2" aria-hidden="true"></div>
+                                            </div>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            } @else {
+                <div class="row g-3">
+                    @for (holiday of filteredHolidayDataSubject | async; track holiday._id) {
+                        <div class="col-12 col-sm-6 col-md-4 col-xl-3">
+                          <div class="card itemCard border-light h-100">
+                            <!-- <img src="https://via.placeholder.com/150" class="card-img-top" alt="{{ holiday.name }} image"> -->
+                            <div class="card-body">
+                                <button class="btn btn-sm icon-btn border-0 outline-0 rounded-5 btn-light float-end" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false" [tabIndex]="-1" [attr.aria-controls]="'#userMenu_'+$index" aria-label="Options">
+                                    <i class="bi bi-three-dots-vertical"></i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end border-light shadow rounded-3" [id]="'#userMenu_'+$index">
+                                    <li><button class="dropdown-item small" data-bs-toggle="modal" data-bs-target="#holidayModal" (click)="actionUpdate($event, holiday)">Edit</button></li>
+                                    <li><button class="dropdown-item small danger-item" (click)="requestTrash($event, holiday.uuid)">Delete</button></li>
+                                </ul>
+                              <span class="h5 card-title">{{ holiday.name }}</span>
+                              <p class="mb-1 card-text"><span class="fw-medium">Holiday Type:</span> {{ holiday.holidayType }}</p>
+                              <p class="mb-0 card-text"><span class="fw-medium">Date:</span> {{ holiday.date | date: 'dd MMM yyyy' }}</p>
+                            </div>
+                          </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</main>
+
+<!-- Holiday Modal -->
+<div class="modal fade" id="holidayModal" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="modalLabel" aria-hidden="true" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalLabel">{{formAction | titlecase}} Event</h5>
+          <button type="button" class="btn-close" [tabIndex]="-1" data-bs-dismiss="modal" aria-label="Close" data-bs-toggle="tooltip" title="Close modal" aria-label="Close table"[id]="'closeModalBtn'"></button>
+        </div>
+        <div class="modal-body">
+            <form [formGroup]="eventForm">
+                <div class="mb-2">
+                    <label for="eventDate" class="form-label">Holiday Date</label>
+                    <input type="date" id="eventDate" class="form-control" [class.is-invalid]="dateCtrl.touched && dateCtrl.invalid" [class.is-valid]="isValid(dateCtrl)" aria-describedby="dateFeedback" formControlName="date" required>
+                    <p class="invalid-feedback" id="dateFeedback">
+                        @if (dateCtrl.touched) {
+                            @if (dateCtrl.invalid) {Enter a valid date.} @else {Date is required.}
+                        }
+                    </p>
+                </div>
+                <div class="mb-2">
+                    <label for="eventName" class="form-label">Holiday Title</label>
+                    <input type="text" id="eventName" class="form-control" [minLength]="2"[maxLength]="50" [class.is-invalid]="nameCtrl.touched && nameCtrl.invalid" [class.is-valid]="isValid(nameCtrl)" aria-describedby="nameFeedback" formControlName="name" required>
+                    <p class="invalid-feedback" id="nameFeedback">
+                        @if (nameCtrl.touched) {
+                            @if (nameCtrl.invalid || nameCtrl.dirty) {Enter a valid name.} @else {Name is required.}
+                        }
+                    </p>
+                </div>
+                <div class="mb-2">
+                    <label for="eventTypeCtrl" class="form-label">Holiday Type</label>
+                    <select formControlName="holidayType" id="eventTypeCtrl" class="form-select" [class.is-invalid]="holidayTypeCtrl.touched && holidayTypeCtrl.invalid" [class.is-valid]="isValid(holidayTypeCtrl)" aria-describedby="typeFeedback" required>
+                        <option>Select</option>
+                        <option value="Public">Public</option>
+                        <option value="Festival">Festival</option>
+                        <option value="Government">Government</option>
+                    </select>
+                    <p class="invalid-feedback" id="typeFeedback">Select Holiday Type</p>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary" [disabled]="eventForm.invalid" (click)="onSubmit($event)">Save changes</button>
+        </div>
+      </div>
+    </div>
+</div>

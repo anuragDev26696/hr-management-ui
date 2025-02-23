@@ -1,0 +1,9 @@
+@if (loader.value) {
+    @let idLabel = loader.label.trim() !== '';
+    <div class="overlay bg-body position-fixed h-100 w-100 top-0 d-grid align-items-center">
+      <div class="mx-auto text-center text-secondary">
+        <span class="spinner-border text-primary" aria-hidden="true"></span><br>
+        <strong [class]="idLabel ? '' : 'visually-hidden'" role="status">{{idLabel ? loader.label : 'Loading...'}}</strong>
+      </div>
+    </div>
+}

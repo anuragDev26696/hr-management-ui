@@ -3,7 +3,7 @@
     <div class="row g-3">
         @if(userRole === 'admin'){
             <div class="col-12 col-lg-6">
-                <div class="card shadow border-light">
+                <div class="card border-light">
                     <div class="card-header border-light bg-white d-flex align-items-baseline gap-2">
                         <span  class="fs-5 fw-medium">Attendance List <br><small class="small text-secondary fw-normal">{{totalDocs}} Attendance</small></span>
                         <div class="input-group ms-auto">
@@ -86,7 +86,7 @@
             </div>
         }
         <div class="col-12 col-lg-6">
-            <div class="card shadow border-light">
+            <div class="card border-light">
                 <div class="card-header border-light bg-white gap-2 d-flex flex-wrap align-items-center">
                     <span  class="fs-5 fw-medium">Your month attendance</span>
                     <div class="ms-auto">
@@ -96,7 +96,7 @@
                     <div class="d-flex gap-2 align-items-center">
                         @if (clockinData | async) {
                             <!-- Template: attendance.component.html -->
-                            <div class="clock-container fw-medium fs-4 overflow-hidden text-secondary">
+                            <div class="clock-container fw-medium fs-4 overflow-hidden">
                                 <!-- Hours -->
                                 <span [class]="workingTime.seconds === 0 && workingTime.minutes === 0 ? 'slide-down digit' : 'digit'">
                                 {{ workingTime.hours < 10 ? '0' + workingTime.hours : workingTime.hours }}

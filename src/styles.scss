@@ -132,6 +132,10 @@ a {text-decoration: none; outline: none;}
   fill: var(--gray-400);
 }
 
+.card:not([class*='shadow-'], .shadow, .clear) {
+  --bs-card-box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--bs-card-box-shadow);
+}
 .social-links a:hover svg path {fill: var(--gray-900);}
 .btn {--bs-btn-disabled-opacity: 0.2;}
 .icon-btn{--bs-btn-line-height: 1.25; aspect-ratio: 1; --bs-btn-padding-x: 0.25rem; --bs-btn-padding-y: 0.25rem; min-width: 40px;}
@@ -139,6 +143,7 @@ a {text-decoration: none; outline: none;}
 .btn-shadow-sm:hover{box-shadow: 0px 0px 8px 0px #fff, 0px 3px 2px -2px rgb(0 0 0 / 61%);}
 .dropdown-item.danger-item{--bs-dropdown-link-color: rgba(var(--bs-danger-rgb), 0.8); --bs-dropdown-link-hover-color: rgba(var(--bs-danger-rgb), 1); --bs-dropdown-link-active-color: #fff; --bs-dropdown-link-hover-bg: rgba(var(--bs-danger-rgb), 0.05); --bs-dropdown-link-active-bg: rgba(var(--bs-danger-rgb), 1);}
 .dropdown-item.success-item{--bs-dropdown-link-color: rgba(var(--bs-success-rgb), 0.8); --bs-dropdown-link-hover-color: rgba(var(--bs-success-rgb), 1); --bs-dropdown-link-active-color: #fff; --bs-dropdown-link-hover-bg: rgba(var(--bs-success-rgb), 0.05); --bs-dropdown-link-active-bg: rgba(var(--bs-success-rgb), 1);}
+.form-label{margin-bottom: 0.25rem;}
 
 main {min-height: calc(100dvh - 100px)}
 

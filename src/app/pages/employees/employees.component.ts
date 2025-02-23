@@ -9,6 +9,7 @@ import { IUserRes } from '../../interfaces/IUser';
 import { EmployeeFormComponent } from '../../components/employee-form/employee-form.component';
 import { ProfileTileModule } from '../../components/profile-tile/profile-tile.module';
 import { ToastService } from '../../services/toast.service';
+import { LoaderService } from '../../services/loader.service';
 
 @Component({
   selector: 'app-employees',
@@ -30,7 +31,12 @@ export class EmployeesComponent {
   userRole: string = '';
   filterStatus: null | boolean = null;
 
-  constructor(private shareServ: ShareService, private authServ: AuthService, private toast: ToastService,){
+  constructor(
+    private shareServ: ShareService,
+    private authServ: AuthService,
+    private toast: ToastService,
+    private loader: LoaderService,
+  ){
     authServ.loggedinUser.subscribe({
       next: (value) => {
         this.userRole = value?.role || "";
@@ -121,6 +127,7 @@ export class EmployeesComponent {
   }
 
   public onSubmit(event: Event): void {
+    this.loader.show('circle', 'Form submitting. Please wait.');
     event.stopImmediatePropagation();
     event.preventDefault();
     let subscriber = this.formAction === 'add' ? 
@@ -128,7 +135,6 @@ export class EmployeesComponent {
     this.shareServ.updateUser(this.employeeId, this.employeeForm.value);
     subscriber.subscribe({
       next: (value) => {
-        console.log(value);
         this.toast.success(value.message);
         document.getElementById('closeModalBtn')?.click();
         this.paginate.skip = this.formAction === 'add' ? 0 : this.paginate.skip;
@@ -139,11 +145,13 @@ export class EmployeesComponent {
         this.employeeForm.markAsPristine();
         this.employeeForm.updateValueAndValidity();
         this.buildForm();
+        this.loader.hide();
         this.fetchUsers();
       },
       error: (err) => {
         console.log(err, " :error");
         this.toast.error(err.error || err.message);
+        this.loader.hide();
       },
     });
   }
@@ -157,6 +165,7 @@ export class EmployeesComponent {
   }
 
   private deleteProfile(userId: string): void {
+    this.loader.show('circle', 'Deleting');
     this.shareServ.deleteUser(userId).subscribe({
       next: (value) => {
         this.toast.success(value.message);
@@ -166,9 +175,11 @@ export class EmployeesComponent {
           this.paginate.skip = Math.abs(this.paginate.skip-1);
           this.fetchUsers();
         }
+        this.loader.hide();
       },
       error: (err) => {
         this.toast.error(err.error.error || err.error.message || err.error);
+        this.loader.hide();
       },
     });
   }

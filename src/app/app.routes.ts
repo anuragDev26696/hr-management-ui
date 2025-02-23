@@ -51,6 +51,12 @@ export const routes: Routes = [
         loadComponent: () => import('./pages/regularizations/regularizations.component').then(m => m.RegularizationsComponent),
         canActivate: [authGuard],
       },
+      {
+        path: 'holidays',
+        title: 'Holidays',
+        loadComponent: () => import('./pages/holidays/holidays.component').then(m => m.HolidaysComponent),
+        canActivate: [authGuard],
+      },
     ]
   },
   {
