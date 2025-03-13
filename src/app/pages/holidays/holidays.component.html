@@ -32,7 +32,7 @@
                         </thead>
                         <tbody class="table-group-divider">
                             @for (event of filteredHolidayDataSubject | async; track event.uuid; let i = $index;) {
-                                <tr>
+                                <tr [class.table-active]="isTodayEvent(event.date)">
                                     @for (col of tableColumns; track col; let isFirst = $first;) {
                                         <td class="{{$first ? '' : 'cell_'+col.trim()}}">
                                             @if(['name', 'type', 'sr'].includes(col)){
@@ -75,7 +75,7 @@
                 <div class="row g-3">
                     @for (holiday of filteredHolidayDataSubject | async; track holiday._id) {
                         <div class="col-12 col-sm-6 col-md-4 col-xl-3">
-                          <div class="card itemCard border-light h-100">
+                          <div class="card itemCard border-light h-100" [class.active]="isTodayEvent(holiday.date)">
                             <!-- <img src="https://via.placeholder.com/150" class="card-img-top" alt="{{ holiday.name }} image"> -->
                             <div class="card-body">
                                 <button class="btn btn-sm icon-btn border-0 outline-0 rounded-5 btn-light float-end" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false" [tabIndex]="-1" [attr.aria-controls]="'#userMenu_'+$index" aria-label="Options">

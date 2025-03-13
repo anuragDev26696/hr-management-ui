@@ -98,7 +98,7 @@ export class LeaveService {
   }
   
   public deleteHoliday(itemId: string): Observable<APIResponse<any>> {
-    return this.http.delete<APIResponse<any>>(`${environment.api}holidays/cancel/${itemId}`,
+    return this.http.delete<APIResponse<any>>(`${environment.api}holidays/${itemId}`,
       {
         headers: this.authServ.header
       }

@@ -23,9 +23,9 @@ export class RegularizationFormComponent implements OnInit {
 
   ngOnInit(): void {
     // Handling Attendance Date Value Changes
-    this.buildValidation(this.attendanceDate, this.clockInCtrl);
+    // this.buildValidation(this.attendanceDate, this.clockInCtrl);
     // Handling Clock In Time Value Changes
-    this.buildValidation(this.clockInCtrl, this.clockOutCtrl, true);
+    // this.buildValidation(this.clockInCtrl, this.clockOutCtrl, true);
   }
 
   public get regularizationFrom(): FormGroup {return this.parentForm.control as FormGroup;}
@@ -51,15 +51,17 @@ export class RegularizationFormComponent implements OnInit {
   }
 
   // Generate reusable function to check validation
-  private buildValidation(ctrl: AbstractControl, nextCtrl: AbstractControl, addExtra: boolean = false): void {
+  public buildValidation(ctrl: AbstractControl, nextCtrl: AbstractControl, addExtra: boolean = false): void {
     ctrl.valueChanges.pipe(
       debounceTime(300),
       tap(value => {
         // nextCtrl.reset();
         // Reset the next control only if necessary
+        console.log(ctrl.enabled, nextCtrl.enabled, ctrl.value, nextCtrl.value);
         if (nextCtrl.disabled) {
           nextCtrl.enable();
         }
+        console.log(ctrl.enabled, nextCtrl.enabled, ctrl.value, nextCtrl.value);
         if (ctrl.valid) {
           const newVal = this.getTimeInputString(new Date(value), addExtra);
           this.minOutTime = newVal;
@@ -67,6 +69,7 @@ export class RegularizationFormComponent implements OnInit {
         } else {
           nextCtrl.disable();
         }
+        console.log(ctrl.enabled, nextCtrl.enabled, ctrl.value, nextCtrl.value);
       })
     ).subscribe();
   }

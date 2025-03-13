@@ -85,7 +85,7 @@
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title" id="modalLabel">Regularization</h5>
-          <button type="button" class="btn-close" [tabIndex]="-1" data-bs-dismiss="modal" aria-label="Close" data-bs-toggle="tooltip" data-bs-title="Close modal" [id]="'closeModalBtn'"></button>
+          <button type="button" class="btn-close" [tabIndex]="-1" data-bs-dismiss="modal" aria-label="Close" data-bs-toggle="tooltip" data-bs-title="Close modal" [id]="'closeRegularizationModalBtn'"></button>
         </div>
         <div class="modal-body">
             <form [formGroup]="regularizationForm">
@@ -93,8 +93,13 @@
             </form>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal">Close</button>
-          <button type="button" class="btn btn-primary" [disabled]="regularizationForm.invalid" (click)="onSubmit($event)">Submit Request</button>
+          <button type="button" class="btn btn-outline-danger" [disabled]="regularizationForm.disabled" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary" [disabled]="regularizationForm.invalid || regularizationForm.disabled" (click)="onSubmit($event)">
+          @if(regularizationForm.disabled){
+            <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+            <span role="status">Pending...</span>
+          } @else {Submit Request}
+          </button>
         </div>
       </div>
     </div>

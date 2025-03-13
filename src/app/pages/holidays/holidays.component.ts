@@ -144,7 +144,8 @@ export class HolidaysComponent {
       next: (value) => {
         this.toastr.success(value.message);
         if(this.holidayList.length > 2) {
-          this.holidayList = this.holidayList.filter((item) => item.uuid);
+          this.holidayList = this.holidayList.filter((item) => item.uuid !== eventId);
+          this.filteredHolidayDataSubject.next(this.holidayList);
         } else{
           this.fetchHolidays();
         }
@@ -153,5 +154,10 @@ export class HolidaysComponent {
         this.toastr.error(err.error.message || err.error.error || err.error);
       },
     });
+  }
+  public isTodayEvent(dateStr: string | Date): boolean {
+    const today = new Date();
+    const evDate = new Date(dateStr);
+    return this.shareServ.dateForInput(today) === this.shareServ.dateForInput(evDate);
   }
 }

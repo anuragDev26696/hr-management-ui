@@ -7,6 +7,8 @@ import { AuthService } from '../../services/auth.service';
 import { AttendanceService } from '../../services/attendance.service';
 import { DatePipe, TitleCasePipe } from '@angular/common';
 import { RegularizationFormComponent } from '../../components/regularization-form/regularization-form.component';
+import { LoaderService } from '../../services/loader.service';
+import { ToastService } from '../../services/toast.service';
 
 @Component({
   selector: 'app-regularizations',
@@ -30,6 +32,8 @@ export class RegularizationsComponent {
     private shareServ: ShareService,
     private authServ: AuthService,
     private attendanceServ: AttendanceService,
+    private loader: LoaderService,
+    private toastr: ToastService,
   ){
     authServ.loggedinUser.subscribe({
       next: (value) => {
@@ -92,10 +96,12 @@ export class RegularizationsComponent {
   public onSubmit(event: Event): void {
     event.stopImmediatePropagation();
     if(!event.isTrusted) return;
-    console.log(this.regularizationForm.value);
+    this.regularizationForm.disable();
     this.attendanceServ.newRegularizationRequest(this.regularizationForm.value).subscribe({
       next: (value) => {
-        document.getElementById('closeModalBtn')?.click();
+        this.toastr.success(value.message);
+        document.getElementById('closeRegularizationModalBtn')?.click();
+        this.regularizationForm.enable();
         this.regularizationForm.reset();
         this.regularizationForm.markAsPristine();
         this.regularizationForm.updateValueAndValidity();
@@ -104,7 +110,9 @@ export class RegularizationsComponent {
         this.fetchRequestList();
       },
       error: (err) => {
-        console.log(err, " :req error");
+        this.toastr.error(err.error.error || err.error.message || err.error);
+        this.regularizationForm.enable();
+        console.log(err.error, " :req error");
       },
     })
   }
@@ -117,15 +125,17 @@ export class RegularizationsComponent {
     if (!event.isTrusted) return;
     this.attendanceServ.changeStatus(uuid, status).subscribe({
       next: (value) => {
-
+        this.toastr.success(value.message);
         this.requestList.forEach((item) => {
           if (item.uuid === uuid) {
-            item.status = value.data.status;
+            item.status = status;
           }
         });
+        this.loader.hide();
       },
       error: (err) => {
-        console.log(err, ' error');
+        this.toastr.error(err.error.error || err.error.message || err.error);
+        this.loader.hide();
       },
     });
   }
@@ -141,7 +151,10 @@ export class RegularizationsComponent {
   private cancelRequest(requestUUID: string): void {
     this.attendanceServ.deleteRequest(requestUUID).subscribe({
       next: (value) => {
-        console.log(value);
+        this.toastr.success(value.message);
+      },
+      error: (err) => {
+        this.toastr.error(err.error.error || err.error.message);
       },
     });
   }

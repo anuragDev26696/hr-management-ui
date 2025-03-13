@@ -33,23 +33,19 @@
                         @for (item of leaveList; track (item.uuid+'_'+i); let i = $index;) {
                             <tr (mouseenter)="trDetail.classList.remove('d-none')" (mouseleave)="trDetail.classList.add('d-none')">
                                 @for (col of tableColumns; track col; let isFirst = $first;) {
-                                    @if (isFirst) {
-                                        <td class="{{$first ? '' : 'cell_'+col.trim()}}">
+                                    <td class="{{$first ? '' : 'cell_'+col.trim()}}">
+                                        @if (isFirst) {
                                             <div>
-                                            @if (userRole === 'admin') {
-                                                <input class="form-check-input" type="checkbox" [id]="item._id" [value]="item.uuid" aria-label="select for action" [checked]="selectedLeaves.includes(item.uuid)" (change)="leaveSelection($event, item.uuid)" [disabled]="item.status != 'pending'">
-                                            } @else {
-                                                {{i+1}}
-                                            }
+                                                @if (userRole === 'admin') {
+                                                    <input class="form-check-input" type="checkbox" [id]="item._id" [value]="item.uuid" aria-label="select for action" [checked]="selectedLeaves.includes(item.uuid)" (change)="leaveSelection($event, item.uuid)" [disabled]="item.status != 'pending'">
+                                                } @else {
+                                                    {{i+1}}
+                                                }
                                             </div>
-                                        </td>
-                                    } @else if(col === 'name'){
-                                        <td class="{{$first ? '' : 'cell_'+col.trim()}}">
+                                        } @else if(col === 'name'){
                                             {{item.employeeName}}<br>
                                             <span class="badge rounded-pill text-bg-light border-secondary text-secondary">{{item.employeePosition}}</span>
-                                        </td>
-                                    } @else if (col === 'leave_days') {
-                                        <td class="{{'cell_'+col.trim()}} small">
+                                        } @else if (col === 'leave_days') {
                                             @if (leaveDetail(item).isSame) {
                                                 {{strToDate(item.startDate.date) | date}} - {{item.startDate.leaveType.replaceAll('_', ' ') | titlecase}}
                                                 <!-- <span>{{}}</span> -->
@@ -58,17 +54,11 @@
                                                 <span class="badge rounded-pill text-bg-light border-secondary text-secondary">{{item.leaveDays.length}} days</span>
                                             }
                                             <p class="text-muted mb-0 text-truncate">{{item.reason}}</p>
-                                        </td>
-                                    } @else if (col === 'applied_at') {
-                                        <td class="{{$first ? '' : 'cell_'+col.trim()}}">
+                                        } @else if (col === 'applied_at') {
                                             {{strToDate(item.createdAt) | date}}
-                                        </td>
-                                    } @else if (col === 'status') {
-                                        <td class="{{$first ? '' : 'cell_'+col.trim()}}">
+                                        } @else if (col === 'status') {
                                             <div class="badge text-bg-{{item.status === 'approved' ? 'success' : item.status === 'rejected' ? 'danger' : 'warning' }} rounded-pill">{{item.status | titlecase}}</div>
-                                        </td>
-                                    } @else {
-                                        <td class="{{$first ? '' : 'cell_'+col.trim()}}">
+                                        } @else {
                                             <div class="action-btns">
                                                 @if (userRole === 'admin' && item.status === 'pending') {
                                                     <button type="button" class="btn btn-sm icon-btn btn-light text-success border-0 outline-0 rounded-circle me-2" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Accept" data-bs-html="true" [tabIndex]="-1" (click)="updateStatus($event, [item.uuid], 'approve')">
@@ -93,13 +83,13 @@
                                                     <li><button class="dropdown-item small danger-item" (click)="requestTrash($event, item.uuid)">Cancel</button></li>
                                                 </ul>
                                             </div> -->
-                                        </td>
-                                    }
+                                        }
+                                    </td>
                                 }
                             </tr>
                             <tr class="d-none" #trDetail>
                                 <td class="bg-body-tertiary"></td>
-                                <td class="bg-body-tertiary" [colSpan]="tableColumns.length-1">{{item.reason}}</td>
+                                <td class="bg-body-tertiary" style="white-space: pre-line;" [colSpan]="tableColumns.length-1">{{item.reason}}</td>
                             </tr>
                         } @empty {
                             <tr>

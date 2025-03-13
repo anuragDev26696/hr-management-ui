@@ -39,7 +39,7 @@
   </div>
   <div class="ms-auto ms-lg-3 profileDropdown dropdown" data-bs-theme="light" style="height: calc((1.325rem + .9vw)*1.5); width: calc((1.325rem + .9vw)*1.5);">
     @if (user) {
-      <button class="border-0 outline-0 dropdown-toggle bg-primary" type="button" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false" [tabIndex]="-1" aria-controls="#userMenu">
+      <button class="border-0 outline-0 dropdown-toggle bg-primary" type="button" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false" [tabIndex]="-1" aria-controls="#userMenu" aria-label="User Profile">
         <i class="bi bi-person-circle fs-2"></i>
       </button>
       <ul class="dropdown-menu dropdown-menu-end border-light shadow rounded-3" id="userMenu" [style.maxWidth.px]="250">

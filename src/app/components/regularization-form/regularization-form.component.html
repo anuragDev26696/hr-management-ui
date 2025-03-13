@@ -1,12 +1,12 @@
 <form [formGroup]="regularizationFrom" class="row g-3">
     <div class="col-12">
         <label for="dateCtrl">Attendance Date <i class="text-danger">*</i></label>
-        <input type="date" id="dateCtrl" class="form-control {{inputClass(attendanceDate)}}" [required]="true" formControlName="attendanceDate" [max]="maxDate" aria-describedby="dateFeed">
+        <input type="date" id="dateCtrl" class="form-control {{inputClass(attendanceDate)}}" [required]="true" formControlName="attendanceDate" [max]="maxDate" aria-describedby="dateFeed" (focus)="buildValidation(this.attendanceDate, this.clockInCtrl)">
         <div class="invalid-feedback" id="dateFeed">Attendance date is required.</div>
     </div>
     <div class="col-6">
         <label for="clockInTime">Clock In Time <i class="text-danger">*</i></label>
-        <input type="datetime-local" id="clockInTime" class="form-control {{inputClass(clockInCtrl)}}" [required]="true" formControlName="clockInTime" [min]="minInTime" [max]="maxInTime" aria-describedby="clockinFeed" />
+        <input type="datetime-local" id="clockInTime" class="form-control {{inputClass(clockInCtrl)}}" [required]="true" formControlName="clockInTime" [min]="minInTime" [max]="maxInTime" aria-describedby="clockinFeed" (focus)="buildValidation(this.clockInCtrl, this.clockOutCtrl, true)" />
         <div class="invalid-feedback" id="clockinFeed">Clock in time is required.</div>
     </div>
     <div class="col-6">
