@@ -1,10 +1,11 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { AuthService } from './auth.service';
-import { ILeaveList, ILeaveRequest, ILeaveResponse, leaveStatus } from '../interfaces/ILeave';
+import { ILeaveBalance, ILeaveList, ILeaveRequest, ILeaveResponse, leaveStatus } from '../interfaces/ILeave';
 import { Observable } from 'rxjs';
 import { APIResponse, pagination } from '../interfaces/IResponse';
 import { environment } from '../../environments/environment';
+import { IHolidayReq, IHolidayRes } from '../interfaces/IHoliday';
 
 @Injectable({
   providedIn: 'root'
@@ -52,6 +53,11 @@ export class LeaveService {
       }
     );
   }
+  public getLeaveBalance(): Observable<APIResponse<ILeaveBalance>> {
+    return this.http.get<APIResponse<ILeaveBalance>>(`${environment.api}leaves/leave-balance`,
+      {headers: this.authServ.header}
+    );
+  }
 
   public changeLeaveStatus(leaveIds: Array<string>, status: 'approve'| 'reject'): Observable<APIResponse<Array<ILeaveResponse>>> {
     return this.http.post<APIResponse<Array<ILeaveResponse>>>(`${environment.api}leaves/update-leave-status`,
@@ -71,6 +77,49 @@ export class LeaveService {
         month,
         year,
       },
+      {
+        headers: this.authServ.header
+      }
+    );
+  }
+
+  // Holiday's APIs
+  public createHoliday(reqData: IHolidayReq): Observable<APIResponse<IHolidayRes>> {
+    return this.http.post<APIResponse<IHolidayRes>>(`${environment.api}holidays`,
+      reqData,
+      {
+        headers: this.authServ.header
+      }
+    );
+  }
+  
+  public updateHoliday(itemId: string, reqData: IHolidayReq): Observable<APIResponse<IHolidayReq>> {
+    return this.http.patch<APIResponse<IHolidayReq>>(`${environment.api}holidays/${itemId}`,
+      reqData,
+      {
+        headers: this.authServ.header
+      }
+    );
+  }
+  
+  public deleteHoliday(itemId: string): Observable<APIResponse<any>> {
+    return this.http.delete<APIResponse<any>>(`${environment.api}holidays/${itemId}`,
+      {
+        headers: this.authServ.header
+      }
+    );
+  }
+
+  public calendarHolidays(year: number): Observable<APIResponse<Array<IHolidayRes>>> {
+    return this.http.get<APIResponse<Array<IHolidayRes>>>(`${environment.api}holidays/year/${year}`,
+      {
+        headers: this.authServ.header
+      }
+    );
+  }
+
+  public monthEvents(month: number, year: number, employeeId: string =""): Observable<APIResponse<IHolidayRes>> {
+    return this.http.get<APIResponse<IHolidayRes>>(`${environment.api}holidays/month-holiday/${month}/${year}`,
       {
         headers: this.authServ.header
       }

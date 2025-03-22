@@ -24,12 +24,23 @@
     </div>
     <div class="col col-md-4">
         <label for="roleCtrl">Role <i class="text-danger">*</i></label>
-        <select name="role" id="roleCtrl" aria-placeholder="Select" class="form-select" formControlName="role" [required]="true"aria-describedby="roleFeed">
+        <select name="role" id="roleCtrl" aria-placeholder="Select" class="form-select" formControlName="role" [required]="true"aria-describedby="roleFeed" (change)="changeRole($event)" #roleSelect>
             <option value="hr">HR</option>
             <option value="employee">Employee</option>
         </select>
         <div class="invalid-feedback" id="roleFeed">Role is required.</div>
     </div>
+    @if (roleSelect.value === 'hr' && user && ['employee', 'admin'].includes(user.role)) {
+        <div class="col-12">
+            <p class="h6">Permissions</p>
+            @for (item of permissions; track $index) {
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" [checked]="isPermit(item)" (change)="selectPermision($event)" [id]="item+'_per'" [value]="item">
+                    <label class="form-check-label" [for]="item+'_per'">{{item | titlecase}}</label>
+                </div>
+            }
+        </div>
+    }
     <div class="col-12 col-sm-6">
         <label for="departCtrl">Department <i class="text-danger">*</i></label>
         <select id="departCtrl" aria-placeholder="Select" class="form-select" formControlName="department" [required]="true" aria-describedby="departFeed">

@@ -8,6 +8,7 @@ import { debounceTime, Observable } from 'rxjs';
 import { pagination } from '../../interfaces/IResponse';
 import { ShareService } from '../../services/share.service';
 import { ProfileTileModule } from "../../components/profile-tile/profile-tile.module";
+import { ToastService } from '../../services/toast.service';
 
 @Component({
   selector: 'app-attendance',
@@ -33,13 +34,15 @@ export class AttendanceComponent {
   workingTime: { hours: number, minutes: number, seconds: number } = { hours: 0, minutes: 0, seconds: 0 };
   userRole: string = "";
   maxMonthYear: string = "";
+  timeOut: any;
+  isLoggedIn: boolean = false;
 
   // Use HostListener for beforeunload
   @HostListener('window:beforeunload', ['$event'])
   beforeUnloadHandler(event: Event) {
     // Modern browsers will likely ignore this message, but it's good practice
     event.preventDefault(); // For older browsers
-    return this.clockinData ? 'You have unsaved changes. Are you sure you want to leave?' : ''; // Most browsers ignore this now
+    return this.isLoggedIn ? 'You have unsaved changes. Are you sure you want to leave?' : ''; // Most browsers ignore this now
   }
 
   // Use HostListener for Ctrl+R (and Cmd+R on Mac)
@@ -47,7 +50,7 @@ export class AttendanceComponent {
   keyDownHandler(event: KeyboardEvent) {
     if ((event.ctrlKey || event.metaKey) && event.key === 'r') {
       event.preventDefault(); // Prevent default reload
-      if (!this.clockinData) { 
+      if (!this.isLoggedIn) { 
         window.location.reload();
       } else {
         const confirmReload = confirm('You have unsaved changes. Are you sure you want to reload?');
@@ -62,6 +65,7 @@ export class AttendanceComponent {
     private attendanceServ: AttendanceService,
     private cdRef: ChangeDetectorRef,
     private shareServ: ShareService,
+    private toastr: ToastService,
   ){
     this.userRole = localStorage.getItem('role') || "";
     this.buildForm();
@@ -71,12 +75,14 @@ export class AttendanceComponent {
     this.clockinData = attendanceServ.lastClockin;
     this.clockinData.subscribe({
       next: (value) => {
+        this.isLoggedIn = value !== null;
         if(!value && !this.clockinLoaded){
+          if(this.timeOut) clearInterval(this.timeOut);
+          this.workingTime = { hours: 0, minutes: 0, seconds: 0 };
           this.fetchLastClockin();
           return;
-        } else if(value){
-          this.updateWorkingTime(value);
         }
+        this.updateWorkingTime(value);
         this.clockinLoaded = true;
       },
     });
@@ -128,7 +134,6 @@ export class AttendanceComponent {
       next: (value) => {
         this.attendanceServ.lastClockin.next(value.data);
         this.clockinLoaded = true;
-        this.updateWorkingTime(value.data);
         this.clockinPending = false;
       },
       error: (err) => {
@@ -140,12 +145,18 @@ export class AttendanceComponent {
   }
 
   // Update working time based on clock-in time
-  updateWorkingTime(data: IAttendance): void {
+  updateWorkingTime(data: IAttendance | null): void {
+    // If there is no clockInTime, or clockOutTime exists (indicating the user has clocked out), stop the interval
     if (data && data.clockInTime) {
-      setInterval(() => {
+      // Start the interval to calculate working time if the user has clocked in
+      this.timeOut = setInterval(() => {
         this.workingTime = this.attendanceServ.calculateWorkingTime(data.clockInTime);
         this.cdRef.detectChanges();  // Detect changes to update the UI
-      }, 1000);  // Update every second
+      }, 1000);
+    } else {
+      // If there's no clockInTime, clear the interval and reset working time
+      clearInterval(this.timeOut);
+      this.workingTime = { hours: 0, minutes: 0, seconds: 0 };
     }
   }
 
@@ -166,10 +177,11 @@ export class AttendanceComponent {
     this.attendanceServ.clockin().subscribe({
       next: (value) => {
         this.attendanceServ.lastClockin.next(value.data);
-        this.clockinData = this.attendanceServ.lastClockin;
+        this.toastr.success(value.message);
       },
       error: (err) => {
         console.log(err, " :clock in error.");
+        this.toastr.error(err.error.message || err.error || "Something went wrong.");
       },
     });
   }
@@ -179,11 +191,12 @@ export class AttendanceComponent {
     this.attendanceServ.clockout().subscribe({
       next: (value) => {
         this.attendanceServ.lastClockin.next(null);
-        this.clockinData = this.attendanceServ.lastClockin;
-        this.fetchAttendance();
+        if(this.userRole === 'admin')
+          this.fetchAttendance();
       },
       error: (err) => {
         console.log(err, " :clock in error.");
+        this.toastr.error(err.error.message || err.error || "Something went wrong.");
       },
     });
   }
@@ -191,9 +204,9 @@ export class AttendanceComponent {
   public onSubmit(event: Event): void {
     event.stopImmediatePropagation();
     if(!event.isTrusted) return;
-    console.log(this.regularizationForm.value);
     this.attendanceServ.newRegularizationRequest(this.regularizationForm.value).subscribe({
       next: (value) => {
+        this.toastr.success(value.message);
         document.getElementById('closeModalBtn')?.click();
         this.regularizationForm.reset();
         this.regularizationForm.markAsPristine();
@@ -201,6 +214,7 @@ export class AttendanceComponent {
         this.buildForm();
       },
       error: (err) => {
+        this.toastr.error(err.error.message || err.error || "Something went wrong.");
         console.log(err, " :req error");
       },
     })

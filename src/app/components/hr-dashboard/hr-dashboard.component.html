@@ -1,0 +1,158 @@
+<div class="container-xl py-3">
+    <header class="visually-hidden">
+        <h1 class="visually-hidden">HR Dashboard</h1>
+    </header>
+    
+    <section class="row g-3">
+        <!-- Employee Management -->
+        <article class="col-sm-6 col-lg-6">
+            <div class="bg-white rounded-3 p-3 dashboard-card placeholder-glow">
+                @defer (when isMasterSummaryLoaded) {
+                    <h2 class="h5 d-flex gap-1 justify-content-between">Employee Management &nbsp; <a href="/employees" class="btn btn-sm py-1 rounded-4 mb-auto glow-btn" aria-label="View all employees" title="View all employees"><i class="bi bi-arrow-right"></i></a></h2>
+                    <p class="mb-1">Active Employees: <strong>{{masterSummary.activeEmployee}}</strong></p>
+                    <p class="mb-1">New Joiners: <strong>{{masterSummary.recentRegistrations}}</strong></p>
+                    <p class="mb-1">Pending Approvals: <strong>3</strong></p>
+                } @placeholder {
+                    <h5 class="mb-1 d-flex gap-2 justify-content-between"><span class="col-10 rounded-2 placeholder"></span><span class="col-2 rounded-5 placeholder"></span></h5>
+                    <p class="col-10 mb-1 rounded-2 placeholder"></p>
+                    <p class="col-7 mb-1 rounded-2 placeholder"></p>
+                }
+            </div>
+        </article>
+        
+        <!-- Attendance & Leave Overview -->
+        <article class="col-sm-6 col-lg-6">
+            <div class="bg-white rounded-3 p-3 dashboard-card placeholder-glow">
+                @defer (when attendanceSummary) {
+                    <h2 class="h5">Attendance & Leave Overview</h2>
+                    <p class="mb-1">Today's Attendance: <strong>{{attendanceSummary['present']}}</strong></p>
+                    <p>Pending Leave Requests: <strong>{{attendanceSummary['lateCheckins']}}</strong></p>
+                    <a href="/attendance" class="btn btn-sm primary-glow me-2 glow-btn">Go To Attendance&nbsp;<i class="bi bi-arrow-right"></i></a>
+                    <a href="/leaves" class="btn btn-sm danger-glow glow-btn">View Leaves&nbsp;<i class="bi bi-arrow-right"></i></a>
+                } @placeholder {
+                    <h5 class="mb-1 d-flex gap-2 justify-content-between"><span class="col-10 rounded-2 placeholder"></span><span class="col-2 rounded-5 placeholder"></span></h5>
+                    <p class="col-9 mb-1 rounded-2 placeholder"></p>
+                    <p class="col-7 mb-1 rounded-2 placeholder"></p>
+                }
+            </div>
+        </article>
+        <!-- Recent Activity -->
+        <article class="col-md-6">
+            <div class="bg-white rounded-3 p-3 dashboard-card placeholder-glow">
+                @defer (when isActivityLoaded) {
+                    <h2 class="h5">Recent Employee Activity</h2>
+                    @for (item of activitis; track item.uuid) {
+                        <p class="mb-1">{{item.details}}</p>
+                    } @empty {
+                        <p class="mb-1">No today's activity available.</p>
+                    }
+                    @if (isMoreActivity || activitySkip > 0) {
+                        <nav aria-label="Navigation for activities">
+                            <ul class="pagination">
+                              <li class="page-item" [class.disabled]="activitySkip < 1">
+                                <span class="page-link" role="button" [tabIndex]="-1">Previous</span>
+                              </li>
+                              <li class="page-item" [class.disabled]="!isMoreActivity">
+                                <a class="page-link" href="#" role="button" [tabIndex]="-1">Next</a>
+                              </li>
+                            </ul>
+                        </nav>
+                    }
+                } @placeholder {
+                    <h2 class="h5 placeholder col-10 rounded-1"></h2>
+                    @for (item of [0,1,2,3]; track $index) {
+                        <p class="mb-1 rounded-1 placeholder col-10"></p>
+                    }
+                    <h3 class="d-flex gap-2 mt-3"><span class="ms-auto placeholder rounded-2 col-2"></span><span class="placeholder rounded-2 col-2"></span></h3>
+                }
+            </div>
+        </article>
+        <!-- Project & Task Management -->
+        <div class="col-md-6">
+            <div class="bg-white rounded-3 p-3 dashboard-card">
+                <p class="h5">Project & Task Management</p>
+                <p>Assigned Projects: <strong>4</strong></p>
+                <p>Employee Performance Summary: <strong>Available</strong></p>
+            </div>
+        </div>
+    </section>
+
+    <section class="row g-4 mt-3">
+        <!-- Quick Actions -->
+        <div class="col-md-12">
+            <div class="bg-white rounded-3 p-3 dashboard-card text-center">
+                <p class="h5">Quick Actions</p>
+                <button class="btn btn-primary m-2">Approve Leave Requests</button>
+                <button class="btn btn-success m-2">Generate Payroll</button>
+                <button class="btn btn-warning m-2">Assign Projects</button>
+            </div>
+        </div>
+    </section>
+</div>
+
+
+<!-- Employee dashboard -->
+<section class="container-xl dashboard-container">
+    <div class="row g-4">
+        <!-- Profile Overview -->
+        <div class="col-md-4">
+            <div class="card p-3">
+                <p class="h5">Profile Overview</p>
+                <p><strong>Name:</strong> John Doe</p>
+                <p><strong>Role:</strong> Software Engineer</p>
+                <p><strong>Department:</strong> IT</p>
+                <p><strong>Reporting Manager:</strong> Jane Smith</p>
+                <p><strong>Work Anniversary:</strong> 2 Years</p>
+            </div>
+        </div>
+        
+        <!-- Attendance Status -->
+        <div class="col-md-4">
+            <div class="card p-3">
+                <p class="h5">Attendance Status</p>
+                <p><strong>Today's Status:</strong> Checked In (9:00 AM)</p>
+                <p><strong>Monthly Summary:</strong> 22 Days Present</p>
+                <button class="btn btn-primary">Request Leave</button>
+            </div>
+        </div>
+        
+        <!-- Leave Status -->
+        <div class="col-md-4">
+            <div class="card p-3">
+                <p class="h5">Leave Status</p>
+                <p><strong>Pending Requests:</strong> 1</p>
+                <p><strong>Leave Balance:</strong> 10 Days</p>
+                <p><strong>Leave History:</strong> 5 Days Taken</p>
+            </div>
+        </div>
+        
+        <!-- Payroll Information -->
+        <div class="col-md-4">
+            <div class="card p-3">
+                <p class="h5">Payroll Information</p>
+                <p><strong>Salary:</strong> $5000</p>
+                <p><strong>Payroll Status:</strong> Processed</p>
+                <button class="btn btn-secondary">Download Payslip</button>
+            </div>
+        </div>
+        
+        <!-- Assigned Tasks -->
+        <div class="col-md-4">
+            <div class="card p-3">
+                <p class="h5">Assigned Tasks</p>
+                <p><strong>Ongoing Projects:</strong> 3</p>
+                <p><strong>Next Deadline:</strong> June 15, 2024</p>
+            </div>
+        </div>
+        
+        <!-- Quick Actions -->
+        <div class="col-md-4">
+            <div class="card p-3">
+                <p class="h5">Quick Actions</p>
+                <button class="btn btn-success mb-2">Mark Attendance</button>
+                <button class="btn btn-info mb-2">Apply for Leave</button>
+                <button class="btn btn-warning">View Payslip</button>
+            </div>
+        </div>
+    </div>
+</section>

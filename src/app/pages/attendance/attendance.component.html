@@ -3,7 +3,7 @@
     <div class="row g-3">
         @if(userRole === 'admin'){
             <div class="col-12 col-lg-6">
-                <div class="card shadow border-light">
+                <div class="card border-light">
                     <div class="card-header border-light bg-white d-flex align-items-baseline gap-2">
                         <span  class="fs-5 fw-medium">Attendance List <br><small class="small text-secondary fw-normal">{{totalDocs}} Attendance</small></span>
                         <div class="input-group ms-auto">
@@ -75,7 +75,7 @@
                     <nav class="pe-3" aria-label="Daily attendance navigation">
                         <ul class="pagination pagination-sm justify-content-end">
                           <li class="page-item" [class.disabled]="paginate.skip < 1">
-                            <a class="page-link" type="button" [tabindex]="-1">Previous</a>
+                            <a class="page-link" role="button" [tabindex]="-1">Previous</a>
                           </li>
                           <li class="page-item" [class.disabled]="!isNext">
                             <a class="page-link" href="#" type="button" [tabindex]="-1">Next</a>
@@ -86,7 +86,7 @@
             </div>
         }
         <div class="col-12 col-lg-6">
-            <div class="card shadow border-light">
+            <div class="card border-light">
                 <div class="card-header border-light bg-white gap-2 d-flex flex-wrap align-items-center">
                     <span  class="fs-5 fw-medium">Your month attendance</span>
                     <div class="ms-auto">
@@ -96,7 +96,7 @@
                     <div class="d-flex gap-2 align-items-center">
                         @if (clockinData | async) {
                             <!-- Template: attendance.component.html -->
-                            <div class="clock-container fw-medium fs-4 overflow-hidden text-secondary">
+                            <div class="clock-container fw-medium fs-4 overflow-hidden">
                                 <!-- Hours -->
                                 <span [class]="workingTime.seconds === 0 && workingTime.minutes === 0 ? 'slide-down digit' : 'digit'">
                                 {{ workingTime.hours < 10 ? '0' + workingTime.hours : workingTime.hours }}
@@ -117,21 +117,19 @@
                         <button class="btn btn-primary" type="button" data-bs-target="#regularizationModal" data-bs-toggle="modal">Regularization</button>
                     </div>
                 </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        @for (item of monthAttendance; track item._id) {
-                            <div class="card mb-2 border-light-subtle">
-                                <div class="card-header bg-success-subtle text-success-emphasis border-success-subtle">
-                                    <span class="card-title fs-5 fw-medium">{{(item.date) | date}}</span>
-                                </div>
-                                <div class="card-body">
-                                    <span class="float-end fw-medium text-muted">Working hours: {{formatInTime(item.totalHours)}}</span>
-                                    <p class="mb-0 fs-6">Clock In: <small>{{item.clockInTime | date:'hh:mm a'}}</small></p>
-                                    <p class="mb-0 fs-6">Clock Out: <small>{{item.clockOutTime | date:'hh:mm a'}}</small></p>
-                                </div>
+                <div class="my-2 px-3 table-responsive">
+                    @for (item of monthAttendance; track item._id) {
+                        <div class="card mb-2 border-light-subtle">
+                            <div class="card-header bg-success-subtle text-success-emphasis border-success-subtle">
+                                <span class="card-title fs-5 fw-medium">{{(item.date) | date}}</span>
                             </div>
-                        }
-                    </div>
+                            <div class="card-body">
+                                <span class="float-end fw-medium text-muted">Working hours: {{formatInTime(item.totalHours)}}</span>
+                                <p class="mb-0 fs-6">Clock In: <small>{{item.clockInTime | date:'hh:mm a'}}</small></p>
+                                <p class="mb-0 fs-6">Clock Out: <small>{{item.clockOutTime | date:'hh:mm a'}}</small></p>
+                            </div>
+                        </div>
+                    }
                 </div>
             </div>
         </div>

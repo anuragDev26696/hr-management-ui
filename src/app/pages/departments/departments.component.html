@@ -1,6 +1,6 @@
 <main class="container-xl py-3">
     <h1 class="visually-hidden">Department List</h1>
-    <div class="card shadow border-light">
+    <div class="card border-light">
         <div class="card-header border-light bg-white d-flex gap-2 align-items-center">
             <span  class="fs-5 fw-medium">Department List <br><small class="small text-secondary fw-normal">{{totalDocs}} Department</small></span>
             <button class="btn btn-primary ms-auto" type="button" data-bs-toggle="modal" data-bs-target="#departmentModal" (click)="formAction = 'add'"><i class="bi bi-plus"></i> Add Department</button>
@@ -60,7 +60,7 @@
     </div>
 </main>
 
-<!-- Employee Modal -->
+<!-- Department Modal -->
 <div class="modal fade" id="departmentModal" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="modalLabel" aria-hidden="true" tabindex="-1">
     <div class="modal-dialog modal-fullscreen-lg-down modal-dialog-centered modal-dialog-scrollable">
       <div class="modal-content">

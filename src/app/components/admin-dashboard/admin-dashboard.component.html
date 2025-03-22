@@ -1,0 +1,112 @@
+<section class="content py-3 container-xl">
+    <div class="row g-3">
+        @defer (when isMasterSummaryLoaded) {
+            @for (item of masterSummary | keyvalue; track item.key) {
+                <aside class="col-sm-6 col-md-4 col-xl-3">
+                    <div class="card p-3" [class]="item.key === 'totalEmployee' ? 'text-bg-primary' : item.key === 'activeEmployee' ? 'text-bg-success' : item.key === 'departments' ? 'text-bg-warning' : item.key === 'leaveRequest' ? 'text-bg-danger' : item.key === 'recentRegistrations' ? 'text-bg-info' : ''">
+                        <p class="h5 mb-1 mt-auto">{{item.key === "totalEmployee" ? "Total Employees" : item.key === "activeEmployee" ? "Active Employees" : item.key === "departments" ? "Departments" : item.key === "leaveRequest" ? "Leave Request" : item.key === "recentRegistrations" ? "Recent Registrations" : ""}} </p>
+                        <h3 class="w-100">{{item.value}}</h3>
+                    </div>
+                </aside>
+            }
+
+        } @placeholder {
+            @for (item of masterSummary | keyvalue; track item.key) {
+                <aside class="col-sm-6 col-md-4 col-xl-3">
+                    <div class="card p-3 placeholder-glow">
+                        <p class="h5 rounded-1 mt-auto placeholder col-10"></p>
+                        <h3 class="w-100 rounded-1 placeholder col-5">100</h3>
+                    </div>
+                </aside>
+            }
+        }
+    </div>
+
+    <div class="row g-3 mt-3">
+        <!-- Attendance & Payroll Overview -->
+        <div class="col-sm-6">
+            <div class="card border-light shadow-sm p-3">
+                <h5>Today's Attendance &nbsp;<span role="button" class="float-end text-primary rounded-5" [tabIndex]="-1" aria-label="Refresh to get latest status" (click)="refreshSummary($event)"><i class="bi bi-arrow-clockwise"></i></span></h5>
+                @defer (when attendanceSummary) {
+                    @let totalEmp = attendanceSummary['present'] + attendanceSummary['absent'];
+                    @let presentPer = (attendanceSummary['present'] / totalEmp) * 100;
+                    <p class="mb-1">Present: <strong>{{presentPer | number: '0.0-2'}}%</strong> | Absent: <strong>{{attendanceSummary['absent']}}</strong></p>
+                    <p class="mb-0">Late Check-ins: <strong>{{attendanceSummary['lateCheckins']}}</strong></p>
+                } @loading {
+                    <p class="card-text placeholder-glow"><span class="placeholder col-7"></span><span class="placeholder col-4"></span></p>
+                    <p class="card-text placeholder-glow"><span class="placeholder col-7"></span><span class="placeholder col-4"></span></p>
+                } @placeholder {
+                    <p class="card-text placeholder-glow"><span class="placeholder col-7"></span><span class="placeholder col-4"></span></p>
+                    <p class="card-text placeholder-glow"><span class="placeholder col-7"></span><span class="placeholder col-4"></span></p>
+                }
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="card p-3">
+                <h5>Payroll Summary</h5>
+                <p>Upcoming Payroll: 5 days</p>
+                <p>Salary Disbursed: 90%</p>
+            </div>
+        </div>
+        <!-- Recent Activity -->
+        @defer (when (isActivityLoaded && activitis.length > 0)) {
+            <div class="col-md-12">
+                <div class="card p-3">
+                    <h5>Recent Activity</h5>
+                    @for (item of activitis; track item.uuid) {
+                        <p class="mb-1">{{item.details}}</p>
+                    }
+                </div>
+            </div>
+        } @placeholder {
+            <div class="col-md-12">
+                <div class="card p-3 placeholder-glow">
+                    <h5 class="placeholder"></h5>
+                    @for (item of [0,1,2,3]; track $index) {
+                        <p class="mb-1 placeholder col-10"></p>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+
+    @defer (when (isActivityLoaded && activitis.length > 0)) {
+        <div class="mt-4">
+            <h4>Recent Activity</h4>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Employee</th>
+                        <th>Action</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (item of activitis; track item.uuid) {
+                        @let newDate = formatDate(item.createdAt);
+                        <tr>
+                            <td>{{$index+1}}</td>
+                            <td>{{item.userName}}</td>
+                            <td>{{item.action}}</td>
+                            <td>{{newDate | date}}</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+
+    <!-- Quick Actions -->
+    <div class="row g-2 mt-3">
+        <div class="col-sm-6 col-md-4">
+            <button class="btn btn-primary w-100"><i class="bi bi-person-plus"></i> Add Employee</button>
+        </div>
+        <div class="col-sm-6 col-md-4">
+            <button class="btn btn-warning w-100"><i class="bi bi-people"></i> Assign Roles</button>
+        </div>
+        <div class="col-sm-6 col-md-4">
+            <button class="btn btn-info w-100"><i class="bi bi-file-earmark-text"></i> Generate Report</button>
+        </div>
+    </div>
+</section>

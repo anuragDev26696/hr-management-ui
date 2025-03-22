@@ -1,1 +1,359 @@
-<p>dashboard works!</p>
+@defer (when userRole.trim() != '') {
+    <div class="container-lg pt-3">
+        @defer (when !isFetchingClockin ) {
+            @let isClockein = clockinData && clockinData.clockOutTime == null;
+            <div class="card text-bg-primary {{isClockein ? 'p-3' : ''}} shadow">
+                @if (isClockein) {
+                    <p class="small mb-1"><i class="bi {{iconClass}}"></i> Your working time</p>
+                    <div class="clearfix clear-fix clock-container fw-medium fs-4 overflow-hidden">
+                        <span [class]="workingTime.seconds === 0 && workingTime.minutes === 0 ? 'slide-down digit' : 'digit'">
+                        {{ workingTime.hours < 10 ? '0' + workingTime.hours : workingTime.hours }}
+                        </span> :
+                        <span [class]="workingTime.seconds === 0 ? 'slide-down digit' : 'digit'">
+                            {{ workingTime.minutes < 10 ? '0' + workingTime.minutes : workingTime.minutes }}
+                        </span> :
+                        <span [className]="['slide-down digit second']">
+                        {{ workingTime.seconds < 10 ? '0' + workingTime.seconds : workingTime.seconds }}
+                        </span>
+                        <button class="btn btn-sm fw-medium float-end btn-warning px-3" (click)="clockOut($event)">Clock Out &nbsp;<i class="bi bi-pause-fill"></i></button>
+                    </div>
+                } @else {
+                    <button class="btn btn-sm fw-medium float-end btn-primary fs-5 px-3" (click)="clockin($event)">Clock In Now &nbsp;<i class="bi bi-fingerprint"></i></button>
+                }
+            </div>
+        } @loading {
+            <div class="card text-bg-primary placeholder-glow p-3 shadow flex-row gap-2">
+                <span class="h2 rounded-1 col-6 col-sm-3 placeholder"></span>
+                <span class="h2 ms-auto rounded-1 col-5 col-sm-2 col-md-1 placeholder"></span>
+            </div>
+        }
+    </div>
+    @if (userRole === 'admin') {
+        <app-admin-dashboard/>
+    } @else if (userRole === 'hr' ) {
+        <app-hr-dashboard/>
+    } 
+} @placeholder {
+    <section class="hero-section">
+        <div class="container-xl">
+          <div class="row align-items-center gy-3">
+            <!-- Left Content -->
+            <div class="col-md-9 text-center text-md-start">
+              <h1 class="hero-title">
+                Empower Your Workforce with<br> <span class="highlight">PeoplePulse</span>
+              </h1>
+              <p class="hero-subtitle">
+                Manage employees, leaves, attendance, and payroll effortlessly in one powerful platform.
+              </p>
+              <div class="hero-buttons">
+                <a href="#" class="btn px-4 py-2 btn-primary me-2">Get Started</a>
+                <a href="#" class="btn px-4 py-2 btn-outline-light">Request a Demo</a>
+              </div>
+            </div>
+      
+            <!-- Right Image -->
+            <!-- <div class="col-md-5 col-lg-4 text-center">
+              <img src="cover/hero_cover.webp" [width]="1500" [height]="500" loading="lazy" alt="PeoplePulse HR Platform" class="hero-image img-fluid">
+            </div> -->
+          </div>
+        </div>
+    </section>
+    
+    <section class="key-features">
+        <div class="container-xl">
+            <h2 class="text-center mb-5">Key Features</h2>
+            <div class="row g-4">
+                <h3 class="visually-hidden"></h3>
+                <article class="col-12 col-sm-6 col-lg-4">
+                    <div class="card feature-card rounded-3 h-100 border-0">
+                        <div class="card-body">
+                            <i class="bi bi-people feature-icon"></i>
+                            <h4 class="card-title">Employee Management</h4>
+                            <p class="card-text">Manage employees efficiently with easy profile creation, tracking, and role assignments.</p>
+                        </div>
+                    </div>
+                </article>
+                <article class="col-12 col-sm-6 col-lg-4">
+                    <div class="card feature-card rounded-3 h-100 border-0">
+                        <div class="card-body">
+                            <i class="bi bi-clock feature-icon"></i>
+                            <h4 class="card-title">Attendance Tracking</h4>
+                            <p class="card-text">Monitor real-time attendance with automated logging and detailed reports.</p>
+                        </div>
+                    </div>
+                </article>
+                <article class="col-12 col-sm-6 col-lg-4">
+                    <div class="card feature-card rounded-3 h-100 border-0">
+                        <div class="card-body">
+                            <i class="bi bi-calendar-check feature-icon"></i>
+                            <h4 class="card-title">Payroll Processing</h4>
+                            <p class="card-text">Streamline payroll calculations, tax deductions, and salary disbursements.</p>
+                        </div>
+                    </div>
+                </article>
+                <div class="col-12 col-sm-6 col-lg-4">
+                    <div class="card feature-card rounded-3 border-0 h-100">
+                        <div class="card-body">
+                            <i class="bi bi-cash-stack feature-icon"></i>
+                            <h4 class="card-title">Leave Management</h4>
+                            <p class="card-text">Employees can request leaves, and managers can approve them seamlessly.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-sm-6 col-lg-4">
+                    <div class="card feature-card rounded-3 border-0 h-100">
+                        <div class="card-body">
+                            <i class="bi bi-bar-chart-line feature-icon"></i>
+                            <h4 class="card-title">Analytics & Reports</h4>
+                            <p class="card-text">Gain insights with detailed workforce analytics and performance reports.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-sm-6 col-lg-4">
+                    <div class="card feature-card rounded-3 border-0 h-100">
+                        <div class="card-body">
+                            <i class="bi bi-shield-lock feature-icon"></i>
+                            <h4 class="card-title">Secure & Compliant</h4>
+                            <p class="card-text">Ensure data security and compliance with industry standards.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- <section class="how-it-works">
+        <div class="container-xl text-center">
+            <h2 class="fw-bold">How It Works</h2>
+            <p class="text-muted">Follow these simple steps to get started with PeoplePulse.</p>
+    
+            <div class="row mt-5">
+                <article class="col-md-4">
+                    <div class="step">
+                        <span class="step-icon">
+                            <i class="bi bi-person-plus"></i>
+                        </span>
+                        <h5>Admin Workflow</h5>
+                        <p>The admin creates and adds employees, assigns roles and permissions, and manages the overall operations of the organization.</p>
+                    </div>
+                </article>
+                <article class="col-md-4">
+                    <div class="step">
+                        <span class="step-icon">
+                            <i class="bi bi-box-arrow-in-right"></i>
+                        </span>
+                        <h5>Employee Workflow</h5>
+                        <p>Employees log in to the platform, mark attendance, request leaves, update timesheets, and receive their payroll based on completed tasks.</p>
+                    </div>
+                </article>
+                <article class="col-md-4">
+                    <div class="step">
+                        <span class="step-icon">
+                            <i class="bi bi-person-lines-fill"></i>
+                        </span>
+                        <h5>HR Workflow</h5>
+                        <p>HR manages attendance, leaves, and project assignments, tracks employee progress, and processes payroll based on employee data and work performance.</p>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </section> -->
+    
+    
+    <section class="how-it-works">
+        <div class="container-md text-center">
+            <h2 class="fw-bold">How It Works</h2>
+            <p class="text-muted">A streamlined workflow for Admins, Employees, and HR.</p>
+            <h3 class="visually-hidden"></h3>
+            <div class="row gy-3 mt-5">
+                <!-- Admin Workflow -->
+                <article class="col-sm-6 col-lg-4">
+                    <div class="card border-0 rounded-3 role-card h-100">
+                        <div class="role-icon">
+                            <i class="bi bi-person-gear"></i>
+                        </div>
+                        <h4 class="mb-3">Admin Workflow</h4>
+                        <ul class="mb-0">
+                            <li>🔑 Login to access the dashboard</li>
+                            <li>📌 Create & manage employees</li>
+                            <li>🛠️ Assign roles & permissions</li>
+                            <li>📊 Manage organization structure</li>
+                            <li>⚙️ Oversee top-level operations</li>
+                        </ul>
+                    </div>
+                </article>
+    
+                <!-- Employee Workflow -->
+                <article class="col-sm-6 col-lg-4">
+                    <div class="card border-0 rounded-3 role-card h-100">
+                        <div class="role-icon">
+                            <i class="bi bi-person-check"></i>
+                        </div>
+                        <h4 class="mb-3">Employee Workflow</h4>
+                        <ul class="mb-0">
+                            <li>🔑 Login to access the dashboard</li>
+                            <li>⏳ Mark attendance & log timesheets</li>
+                            <li>📅 Apply for leave</li>
+                            <li>💰 View payroll</li>
+                        </ul>
+                    </div>
+                </article>
+    
+                <!-- HR Workflow -->
+                <article class="col-sm-6 col-lg-4">
+                    <div class="card border-0 rounded-3 role-card h-100">
+                        <div class="role-icon">
+                            <i class="bi bi-briefcase"></i>
+                        </div>
+                        <h4 class="mb-3">HR Workflow</h4>
+                        <ul class="mb-0">
+                            <li>🔑 Login & manage employees</li>
+                            <li>🕒 Monitor attendance & leaves</li>
+                            <li>📝 Assign & track projects</li>
+                            <li>💵 Process payroll & salaries</li>
+                        </ul>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </section>
+    
+    <section class="usp-section">
+        <div class=" container-md text-center">
+            <h2 class="fw-bold">Why Choose Us?</h2>
+            <p class="text-muted">Our platform offers the best features for streamlined HR and employee management.</p>
+        
+            <div class="row g-3 mt-5">
+                <article class="col-sm-6 col-lg-4">
+                    <div class="usp-box h-100 text-center">
+                        <i class="bi bi-speedometer usp-icon"></i>
+                        <h3 class="h5">Efficient Workflow</h3>
+                        <p>Automate HR processes, track attendance, and manage payroll effortlessly.</p>
+                    </div>
+                </article>
+        
+                <!-- USP 2 -->
+                <article class="col-sm-6 col-lg-4">
+                    <div class="usp-box h-100 text-center">
+                        <i class="bi bi-shield-lock usp-icon"></i>
+                        <h3 class="h5">Secure & Reliable</h3>
+                        <p>Advanced security features ensure your data stays safe and private.</p>
+                    </div>
+                </article>
+        
+                <!-- USP 3 -->
+                <article class="col-sm-6 col-lg-4">
+                    <div class="usp-box h-100 text-center">
+                        <i class="bi bi-people usp-icon"></i>
+                        <h3 class="h5">User-Friendly</h3>
+                        <p>Intuitive interface designed for easy navigation and quick onboarding.</p>
+                    </div>
+                </article>
+                <article class="col-sm-6 col-lg-4">
+                    <div class="usp-box h-100 text-center">
+                        <i class="bi bi-bar-chart-line usp-icon"></i>
+                        <h3 class="h5">Real-Time Insights</h3>
+                        <p>Get detailed analytics and reports for better decision-making.</p>
+                    </div>
+                </article>
+        
+                <article class="col-sm-6 col-lg-4">
+                    <div class="usp-box h-100 text-center">
+                        <i class="bi bi-person-check usp-icon"></i>
+                        <h3 class="h5">Role-Based Access</h3>
+                        <p>Customizable permissions ensure the right access for every role.</p>
+                    </div>
+                </article>
+        
+                <article class="col-sm-6 col-lg-4">
+                    <div class="usp-box h-100 text-center">
+                        <i class="bi bi-cloud-check usp-icon"></i>
+                        <h3 class="h5">Cloud-Based Solution</h3>
+                        <p>Access your data anywhere, anytime with our cloud-enabled platform.</p>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </section>
+    
+    <section class="faq-section container-lg">
+        <h2 class="text-center faq-heading mb-4">Frequently Asked Questions</h2>
+        <p class="text-center text-muted">Find answers to the most common queries about our platform.</p>
+    
+        <div class="accordion mt-4" id="faqAccordion">
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
+                        📌 How do I add a new employee?
+                    </button>
+                </h2>
+                <div id="faq1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body">
+                        Admins can add new employees from the dashboard by navigating to the "Employee Management" section.
+                    </div>
+                </div>
+            </div>
+    
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
+                        🔒 How secure is my data?
+                    </button>
+                </h2>
+                <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body">
+                        We use top-notch encryption and security measures to ensure your data remains protected.
+                    </div>
+                </div>
+            </div>
+    
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
+                        ⏳ Can employees track their attendance?
+                    </button>
+                </h2>
+                <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body">
+                        Yes, employees can log in to their accounts and view attendance records in real time.
+                    </div>
+                </div>
+            </div>
+    
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq4">
+                        💰 How does payroll processing work?
+                    </button>
+                </h2>
+                <div id="faq4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body">
+                        Payroll is automatically calculated based on logged attendance and company policies.
+                    </div>
+                </div>
+            </div>
+    
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq5">
+                        📞 How can I get support?
+                    </button>
+                </h2>
+                <div id="faq5" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body">
+                        You can contact our support team via email or live chat for assistance.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <section class="container-lg CTA_sec mb-3">
+        <div class="cta-section">
+            <h2 class="cta-title">Ready to Get Started?</h2>
+            <p class="cta-text text-light mb-4">Join thousands of businesses already using our platform to streamline HR and payroll management.</p>
+            <a href="/" class="btn cta-btn cta-btn-primary me-2">Get Started Now</a>
+            <a href="/" class="btn btn-outline-light cta-btn">Learn More</a>
+        </div>
+    </section>
+}

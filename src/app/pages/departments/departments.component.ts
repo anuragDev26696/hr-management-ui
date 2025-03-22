@@ -7,6 +7,8 @@ import { FormArray, FormControl, FormGroup, ReactiveFormsModule, Validators } fr
 import { AuthService } from '../../services/auth.service';
 import { ShareService } from '../../services/share.service';
 import { DepartmentService } from '../../services/department.service';
+import { LoaderService } from '../../services/loader.service';
+import { ToastService } from '../../services/toast.service';
 
 @Component({
   selector: 'app-departments',
@@ -27,7 +29,13 @@ export class DepartmentsComponent {
   departmentId: string = "";
   nameRegx: RegExp = /^[a-zA-Z]+([a-zA-Z0-9 ]*[a-zA-Z0-9]+)*$/;
 
-  constructor(private shareServ: ShareService, private departmentServ: DepartmentService, private authServ: AuthService,){}
+  constructor(
+    private shareServ: ShareService,
+    private departmentServ: DepartmentService,
+    private authServ: AuthService,
+    private loader: LoaderService,
+    private toastr: ToastService,
+  ){}
 
   ngOnInit(): void {
     this.fetchDepartments();
@@ -93,12 +101,13 @@ export class DepartmentsComponent {
   public onSubmit(event: Event): void {
     event.stopImmediatePropagation();
     event.preventDefault();
+    this.loader.show('circle', 'Form Submitting. Please wait.');
     let subscriber = this.formAction === 'add' ? 
     this.departmentServ.createDepartment(this.departmentForm.value) : 
     this.departmentServ.updateDepartment(this.departmentId, this.departmentForm.value);
     subscriber.subscribe({
       next: (value) => {
-        console.log(value);
+        this.toastr.success(value.message);
         document.getElementById('closeModalBtn')?.click();
         this.paginate.skip = this.formAction === 'add' ? 0 : this.paginate.skip;
         this.formAction = 'add';
@@ -110,10 +119,12 @@ export class DepartmentsComponent {
         this.departmentForm.markAsPristine();
         this.departmentForm.updateValueAndValidity();
         this.buildForm();
+        this.loader.hide();
         this.fetchDepartments();
       },
       error: (err) => {
-        console.log(err, " :error");
+        this.toastr.error(err.error.error || err.error.message||err.error);
+        this.loader.hide();
       },
     });
   }
@@ -127,6 +138,7 @@ export class DepartmentsComponent {
   }
 
   private deleteDepart(departId: string): void {
+    this.loader.show('circle', 'Deleting');
     this.departmentServ.deleteDepartment(departId).subscribe({
       next: (value) => {
         if(this.departmentList.length > 2) {
@@ -135,6 +147,12 @@ export class DepartmentsComponent {
           this.paginate.skip = Math.abs(this.paginate.skip-1);
           this.fetchDepartments();
         }
+        this.toastr.success(value.message);
+        this.loader.hide();
+      },
+      error: (err) => {
+        this.toastr.error(err.error.error || err.error.message||err.error);
+        this.loader.hide();
       },
     });
   }

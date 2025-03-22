@@ -23,3 +23,5 @@ export interface IGeneric {
 }
 
 export interface pagination {skip: number; limit: number;}
+
+export interface IDashboardMaster {departments: number, totalEmployee: number, activeEmployee: number, recentRegistrations: number, leaveRequest: number}

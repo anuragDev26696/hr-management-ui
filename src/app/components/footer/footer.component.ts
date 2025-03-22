@@ -9,6 +9,6 @@ import { Component, ElementRef } from '@angular/core';
 export class FooterComponent {
 
   constructor(private ele: ElementRef){
-    ele.nativeElement.className = 'footer bg-body-tertiary';
+    ele.nativeElement.className = 'footer d-block';
   }
 }

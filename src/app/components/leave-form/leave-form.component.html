@@ -24,4 +24,9 @@
     <label for="descCtrl">Reason</label>
     <textarea [rows]="2" id="descCtrl" class="form-control" formControlName="reason" [maxLength]="500" [minLength]="10" aria-describedby="descriptionFeed" aria-placeholder="Description"></textarea>
     <div class="invalid-feedback" id="descriptionFeed">Reason should be max 500 caracter's.</div>
+
+    <div class="form-check form-switch mt-3">
+        <input class="form-check-input" type="checkbox" value="" id="applyClPermit" formControlName="isApplyCL">
+        <label class="form-check-label" for="applyClPermit">Apply Casual Leave (CL)?</label>
+    </div>
 </ng-container>

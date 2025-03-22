@@ -1,6 +1,33 @@
 <main class="container-xl py-3">
     <h1 class="visually-hidden">Leave Request List</h1>
-    <div class="card shadow border-light">
+    <section class="grid-container gap-2 mb-3">
+        @defer (when (!isBalanceFetching || leaveBalance)) {
+            @if (leaveBalance) {
+                <article class="card rounded-3 shoadow-sm p-3 balanceCard clCredit">
+                    <p class="fs-5 card-title">Credited CL: <strong>{{leaveBalance.lastCreditedCL || 0}}</strong></p>
+                </article>                
+                <article class="card rounded-3 shoadow-sm p-3 balanceCard clRemaining">
+                    <p class="fs-5 card-title">Remaining CL: <strong>{{leaveBalance.remainingCL || 0}}</strong></p>
+                </article>
+                <article class="card rounded-3 shoadow-sm p-3 balanceCard clApplied">
+                    <p class="fs-5 card-title">Applied CL: <strong>{{leaveBalance.appliedCL || 0}}</strong></p>
+                </article>
+                <article class="card rounded-3 shoadow-sm p-3 balanceCard lopApplied">
+                    <p class="fs-5 card-title">Applied LOP: <strong>{{leaveBalance.appliedLOP || 0}}</strong></p>
+                </article>
+            } @else {
+                <strong class="text-danger-emphasis"><i class="bi bi-info-circle-fill"></i> Leave balance is not available.</strong>
+            }
+        }@placeholder {
+            @for (item of [0,1,2, 2]; track $index) {
+                <div class="card rounded-3 shoadow-sm p-3 balanceCard border-light placeholder-glow gap-2 flex-row flex-wrap">
+                    <p class="rounded-1 fs-4 placeholder col-7"></p>
+                    <p class="rounded-1 fs-4 placeholder col-4"></p>
+                </div>
+            }
+        }
+    </section>
+    <div class="card border-light">
         <div class="card-header border-light bg-white d-flex gap-2 align-items-center">
             <span  class="fs-5 fw-medium">Request List <br><small class="small text-secondary fw-normal">{{totalDocs}} Requests</small></span>
             <button class="btn btn-primary shadow ms-auto" type="button" data-bs-toggle="modal" data-bs-target="#leaveFormModal" (click)="formAction = 'apply'"><i class="bi bi-plus"></i> Apply Leave</button>
@@ -33,23 +60,19 @@
                         @for (item of leaveList; track (item.uuid+'_'+i); let i = $index;) {
                             <tr (mouseenter)="trDetail.classList.remove('d-none')" (mouseleave)="trDetail.classList.add('d-none')">
                                 @for (col of tableColumns; track col; let isFirst = $first;) {
-                                    @if (isFirst) {
-                                        <td class="{{$first ? '' : 'cell_'+col.trim()}}">
+                                    <td class="{{$first ? '' : 'cell_'+col.trim()}}">
+                                        @if (isFirst) {
                                             <div>
-                                            @if (userRole === 'admin') {
-                                                <input class="form-check-input" type="checkbox" [id]="item._id" [value]="item.uuid" aria-label="select for action" [checked]="selectedLeaves.includes(item.uuid)" (change)="leaveSelection($event, item.uuid)" [disabled]="item.status != 'pending'">
-                                            } @else {
-                                                {{i+1}}
-                                            }
+                                                @if (userRole === 'admin') {
+                                                    <input class="form-check-input" type="checkbox" [id]="item._id" [value]="item.uuid" aria-label="select for action" [checked]="selectedLeaves.includes(item.uuid)" (change)="leaveSelection($event, item.uuid)" [disabled]="item.status != 'pending'">
+                                                } @else {
+                                                    {{i+1}}
+                                                }
                                             </div>
-                                        </td>
-                                    } @else if(col === 'name'){
-                                        <td class="{{$first ? '' : 'cell_'+col.trim()}}">
+                                        } @else if(col === 'name'){
                                             {{item.employeeName}}<br>
                                             <span class="badge rounded-pill text-bg-light border-secondary text-secondary">{{item.employeePosition}}</span>
-                                        </td>
-                                    } @else if (col === 'leave_days') {
-                                        <td class="{{'cell_'+col.trim()}} small">
+                                        } @else if (col === 'leave_days') {
                                             @if (leaveDetail(item).isSame) {
                                                 {{strToDate(item.startDate.date) | date}} - {{item.startDate.leaveType.replaceAll('_', ' ') | titlecase}}
                                                 <!-- <span>{{}}</span> -->
@@ -58,19 +81,13 @@
                                                 <span class="badge rounded-pill text-bg-light border-secondary text-secondary">{{item.leaveDays.length}} days</span>
                                             }
                                             <p class="text-muted mb-0 text-truncate">{{item.reason}}</p>
-                                        </td>
-                                    } @else if (col === 'applied_at') {
-                                        <td class="{{$first ? '' : 'cell_'+col.trim()}}">
+                                        } @else if (col === 'applied_at') {
                                             {{strToDate(item.createdAt) | date}}
-                                        </td>
-                                    } @else if (col === 'status') {
-                                        <td class="{{$first ? '' : 'cell_'+col.trim()}}">
+                                        } @else if (col === 'status') {
                                             <div class="badge text-bg-{{item.status === 'approved' ? 'success' : item.status === 'rejected' ? 'danger' : 'warning' }} rounded-pill">{{item.status | titlecase}}</div>
-                                        </td>
-                                    } @else {
-                                        <td class="{{$first ? '' : 'cell_'+col.trim()}}">
+                                        } @else {
                                             <div class="action-btns">
-                                                @if (userRole === 'admin' && item.status === 'pending') {
+                                                @if (isPermit && item.status === 'pending') {
                                                     <button type="button" class="btn btn-sm icon-btn btn-light text-success border-0 outline-0 rounded-circle me-2" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Accept" data-bs-html="true" [tabIndex]="-1" (click)="updateStatus($event, [item.uuid], 'approve')">
                                                         <i class="bi bi-check fs-4"></i>
                                                     </button>
@@ -93,13 +110,13 @@
                                                     <li><button class="dropdown-item small danger-item" (click)="requestTrash($event, item.uuid)">Cancel</button></li>
                                                 </ul>
                                             </div> -->
-                                        </td>
-                                    }
+                                        }
+                                    </td>
                                 }
                             </tr>
                             <tr class="d-none" #trDetail>
                                 <td class="bg-body-tertiary"></td>
-                                <td class="bg-body-tertiary" [colSpan]="tableColumns.length-1">{{item.reason}}</td>
+                                <td class="bg-body-tertiary" style="white-space: pre-line;" [colSpan]="tableColumns.length-1">{{item.reason}}</td>
                             </tr>
                         } @empty {
                             <tr>
@@ -125,7 +142,7 @@
         </div>
         <div class="modal-body">
             <form [formGroup]="requestForm">
-                <app-leave-form></app-leave-form>
+                <app-leave-form/>
             </form>
         </div>
         <div class="modal-footer">
