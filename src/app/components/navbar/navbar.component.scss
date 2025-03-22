@@ -1,4 +1,4 @@
-:host{--bs-navbar-toggler-focus-width: 0;
+:host{--bs-navbar-toggler-focus-width: 0; --bs-navbar-padding-y: 0;
     // --bs-scroll-height: 300px; // Set max height for navbar by default 75vh
 }
 button.dropdown-toggle::after{border-color: transparent; border: 0; margin-inline: 0;}
@@ -6,3 +6,4 @@ button.dropdown-toggle::after{border-color: transparent; border: 0; margin-inlin
     :host > .container-fluid {justify-content: flex-start;}
     .navbar-collapse{ order: 1;}
 }
+img{width: auto; max-width: 100%;object-fit: contain;}

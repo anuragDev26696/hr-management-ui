@@ -2,7 +2,9 @@
   <button class="navbar-toggler border-0 px-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
     <span class="navbar-toggler-icon"></span>
   </button>
-  <a class="navbar-brand" [routerLink]="['/']" [routerLinkActive]="'active'">HR-Management</a>
+  <a class="navbar-brand" [routerLink]="['/']" [routerLinkActive]="'active'">
+    <img src="people_pulse_invert.png" srcset="people_pulse_invert.png 2x, people_pulse_invert.png 3x" alt="People Pulse" [height]="40" [width]="120" fetchpriority="high" loading="lazy">
+  </a>
   <div class="collapse navbar-collapse" id="navbarSupportedContent">
     <ul class="navbar-nav ms-auto mb-2 gap-xl-3 mb-lg-0 navbar-nav-scroll">
       <li class="nav-item">
@@ -37,7 +39,7 @@
       </li>
     </ul>
   </div>
-  <div class="ms-auto ms-lg-3 profileDropdown dropdown" data-bs-theme="light" style="height: calc((1.325rem + .9vw)*1.5); width: calc((1.325rem + .9vw)*1.5);">
+  <div class="ms-auto profileDropdown dropdown" data-bs-theme="light" style="height: calc((1.325rem + .9vw)*1.5); width: calc((1.325rem + .9vw)*1.5);">
     @if (user) {
       <button class="border-0 outline-0 dropdown-toggle bg-primary" type="button" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false" [tabIndex]="-1" aria-controls="#userMenu" aria-label="User Profile">
         <i class="bi bi-person-circle fs-2"></i>

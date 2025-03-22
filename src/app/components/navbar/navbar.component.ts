@@ -14,7 +14,7 @@ export class NavbarComponent implements AfterViewChecked {
   userLoaded: boolean = false;
 
   constructor(private ele: ElementRef, private authServ: AuthService ){
-    ele.nativeElement.className = 'navbar navbar-expand-lg sticky-top bg-primary';
+    ele.nativeElement.className = 'navbar navbar-expand-lg fixed-top bg-primary shadow';
     ele.nativeElement.setAttribute('data-bs-theme',  "dark");
     const auth = authServ.currentToken();
     auth().observeToken.subscribe({

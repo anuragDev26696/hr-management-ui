@@ -23,13 +23,14 @@ export class EmployeesComponent {
   isNext: boolean = false;
   listLoaded: boolean = false;
   paginate: pagination = {skip: 0, limit: 20};
-  tableColumns: Array<string> = ['sr', 'name', 'role', 'created At', ''];
+  tableColumns: Array<string> = ['sr', 'name', 'role', 'created At'];
   employeeForm: FormGroup = new FormGroup({});
   formAction: 'add' | 'update' = 'add';
   employeeId: string = "";
   requiredReset: boolean = false;
   userRole: string = '';
   filterStatus: null | boolean = null;
+  public isPermit: boolean = false;
 
   constructor(
     private shareServ: ShareService,
@@ -40,10 +41,9 @@ export class EmployeesComponent {
     authServ.loggedinUser.subscribe({
       next: (value) => {
         this.userRole = value?.role || "";
-        if (this.userRole !== 'admin') {
-          this.tableColumns = ['sr', 'name', 'designation', 'created At'];
-        } else { 
-          this.tableColumns = ['sr', 'name', 'role', 'created At', ''];
+        this.isPermit = (value?.permissions ?? []).includes('employee');
+        if (this.isPermit) {
+          this.tableColumns = ['sr', 'name', 'designation', 'created At', ''];
         }
       },
     });
@@ -86,6 +86,7 @@ export class EmployeesComponent {
       resignationDate: new FormControl<Date| null>({value: null, disabled: false}),
       isActive: new FormControl<boolean>({value: true, disabled: false}, [Validators.required]),
       orgId: new FormControl<string | null>({value: null, disabled: false}),
+      permissions: new FormControl<Array<string>>({value: [], disabled: false}),
       currentAddress: this.buildAddressForm,
       permanentAddress: this.buildAddressForm,
     });

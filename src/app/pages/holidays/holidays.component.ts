@@ -29,6 +29,9 @@ export class HolidaysComponent {
   userRole: string = "";
   view: 'list' | 'grid' = 'list';
   public filteredHolidayDataSubject = new ReplaySubject<IHolidayRes[]>(1);
+  public isPermit: boolean = false;
+  public today: Date = new Date();
+  selectedYear: number = this.today.getFullYear();
 
   constructor(
     private shareServ: ShareService,
@@ -41,6 +44,7 @@ export class HolidaysComponent {
     authServ.loggedinUser.subscribe({
       next: (value) => {
         this.userRole = value?.role!;
+        this.isPermit = (value?.permissions ?? []).includes('employee');
       },
     });
     this.view = window.innerWidth < 576 ? "grid": "list";
@@ -67,10 +71,10 @@ export class HolidaysComponent {
     this.cdRef.detectChanges();  // Trigger manual change detection after view is checked
   }
   
-  private fetchHolidays(dateStr: Date = new Date()): void {
+  private fetchHolidays(): void {
     this.listLoaded = false;
     console.log("called api");
-    this.holidayServ.calendarHolidays(dateStr.getFullYear()).subscribe({
+    this.holidayServ.calendarHolidays(this.selectedYear).subscribe({
       next: (value) => {
         this.holidayList = value.data;
         this.filteredHolidayDataSubject.next(this.holidayList);
@@ -159,5 +163,13 @@ export class HolidaysComponent {
     const today = new Date();
     const evDate = new Date(dateStr);
     return this.shareServ.dateForInput(today) === this.shareServ.dateForInput(evDate);
+  }
+  public get yearList(): Array<number> {
+    const length = new Date().getFullYear() - 1990;
+    return Array.from({length: length}).map((_, index) => new Date().getFullYear()-index);
+  }
+  public triggerForNew(event: Event): void {
+    event.stopImmediatePropagation();
+    this.fetchHolidays();
   }
 }

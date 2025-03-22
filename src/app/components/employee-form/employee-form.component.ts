@@ -4,10 +4,13 @@ import { DepartmentService } from '../../services/department.service';
 import { DepartmentRes, SubDepartment } from '../../interfaces/IDepartment';
 import { debounceTime } from 'rxjs';
 import { ShareService } from '../../services/share.service';
+import { TitleCasePipe } from '@angular/common';
+import { AuthService } from '../../services/auth.service';
+import { IUserRes } from '../../interfaces/IUser';
 
 @Component({
   selector: 'app-employee-form',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, TitleCasePipe],
   templateUrl: './employee-form.component.html',
   styleUrl: './employee-form.component.scss',
 })
@@ -21,8 +24,16 @@ export class EmployeeFormComponent implements OnChanges {
   public maxJoinDate: string = '';
   public minResignDate: string = '';
   public todayDate: string = '';
+  public permissions: Array<string> = ["payroll", "employee", "leave", "attendance", "holiday"];
+  public user: IUserRes | null = null;
 
-  constructor(private departServ: DepartmentService, private shareServ: ShareService,) {}
+  constructor(private departServ: DepartmentService, private shareServ: ShareService, private auth: AuthService,) {
+    auth.loggedinUser.subscribe({
+      next: (value) => {
+        this.user = value;
+      }
+    })
+  }
 
   ngOnChanges(changes: SimpleChanges): void {
     this.todayDate = this.shareServ.dateForInput(new Date());
@@ -97,5 +108,34 @@ export class EmployeeFormComponent implements OnChanges {
         this.departLoaded = true;
       },
     });
+  }
+
+  public changeRole(event: Event): void {
+    event.stopPropagation();
+    const select = event.target as HTMLSelectElement;
+    if(select.value.trim().toLocaleLowerCase() === 'employee') {
+      this.parentController.controls['permissions'].patchValue([]);
+    }
+  }
+  public selectPermision(event: Event): void {
+    event.stopPropagation();
+    const input = event.target as HTMLInputElement;
+    const permissions: Array<String> = this.parentController.controls['permissions'].value ?? [];
+    const itemIndex = permissions.indexOf(input.value);
+    if(input.checked) {
+      if(itemIndex < 0){
+        permissions.push(input.value);
+        this.parentController.controls['permissions'].patchValue(permissions);
+      }
+    } else {
+      if(itemIndex >= 0){
+        permissions.splice(itemIndex, 1);
+        this.parentController.controls['permissions'].patchValue(permissions);
+      }
+    }
+  }
+  public isPermit(value: string): boolean {
+    const permissions: Array<String> = this.parentController.controls['permissions'].value ?? [];
+    return permissions.includes(value);
   }
 }

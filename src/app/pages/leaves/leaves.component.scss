@@ -1,4 +1,17 @@
+@mixin buildSmallCard($color){
+    --bs-card-bg: #{rgba($color, 0.1)}; --bs-card-title-color: #{$color}; --bs-card-border-color: #{rgba($color, 0.1)};
+}
 .cell_leave_days{min-width: 200px;} .cell_applied_at{min-width: 100px;}
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(250px, 100%), 1fr));
+}
+.clCredit{@include buildSmallCard(#3a0163);}
+.clRemaining{@include buildSmallCard(#3f6801);}
+.clApplied{@include buildSmallCard(#026141);}
+.lopApplied{@include buildSmallCard(#690202);}
+
+// .balanceCard{width: clamp(min(100%, 300px), 100%, 450px);}
 @media screen and (min-width: 768px) {
     tr{position: relative;}
     .table-sm .action-btns{padding: 0.25rem;}

@@ -8,8 +8,6 @@ export interface IUserReq {
   orgId: string;
   subDepartment: string;
   department: any;
-  isAdmin: boolean;
-  isHR: boolean;
   isActive: boolean;
   joiningDate: Date;
   role: string;
@@ -19,6 +17,7 @@ export interface IUserReq {
   resignationDate: Date | null;
   currentAddress: IAddress;
   permanentAddress: IAddress;
+  permissions: Array<string>;
 }
 
 export interface IAddress {

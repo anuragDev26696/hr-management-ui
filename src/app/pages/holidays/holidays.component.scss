@@ -10,6 +10,6 @@
   }
 }
 .form-select.listFilter{width: fit-content;}
-.table-active{
-  --bs-table-bg-state: rgb(62 97 148 / 10%);
-}
+.table-active{ --bs-table-bg-state: rgb(62 97 148 / 10%); }
+.yearGroup{width: 120px;}
+datalist{max-height: 300px;}

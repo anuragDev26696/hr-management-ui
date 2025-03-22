@@ -1,5 +1,32 @@
 <main class="container-xl py-3">
     <h1 class="visually-hidden">Leave Request List</h1>
+    <section class="grid-container gap-2 mb-3">
+        @defer (when (!isBalanceFetching || leaveBalance)) {
+            @if (leaveBalance) {
+                <article class="card rounded-3 shoadow-sm p-3 balanceCard clCredit">
+                    <p class="fs-5 card-title">Credited CL: <strong>{{leaveBalance.lastCreditedCL || 0}}</strong></p>
+                </article>                
+                <article class="card rounded-3 shoadow-sm p-3 balanceCard clRemaining">
+                    <p class="fs-5 card-title">Remaining CL: <strong>{{leaveBalance.remainingCL || 0}}</strong></p>
+                </article>
+                <article class="card rounded-3 shoadow-sm p-3 balanceCard clApplied">
+                    <p class="fs-5 card-title">Applied CL: <strong>{{leaveBalance.appliedCL || 0}}</strong></p>
+                </article>
+                <article class="card rounded-3 shoadow-sm p-3 balanceCard lopApplied">
+                    <p class="fs-5 card-title">Applied LOP: <strong>{{leaveBalance.appliedLOP || 0}}</strong></p>
+                </article>
+            } @else {
+                <strong class="text-danger-emphasis"><i class="bi bi-info-circle-fill"></i> Leave balance is not available.</strong>
+            }
+        }@placeholder {
+            @for (item of [0,1,2, 2]; track $index) {
+                <div class="card rounded-3 shoadow-sm p-3 balanceCard border-light placeholder-glow gap-2 flex-row flex-wrap">
+                    <p class="rounded-1 fs-4 placeholder col-7"></p>
+                    <p class="rounded-1 fs-4 placeholder col-4"></p>
+                </div>
+            }
+        }
+    </section>
     <div class="card border-light">
         <div class="card-header border-light bg-white d-flex gap-2 align-items-center">
             <span  class="fs-5 fw-medium">Request List <br><small class="small text-secondary fw-normal">{{totalDocs}} Requests</small></span>
@@ -60,7 +87,7 @@
                                             <div class="badge text-bg-{{item.status === 'approved' ? 'success' : item.status === 'rejected' ? 'danger' : 'warning' }} rounded-pill">{{item.status | titlecase}}</div>
                                         } @else {
                                             <div class="action-btns">
-                                                @if (userRole === 'admin' && item.status === 'pending') {
+                                                @if (isPermit && item.status === 'pending') {
                                                     <button type="button" class="btn btn-sm icon-btn btn-light text-success border-0 outline-0 rounded-circle me-2" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Accept" data-bs-html="true" [tabIndex]="-1" (click)="updateStatus($event, [item.uuid], 'approve')">
                                                         <i class="bi bi-check fs-4"></i>
                                                     </button>
@@ -115,7 +142,7 @@
         </div>
         <div class="modal-body">
             <form [formGroup]="requestForm">
-                <app-leave-form></app-leave-form>
+                <app-leave-form/>
             </form>
         </div>
         <div class="modal-footer">

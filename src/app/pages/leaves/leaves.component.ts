@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { ILeaveResponse, leaveStatus, leaveType } from '../../interfaces/ILeave';
+import { ILeaveBalance, ILeaveResponse, leaveStatus, leaveType } from '../../interfaces/ILeave';
 import { pagination } from '../../interfaces/IResponse';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ShareService } from '../../services/share.service';
@@ -7,6 +7,7 @@ import { LeaveService } from '../../services/leave.service';
 import { AuthService } from '../../services/auth.service';
 import { DatePipe, TitleCasePipe } from '@angular/common';
 import { LeaveFormComponent } from '../../components/leave-form/leave-form.component';
+import { ToastService } from '../../services/toast.service';
 
 @Component({
   selector: 'app-leaves',
@@ -28,15 +29,24 @@ export class LeavesComponent {
   employeeId: string = '';
   selectedLeaves: Array<string> = [];
   userRole: string = '';
+  public isPermit: boolean = false;
+  public isBalanceFetching: boolean = true;
+  public leaveBalance!: ILeaveBalance;
 
-  constructor(private shareServ: ShareService, private leaveServ: LeaveService, private authServ: AuthService,){
+  constructor(private shareServ: ShareService, private leaveServ: LeaveService, private authServ: AuthService,
+    private toastr: ToastService,
+  ){
     const auth = authServ.currentToken();
     this.employeeId = auth().userId;
     this.authServ.loggedinUser.subscribe({
       next: (value) => {
         console.log(value);
         this.userRole = value?.role || '';
-        if(this.userRole.trim() !== '') this.fetchRequests();
+        this.isPermit = value?.permissions.includes('leave') ?? false;
+        if(this.userRole.trim() !== '') {
+          this.fetchRequests();
+          this.fetchleaveBalance()
+        }
       },
       complete: () => {
       },
@@ -49,7 +59,7 @@ export class LeavesComponent {
   
   private fetchRequests(): void {
     this.listLoaded = false;
-    this.leaveServ.getLeaves(this.paginate, this.userRole !== 'admin' ? this.employeeId : "").subscribe({
+    this.leaveServ.getLeaves(this.paginate, !this.isPermit ? this.employeeId : "").subscribe({
       next: (value) => {
         this.leaveList = value.data.docs;
         this.totalDocs = value.data.total;
@@ -64,6 +74,17 @@ export class LeavesComponent {
       },
     });
   }
+  
+  private fetchleaveBalance(): void {
+    this.leaveServ.getLeaveBalance().subscribe({
+      next: (value) => {this.leaveBalance = value.data; this.isBalanceFetching = false;},
+      error: (err) => {
+        const {status, statusText, error} = err;
+        this.isBalanceFetching = false;
+        this.toastr.error(error.error || error.message);
+      },
+    });
+  }
 
   private buildForm(): void {
     this.requestForm = new FormGroup({
@@ -75,7 +96,7 @@ export class LeavesComponent {
         date: new FormControl<string | null>({value: null, disabled: false}, Validators.required),
         leaveType: new FormControl<leaveType | null>({value: null, disabled: false}, Validators.required),
       }),
-      orgId: new FormControl<string | null>({value: null, disabled: false},),
+      isApplyCL: new FormControl<boolean>({value: false, disabled: false}),
       reason: new FormControl<string | null>({value: null, disabled: false}, [Validators.required, Validators.minLength(10), Validators.maxLength(500)]),
     });
   }
@@ -135,6 +156,7 @@ export class LeavesComponent {
         this.requestForm.updateValueAndValidity();
         this.buildForm();
         this.fetchRequests();
+        this.fetchleaveBalance();
       },
       error: (err) => {
         console.log(err, " :error");
@@ -161,9 +183,11 @@ export class LeavesComponent {
           }
         });
         this.selectedLeaves = [];
+        this.toastr.success(value.message);
       },
       error: (err) => {
         console.log(err, ' error');
+        this.toastr.error(err.error.error || err.error.message);
       },
     });
   }
@@ -178,9 +202,14 @@ export class LeavesComponent {
   private cancelRequest(leaveUUID: string): void {
     this.leaveServ.cancelLeave(leaveUUID).subscribe({
       next: (value) => {
-        this.paginate.skip = Math.abs(this.paginate.skip-1);
+        this.paginate.skip = 0;
         this.fetchRequests();
         this.selectedLeaves = [];
+        this.toastr.success(value.message);
+        this.fetchleaveBalance();
+      },
+      error: (err) => {
+        this.toastr.error(err.error.error);
       },
     });
   }

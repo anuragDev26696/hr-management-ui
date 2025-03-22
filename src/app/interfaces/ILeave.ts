@@ -14,12 +14,29 @@ export interface ILeaveRequest {
     endDate: ILeaveDay;
     reason: string;
     status: leaveStatus; // Leave status
+    isApplyCL: boolean;
 }
 
 export interface ILeaveResponse extends ILeaveRequest, IGeneric{
     leaveDays: ILeaveDay[]; // Array of leave days (half/full days)
     employeeName: string;
     employeePosition: string;
+}
+
+export interface ILeaveBalance extends IGeneric{
+    employeeId: string,
+    orgId: string,
+    lastCreditedCL: number,
+    remainingCL: number,
+    appliedCL: number,
+    appliedLOP: number,
+    lastCreditDate: Date,
+    leaveHistory: [{
+        year: Date,
+        appliedCL: number,
+        appliedLOP: number,
+        remainedCL: number,
+    }],
 }
 
 export interface ILeaveList {

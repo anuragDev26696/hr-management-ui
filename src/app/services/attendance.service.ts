@@ -61,6 +61,15 @@ export class AttendanceService {
     );
   }
 
+  public getAttendanceSummary(): Observable<APIResponse<Record<string, number>>> {
+    return this.http.get<APIResponse<Record<string, number>>>(
+      `${environment.api}attendance//today-summary`,
+      {
+        headers: this.authServ.header
+      }
+    );
+  }
+
   public monthAttendance(month: Number, year: Number): Observable<APIResponse<IAttendance[]>> {
     return this.http.get<APIResponse<IAttendance[]>>(`${environment.api}attendance/month/${month}/${year}`,
       {

@@ -17,43 +17,43 @@ export const routes: Routes = [
       {
         path: '',
         pathMatch: 'full',
-        title: 'Dashboard',
+        title: 'Dashboard | PeoplePulse',
         loadComponent: () => import('./pages/dashboard/dashboard.component').then(m => m.DashboardComponent),
         canActivate: [authGuard],
       },
       {
         path: 'employees',
-        title: 'Employees',
+        title: 'Employees | PeoplePulse',
         loadComponent: () => import('./pages/employees/employees.component').then(m => m.EmployeesComponent),
         canActivate: [authGuard],
       },
       {
         path: 'departments',
-        title: 'Departments',
+        title: 'Departments | PeoplePulse',
         loadComponent: () => import('./pages/departments/departments.component').then(m => m.DepartmentsComponent),
         canActivate: [authGuard],
       },
       {
         path: 'leaves',
-        title: 'Leave Requests',
+        title: 'Leave Requests | PeoplePulse',
         loadComponent: () => import('./pages/leaves/leaves.component').then(m => m.LeavesComponent),
         canActivate: [authGuard],
       },
       {
         path: 'attendance',
-        title: 'Attendance',
+        title: 'Attendance | PeoplePulse',
         loadComponent: () => import('./pages/attendance/attendance.component').then(m => m.AttendanceComponent),
         canActivate: [authGuard],
       },
       {
         path: 'regularizations',
-        title: 'Regularizations',
+        title: 'Regularizations | PeoplePulse',
         loadComponent: () => import('./pages/regularizations/regularizations.component').then(m => m.RegularizationsComponent),
         canActivate: [authGuard],
       },
       {
         path: 'holidays',
-        title: 'Holidays',
+        title: 'Holidays | PeoplePulse',
         loadComponent: () => import('./pages/holidays/holidays.component').then(m => m.HolidaysComponent),
         canActivate: [authGuard],
       },
@@ -61,13 +61,13 @@ export const routes: Routes = [
   },
   {
     path: 'login',
-    title: 'Login',
+    title: 'Login | PeoplePulse',
     loadComponent: () => import('./pages/login/login.component').then(m => m.LoginComponent),
     canActivate: [unauthGuard], // Attach the guard here
   },
   {
     path: 'set-password',
-    title: 'Set Password',
+    title: 'Set Password | PeoplePulse',
     loadComponent: () => import('./pages/set-password/set-password.component').then(m => m.SetPasswordComponent),
     canActivate: [unauthGuard], // Attach the guard here
   },

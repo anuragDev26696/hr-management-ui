@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { AuthService } from './auth.service';
-import { ILeaveList, ILeaveRequest, ILeaveResponse, leaveStatus } from '../interfaces/ILeave';
+import { ILeaveBalance, ILeaveList, ILeaveRequest, ILeaveResponse, leaveStatus } from '../interfaces/ILeave';
 import { Observable } from 'rxjs';
 import { APIResponse, pagination } from '../interfaces/IResponse';
 import { environment } from '../../environments/environment';
@@ -51,6 +51,11 @@ export class LeaveService {
       {
         headers: this.authServ.header
       }
+    );
+  }
+  public getLeaveBalance(): Observable<APIResponse<ILeaveBalance>> {
+    return this.http.get<APIResponse<ILeaveBalance>>(`${environment.api}leaves/leave-balance`,
+      {headers: this.authServ.header}
     );
   }
 
