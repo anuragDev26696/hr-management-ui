@@ -5,17 +5,27 @@ import { HrDashboardComponent } from '../../components/hr-dashboard/hr-dashboard
 import { IAttendance } from '../../interfaces/IAttendance';
 import { interval, map, Subscription } from 'rxjs';
 import { AttendanceService } from '../../services/attendance.service';
+import { DashboardService } from '../../services/dashboard.service';
+import { DashboardEvents } from '../../interfaces/IDashboard';
+import { DatePipe } from '@angular/common';
+import { ToastService } from '../../services/toast.service';
 
 @Component({
   selector: 'app-dashboard',
   imports: [AdminDashboardComponent, HrDashboardComponent],
+  providers: [DatePipe],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss'
 })
 export class DashboardComponent implements OnDestroy {
-  auth = inject(AuthService);
+  private auth = inject(AuthService);
   private attendanceServ = inject(AttendanceService);
+  private dashboardServ = inject(DashboardService);
   public userRole: string = "";
+  public loggedinUser: any;
+  public dayStatus: any;
+  public events!: DashboardEvents;
+  public isEventLoading: boolean = true;
   public clockinData!: IAttendance | null;
   private apiSubscriber = new Subscription;
   timeOut: any;
@@ -27,12 +37,15 @@ export class DashboardComponent implements OnDestroy {
     'bi-hourglass-top'
   ];
   iconClass: string = this.iconClasses[0];
+  public datePipe = inject(DatePipe);
+  private toastr = inject(ToastService);
 
   constructor(private cdRef: ChangeDetectorRef){
     const tokenVal = this.auth.currentToken();
     const {token, userId, observeToken} = tokenVal();
     this.auth.loggedinUser.subscribe({
       next: (value) => {
+        this.loggedinUser = value;
         this.userRole = value?.role ?? "";
         if(value != null){
           let hasFetched: boolean = false;
@@ -53,6 +66,12 @@ export class DashboardComponent implements OnDestroy {
               this.updateWorkingTime(value);
             },
           });
+          this.fetchTodayStatus();
+          this.fetchTodayEvents();
+        } else {
+          setTimeout(() => {
+            this.isEventLoading = false;
+          }, 2000);
         }
       },
     });
@@ -66,6 +85,29 @@ export class DashboardComponent implements OnDestroy {
   ngOnDestroy(): void {
     if(this.apiSubscriber)
       this.apiSubscriber.unsubscribe();
+  }
+
+  protected fetchTodayStatus(): void {
+    this.apiSubscriber = this.dashboardServ.getTodayStatus().subscribe({
+      next: (value) => {
+        this.dayStatus = value.data;
+      },
+      complete: () => {
+      },
+    });
+  }
+
+  protected fetchTodayEvents(): void {
+    this.isEventLoading = true;
+    this.apiSubscriber = this.dashboardServ.getUpcomingEvents().subscribe({
+      next: (value) => {
+        this.events = value.data;
+        this.isEventLoading = false;
+      },
+      error: (err) => {
+        this.isEventLoading = false;
+      },
+    });
   }
 
   protected fetchLastClockin(): void {
@@ -114,7 +156,11 @@ export class DashboardComponent implements OnDestroy {
       next: (value) => {
         this.attendanceServ.lastClockin.next(value.data);
       },
-      error: (err) => {},
+      error: (err) => {this.toastr.error(err.error.error || err.error.message)},
     });
+  }
+
+  public eventDate(dateStr: Date | string): string {
+    return this.datePipe.transform(dateStr, 'longDate')?.split(',')[0] ?? '';
   }
 }

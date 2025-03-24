@@ -1,0 +1,6 @@
+@mixin buildGlowCard($color){
+    --bs-card-bg: #{rgba($color, 0.1)}; 
+    --bs-card-title-color: #{$color};
+    --bs-card-color: #{$color};
+    --bs-card-border-color: #{rgba($color, 0.1)};
+}

@@ -4,6 +4,8 @@ export interface IUserReq {
   name: string;
   email: string;
   gender: string;
+  dateOfBirth: Date;
+  bloodGroup: string;
   mobile: string;
   orgId: string;
   subDepartment: string;

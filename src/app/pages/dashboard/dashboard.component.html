@@ -1,38 +1,165 @@
 @defer (when userRole.trim() != '') {
     <div class="container-lg pt-3">
-        @defer (when !isFetchingClockin ) {
-            @let isClockein = clockinData && clockinData.clockOutTime == null;
-            <div class="card text-bg-primary {{isClockein ? 'p-3' : ''}} shadow">
-                @if (isClockein) {
-                    <p class="small mb-1"><i class="bi {{iconClass}}"></i> Your working time</p>
-                    <div class="clearfix clear-fix clock-container fw-medium fs-4 overflow-hidden">
-                        <span [class]="workingTime.seconds === 0 && workingTime.minutes === 0 ? 'slide-down digit' : 'digit'">
-                        {{ workingTime.hours < 10 ? '0' + workingTime.hours : workingTime.hours }}
-                        </span> :
-                        <span [class]="workingTime.seconds === 0 ? 'slide-down digit' : 'digit'">
-                            {{ workingTime.minutes < 10 ? '0' + workingTime.minutes : workingTime.minutes }}
-                        </span> :
-                        <span [className]="['slide-down digit second']">
-                        {{ workingTime.seconds < 10 ? '0' + workingTime.seconds : workingTime.seconds }}
-                        </span>
-                        <button class="btn btn-sm fw-medium float-end btn-warning px-3" (click)="clockOut($event)">Clock Out &nbsp;<i class="bi bi-pause-fill"></i></button>
+        <div class="row g-3">
+            <aside class="col-sm-6 col-md-4 col-lg-4">
+                @defer (when !isFetchingClockin ) {
+                    @let isClockein = clockinData && clockinData.clockOutTime == null;
+                    <div class="card bg-primary bg-opacity-25 border-primary p-3 shadow-sm h-100">
+                        @if (isClockein) {
+                            <p class="small fw-medium mb-1"><i class="bi {{iconClass}}"></i> Your working time</p>
+                            <div class="clearfix clear-fix clock-container fw-medium fs-4 overflow-hidden">
+                                <span [class]="workingTime.seconds === 0 && workingTime.minutes === 0 ? 'slide-down digit' : 'digit'">
+                                {{ workingTime.hours < 10 ? '0' + workingTime.hours : workingTime.hours }}
+                                </span> :
+                                <span [class]="workingTime.seconds === 0 ? 'slide-down digit' : 'digit'">
+                                    {{ workingTime.minutes < 10 ? '0' + workingTime.minutes : workingTime.minutes }}
+                                </span> :
+                                <span [className]="['slide-down digit second']">
+                                {{ workingTime.seconds < 10 ? '0' + workingTime.seconds : workingTime.seconds }}
+                                </span>
+                            </div>
+                            <button class="btn btn-sm rounded fw-medium shadow-sm me-auto mt-1 btn-danger px-3" (click)="clockOut($event)">Clock Out &nbsp;<i class="bi bi-pause-fill"></i></button>
+                        } @else {
+                            <p class="h5 card-title">Mark Attendance</p>
+                            <button class="btn mt-3 btn-sm rounded fw-medium btn-primary rounded-2 py-2 px-3 me-auto" (click)="clockin($event)">Clock In Now &nbsp;<i class="bi bi-fingerprint"></i></button>
+                        }
                     </div>
-                } @else {
-                    <button class="btn btn-sm fw-medium float-end btn-primary fs-5 px-3" (click)="clockin($event)">Clock In Now &nbsp;<i class="bi bi-fingerprint"></i></button>
+                } @loading {
+                    <div class="card text-bg-primary placeholder-glow p-3 shadow flex-row gap-2">
+                        <span class="h2 rounded-1 col-6 col-sm-3 placeholder"></span>
+                        <span class="h2 ms-auto rounded-1 col-5 col-sm-2 col-md-1 placeholder"></span>
+                    </div>
                 }
-            </div>
-        } @loading {
-            <div class="card text-bg-primary placeholder-glow p-3 shadow flex-row gap-2">
-                <span class="h2 rounded-1 col-6 col-sm-3 placeholder"></span>
-                <span class="h2 ms-auto rounded-1 col-5 col-sm-2 col-md-1 placeholder"></span>
-            </div>
-        }
+            </aside>
+            @defer (when !isEventLoading || events ) {
+                @if (events && events.birthdays.length > 0) {
+                    <article class="col-sm-6 col-md-4">
+                        <div class="card text-bg-primary p-3 shadow">
+                            <p class="card-title"><i class="bi bi-cake"></i> Upcoming Birthday</p>
+                            @for (item of events.birthdays; track item) {
+                                <p class="mb-1"></p>
+                            }
+                        </div>
+                    </article>
+                }
+                @if (events.holidays) {
+                    @let month = eventDate(events.holidays.date).split(' ')[0];
+                    @let date = eventDate(events.holidays.date).split(' ')[1];
+                    <article class="col-sm-6 col-md-4">
+                        <div class="card holidayCard p-3 shadow-sm">
+                            <p class="card-title h5">Holidays</p>
+                            <strong>{{month}}</strong>
+                            <p class="mb-1 mt-2 d-flex rounded-4 gap-2 fw-medium">
+                                <small class="eventItem rounded-4 d-inline-block px-2 py-1">{{date}}</small>
+                                <small class="py-1 text-truncate d-inline-block">{{events.holidays.name}}</small>
+                            </p>
+                        </div>
+                    </article>
+                }
+            } @loading {
+                <div class="col-sm-6">
+                    <div class="card text-bg-primary placeholder-glow p-3 shadow flex-row gap-2">
+                        <span class="h2 rounded-1 col-6 col-sm-3 placeholder"></span>
+                        <span class="h2 ms-auto rounded-1 col-5 col-sm-2 col-md-1 placeholder"></span>
+                    </div>
+                </div>
+            }
+        </div>
     </div>
     @if (userRole === 'admin') {
         <app-admin-dashboard/>
     } @else if (userRole === 'hr' ) {
         <app-hr-dashboard/>
-    } 
+    } @else {
+        <!-- Employee dashboard -->
+        <section class="container-xl dashboard-container">
+            <div class="row g-3">
+                <!-- Profile Overview -->
+                <div class="col-sm-6 col-lg-4">
+                    <div class="card p-3 rounded-3 shadow-sm border-light placeholder-glow">
+                        @defer (when loggedinUser) {
+                            <p class="h5">Profile Overview</p>
+                            <p class="card-text mb-1"><strong>Name:</strong> {{loggedinUser.name}}</p>
+                            <p class="card-text mb-1"><strong>Role:</strong> {{loggedinUser.designation}}</p>
+                            <p class="card-text mb-1"><strong>Department:</strong> {{loggedinUser.name}}</p>
+                            <p class="card-text mb-1"><strong>Work Anniversary:</strong> 2 Years</p>
+                        } @placeholder {
+                            <p class="h5 col-10 placeholder rounded-1"></p>
+                            @for (item of [1,0,5,7]; track item;) {
+                                <p class="rounded-1 col-12 card-text mb-1 placeholder"></p>
+                            }
+                        }
+                    </div>
+                </div>
+                
+                <!-- Attendance Status -->
+                <div class="col-sm-6 col-lg-4">
+                    <div class="card p-3 rounded-3 shadow-sm border-light placeholder-glow">
+                        @defer (when dayStatus) {
+                            <p class="h5">Attendance Status</p>
+                            <p class="card-text mb-1"><strong>Today's Status:</strong> 
+                                @if(dayStatus.todayAttendance){Checked In (9:00 AM)}@else { You haven't clock in yet.}
+                            </p>
+                            <p class="card-text"><strong>Monthly Summary:</strong> {{dayStatus.monthAttendance}} Days Present</p>
+                            <button class="btn btn-primary">Request Leave</button>
+                        } @placeholder {
+                            <p class="h5 col-10 placeholder rounded-1"></p>
+                            @for (item of [11,10,15,17]; track item;) {
+                                <p class="rounded-1 col-12 card-text mb-1 placeholder"></p>
+                            }
+                        }
+                    </div>
+                </div>
+                
+                <!-- Leave Status -->
+                <div class="col-sm-6 col-md-4">
+                    <div class="card p-3 rounded-3 shadow-sm border-light placeholder-glow">
+                        @defer (when dayStatus) {
+                            @let leaveCount = (dayStatus?.leaveBalanceDoc?.appliedCL || 0) + (dayStatus?.leaveBalanceDoc?.appliedLOP || 0);
+                            <p class="h5">Leave Status</p>
+                            <p class="card-text mb-1"><strong>Pending Requests:</strong> {{dayStatus.leaveRequest}}</p>
+                            <p class="card-text mb-1"><strong>Leave Balance:</strong> {{dayStatus?.leaveBalanceDoc?.remainingCL || 0}} Days</p>
+                            <p class="card-text mb-1"><strong>Leave History:</strong> {{leaveCount}} Days Taken</p>
+                        } @placeholder {
+                            <p class="h5 col-10 placeholder rounded-1"></p>
+                            @for (item of [11,10,15,17]; track item;) {
+                                <p class="rounded-1 col-12 card-text mb-1 placeholder"></p>
+                            }
+                        }
+                    </div>
+                </div>
+                
+                <!-- Payroll Information -->
+                <div class="col-sm-6 col-md-4">
+                    <div class="card p-3 rounded-3 shadow-sm border-light">
+                        <p class="h5">Payroll Information</p>
+                        <p class="card-text mb-1"><strong>Salary:</strong> $5000</p>
+                        <p class="card-text"><strong>Payroll Status:</strong> Processed</p>
+                        <button class="btn btn-secondary">Download Payslip</button>
+                    </div>
+                </div>
+                
+                <!-- Assigned Tasks -->
+                <div class="col-sm-6 col-md-4">
+                    <div class="card p-3 rounded-3 shadow-sm border-light">
+                        <p class="h5">Assigned Tasks</p>
+                        <p><strong>Ongoing Projects:</strong> 3</p>
+                        <p><strong>Next Deadline:</strong> June 15, 2024</p>
+                    </div>
+                </div>
+                
+                <!-- Quick Actions -->
+                <div class="col">
+                    <p class="h5">Quick Actions</p>
+                    @if (!isFetchingClockin) {
+                        <button class="btn btn-success mb-2 me-2" [disabled]="clockinData != null">Mark Attendance</button>
+                    }
+                    <button class="btn btn-info mb-2 me-2">Apply for Leave</button>
+                    <button class="btn btn-warning mb-2 me-2">View Payslip</button>
+                </div>
+            </div>
+        </section>
+    }
 } @placeholder {
     <section class="hero-section">
         <div class="container-xl">

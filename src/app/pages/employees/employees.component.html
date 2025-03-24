@@ -5,7 +5,7 @@
             <span  class="fs-5 fw-medium">Employee List <br><small class="small text-secondary fw-normal">{{totalDocs}} Emplloyees</small></span>
             @if (userRole === 'admin' || isPermit) {
                 <ng-container [ngTemplateOutlet]="statusFilter"></ng-container>
-                <button class="btn btn-primary ms-1" type="button" data-bs-toggle="modal" data-bs-target="#employeeModal" (click)="formAction = 'add'" (click)="toggleReset()" [tabIndex]="0"><i class="bi bi-plus"></i> Add Employee</button>
+                <button class="btn btn-primary ms-1" type="button" data-bs-toggle="modal" data-bs-target="#employeeModal" (click)="formAction = 'add';toggleReset()" [tabIndex]="0"><i class="bi bi-plus"></i> Add Employee</button>
             }
         </div>
         <div class="card-body">
