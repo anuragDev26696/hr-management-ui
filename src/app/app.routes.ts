@@ -57,6 +57,12 @@ export const routes: Routes = [
         loadComponent: () => import('./pages/holidays/holidays.component').then(m => m.HolidaysComponent),
         canActivate: [authGuard],
       },
+      {
+        path: 'my-account',
+        title: 'My Account | PeoplePulse',
+        loadComponent: () => import('./pages/my-profile/my-profile.component').then(m => m.MyProfileComponent),
+        canActivate: [authGuard],
+      },
     ]
   },
   {

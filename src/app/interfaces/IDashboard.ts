@@ -10,6 +10,11 @@ export interface IActivity extends IGeneric {
 }
 
 export interface ActivityAPI {
-    docs: Array<IActivity>;
-    totalCount: number;
+  docs: Array<IActivity>;
+  totalCount: number;
+}
+
+export interface DashboardEvents {
+  birthdays: Array<{dateOfBirth: Date, name: string}>;
+  holidays: {name: string, date: Date, holidayType: string};
 }

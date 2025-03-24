@@ -4,7 +4,7 @@ import { AuthService } from './auth.service';
 import { Observable } from 'rxjs';
 import { APIResponse, IDashboardMaster, pagination } from '../interfaces/IResponse';
 import { environment } from '../../environments/environment';
-import { ActivityAPI } from '../interfaces/IDashboard';
+import { ActivityAPI, DashboardEvents } from '../interfaces/IDashboard';
 
 @Injectable({
   providedIn: 'root'
@@ -34,6 +34,20 @@ export class DashboardService {
     return this.http.post<APIResponse<ActivityAPI>>(
       `${environment.api}dashboard/activity-log`,
       {limit: page.limit, skip: page.skip, role, endDate},
+      {headers: this.authServ.header},
+    );
+  }
+
+  public getTodayStatus(): Observable<APIResponse<any>> {
+    return this.http.get<APIResponse<any>>(
+      `${environment.api}dashboard/today-status`,
+      {headers: this.authServ.header},
+    );
+  }
+
+  public getUpcomingEvents(): Observable<APIResponse<DashboardEvents>> {
+    return this.http.get<APIResponse<DashboardEvents>>(
+      `${environment.api}dashboard/upcoming-events`,
       {headers: this.authServ.header},
     );
   }

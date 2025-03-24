@@ -1,0 +1,50 @@
+<section class="pb-3 employee-profile">
+    @defer (when employee) {
+        <!-- Employee Header -->
+        <div class="container-xl profile-header">
+            <span class="fs-1 text-bg-secondary fw-bold display-6"><i class="bi bi-person-circle"></i></span>
+          <!-- <img [src]="employee.imageUrl" alt="Profile Image" class="profile-img" /> -->
+          <div class="profile-info pt-2">
+            <p class="fs-2 fw-medium mb-2">{{ employee.name }}</p>
+            <p class="role mb-1">{{ employee.designation | titlecase }} | <a title="Mail to user" href="mailto:{{employee.email}}">{{ employee.email }}</a> </p>
+            <p class="phone">
+                <i class="bi bi-phone"></i>
+                {{ employee.mobile }}
+            </p>
+          </div>
+        </div>
+      
+        <!-- Employee Details -->
+        <div class="container-xl profile-details">
+          <article class="card detail-card mb-3 rounded-3 border-light shadow-sm">
+            <p class="card-title fw-medium card-header"><i class="bi bi-person-fill"></i>&nbsp;Personal Information</p>
+            <div class="card-body">
+              <p class="mb-1 card-text"><strong>Date of Birth:</strong> {{ employee.dateOfBirth | date:'longDate' }}</p>
+              <p class="mb-1 card-text"><strong>Blood Group:</strong> {{ employee.bloodGroup }}</p>
+              <p class="mb-1 card-text"><strong>Permanent Address:</strong> {{ employee.permanentAddress }}</p>
+            </div>
+          </article>
+      
+          <aside class="card detail-card mb-3 rounded-3 border-light shadow-sm">
+            <p class="card-title fw-medium card-header"><i class="bi bi-suitcase-lg-fill"></i>&nbsp; Work Information</p>
+            <div class="card-body">
+              <p class="mb-1 card-text"><strong>Department:</strong> {{ employee.department }}</p>
+              <p class="mb-1 card-text"><strong>Joining Date:</strong> {{ employee.joiningDate | date:'longDate' }}</p>
+              <p class="mb-1 card-text"><strong>Employee ID:</strong> {{ employee.uuid }}</p>
+            </div>
+          </aside>
+          <aside class="settingSec mb-3">
+            <p class="fw-medium"><i class="bi bi-gear-fill"></i>&nbsp; Settings</p>
+            <a [routerLink]="['/leaves']" class="btn rounded-3 mb-2 d-inline-flex w-100 justify-content-between text-start">Apply Leaves <i class="bi bi-arrow-right"></i></a><br>
+            <a [routerLink]="['']" class="btn rounded-3 mb-2 d-inline-flex w-100 justify-content-between text-start">View Payslip <i class="bi bi-arrow-right"></i></a><br>
+            <a [routerLink]="['/regularizations']" class="btn rounded-3 mb-2 d-inline-flex w-100 justify-content-between text-start">Go for Regularization <i class="bi bi-arrow-right"></i></a><br>
+            <a href="http://" class="btn rounded-3 btn-danger mb-2 w-100 text-start">Change Password</a><br>
+          </aside>
+        </div>
+    } @placeholder {
+        <div class="bg-primary bg-opacity-10 px-3 py-2 d-flex gap-2 align-items-center">
+            <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+            <span role="status">Loading...</span>
+        </div>
+    }
+</section>
