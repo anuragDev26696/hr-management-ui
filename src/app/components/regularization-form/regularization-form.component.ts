@@ -57,7 +57,7 @@ export class RegularizationFormComponent implements OnInit {
       tap(value => {
         // nextCtrl.reset();
         // Reset the next control only if necessary
-        console.log(ctrl.enabled, nextCtrl.enabled, ctrl.value, nextCtrl.value);
+        // console.log(ctrl.enabled, nextCtrl.enabled, ctrl.value, nextCtrl.value);
         if (nextCtrl.disabled) {
           nextCtrl.enable();
         }
@@ -69,7 +69,7 @@ export class RegularizationFormComponent implements OnInit {
         } else {
           nextCtrl.disable();
         }
-        console.log(ctrl.enabled, nextCtrl.enabled, ctrl.value, nextCtrl.value);
+        // console.log(ctrl.enabled, nextCtrl.enabled, ctrl.value, nextCtrl.value);
       })
     ).subscribe();
   }

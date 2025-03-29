@@ -9,6 +9,7 @@ import { pagination } from '../../interfaces/IResponse';
 import { ShareService } from '../../services/share.service';
 import { ProfileTileModule } from "../../components/profile-tile/profile-tile.module";
 import { ToastService } from '../../services/toast.service';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-attendance',
@@ -33,6 +34,7 @@ export class AttendanceComponent {
   clockinData!: Observable<IAttendance | null>;
   workingTime: { hours: number, minutes: number, seconds: number } = { hours: 0, minutes: 0, seconds: 0 };
   userRole: string = "";
+  isPermitApproval: boolean = false;
   maxMonthYear: string = "";
   timeOut: any;
   isLoggedIn: boolean = false;
@@ -66,12 +68,19 @@ export class AttendanceComponent {
     private cdRef: ChangeDetectorRef,
     private shareServ: ShareService,
     private toastr: ToastService,
+    private auth: AuthService,
   ){
-    this.userRole = localStorage.getItem('role') || "";
+    let isPending: boolean = false;
+    auth.loggedinUser.subscribe(value => {
+      this.isPermitApproval = (value?.permissions || []).includes('attendance');
+      this.userRole = value?.role || localStorage.getItem('role') || "";
+      if(this.isPermitApproval && !isPending){
+        isPending = true;
+        this.fetchAttendance();
+      }
+    })
     this.buildForm();
     this.maxMonthYear = `${new Date().getFullYear()}-${(new Date().getMonth()+1).toString().padStart(2, '0')}`;
-    if(this.userRole === 'admin')
-      this.fetchAttendance();
     this.clockinData = attendanceServ.lastClockin;
     this.clockinData.subscribe({
       next: (value) => {
@@ -191,7 +200,7 @@ export class AttendanceComponent {
     this.attendanceServ.clockout().subscribe({
       next: (value) => {
         this.attendanceServ.lastClockin.next(null);
-        if(this.userRole === 'admin')
+        if(this.isPermitApproval)
           this.fetchAttendance();
       },
       error: (err) => {

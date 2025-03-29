@@ -6,6 +6,18 @@ import { APIResponse, pagination } from '../interfaces/IResponse';
 import { IUserList, IUserReq, IUserRes } from '../interfaces/IUser';
 import { environment } from '../../environments/environment';
 
+interface ICountry<T> {
+  data: T,
+  error: boolean,
+  msg: string,
+}
+interface IStateRes{
+  iso2: string,
+  iso3: string,
+  name: string,
+  states: Array<any>
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -27,6 +39,15 @@ export class ShareService {
 
   public getUsers(page: pagination, search_string: string ="", role: string = "", isActive: boolean | null = true): Observable<APIResponse<IUserList>> {
     return this.http.get<APIResponse<IUserList>>(`${environment.api}user?skip=${page.skip}&limit=${page.limit}&role=${role}&isActive=${isActive}&search_string=${search_string}`, {headers: this.authServ.header});
+  }
+
+  // State api
+  public getStates(): Observable<ICountry<IStateRes>> {
+    return this.http.post<ICountry<IStateRes>>('https://countriesnow.space/api/v0.1/countries/states', { country: 'India' });
+  }
+
+  getCities(state: string): Observable<ICountry<Array<string>>> {
+    return this.http.post<ICountry<Array<string>>>('https://countriesnow.space/api/v0.1/countries/state/cities', { country: 'India', state });
   }
 
   // Date formating for input box

@@ -1,49 +1,53 @@
-<div class="row gy-2 hasValidate" [formGroup]="parentController">
-    <div class="col-12 col-sm-6 col-lg-7">
+<form class="row gy-2 hasValidate" [formGroup]="employeeForm">
+    <div class="col-12 col-sm-6">
         <label for="nameCtrl">Full Name <i class="text-danger">*</i></label>
-        <input type="text" id="nameCtrl" class="form-control" formControlName="name" autocomplete="username" [minLength]="2" [maxLength]="35" aria-describedby="nameFeed" [tabIndex]="0" [autofocus]="true">
-        <div class="invalid-feedback" id="nameFeed">Name is required.</div>
+        <input type="text" id="nameCtrl" class="form-control {{inputClass('name')}}" formControlName="name" autocomplete="username" [minLength]="2" [maxLength]="35" aria-describedby="nameFeed" [tabIndex]="0" [autofocus]="true">
+        <div class="invalid-feedback" id="nameFeed">{{employeeForm.controls['name'].invalid ? 'Enter a valid name.' : 'Name is required.'}}</div>
     </div>
-    <div class="col-12 col-sm-6 col-lg-5">
+    <div class="col-12 col-sm-6">
         <label for="emailCgtrl">Email <i class="text-danger">*</i></label>
-        <input type="email" id="emailCgtrl" class="form-control" formControlName="email" inputmode="email" autocomplete="email" [minLength]="15" [maxLength]="105" aria-describedby="emailFeed">
-        <div class="invalid-feedback" id="emailFeed">Email is required.</div>
+        <input type="email" id="emailCgtrl" class="form-control {{inputClass('email')}}" formControlName="email" inputmode="email" autocomplete="email" [minLength]="15" [maxLength]="105" aria-describedby="emailFeed">
+        <div class="invalid-feedback" id="emailFeed">{{employeeForm.controls['email'].invalid ? 'Enter a valid email.' : 'Email is required.'}}</div>
     </div>
-    <div class="col-12 col-sm-6 col-md-4">
+    <div class="col-12 col-sm-6">
         <label for="mobileCtrl">Mobile Number <i class="text-danger">*</i></label>
-        <input type="tel" id="mobileCtrl" class="form-control" formControlName="mobile" autocomplete="mobile" [minLength]="10" [maxLength]="10" aria-describedby="mobileFeed">
-        <div class="invalid-feedback" id="mobileFeed">Mobile number is required.</div>
+        <input type="tel" id="mobileCtrl" class="form-control {{inputClass('mobile')}}" formControlName="mobile" autocomplete="mobile" [minLength]="10" [maxLength]="10" aria-describedby="mobileFeed">
+        <div class="invalid-feedback" id="mobileFeed">{{employeeForm.controls['mobile'].invalid ? 'Enter a valid number.' : 'Mobile number is required.'}}</div>
     </div>
-    <div class="col col-md-4">
+    <div class="col-12 col-sm-6">
+        <label for="bloodGroupCtrl">Blood Group</label>
+        <select name="bloodGroup" id="bloodGroupCtrl" aria-placeholder="Select" class="form-select {{inputClass('bloodGroup')}}" formControlName="bloodGroup" [required]="true" aria-describedby="bloodFeed">
+            @for (item of bloodGroupArray; track item) {
+            <option [value]="item">{{item}}</option>
+            }
+        </select>
+        <div class="invalid-feedback" id="bloodFeed">Blood group is required.</div>
+    </div>
+    <div class="col-12 col-sm-6">
         <label for="generCtrl">Gender <i class="text-danger">*</i></label>
-        <select name="gender" id="generCtrl" aria-placeholder="Select" class="form-select" formControlName="gender" [required]="true" aria-describedby="genderFeed">
+        <select name="gender" id="generCtrl" aria-placeholder="Select" class="form-select {{inputClass('gender')}}" formControlName="gender" [required]="true" aria-describedby="genderFeed">
             <option value="Male">Male</option>
             <option value="Female">Female</option>
         </select>
         <div class="invalid-feedback" id="genderFeed">Gender is required.</div>
     </div>
-    <div class="col col-md-4">
+    <div class="col-12 col-sm-6">
+        @let employeeIdCtrl = employeeForm.controls['employeeId'];
+        <label for="employeeIdCtrl">Employee Id <i class="text-danger">*</i></label>
+        <input type="text" id="employeeIdCtrl" class="form-control {{inputClass('employeeId')}}" formControlName="employeeId" autocomplete="off" [minLength]="5" [maxLength]="25" aria-describedby="empIdFeed" [tabIndex]="0" [autofocus]="true">
+        <div class="invalid-feedback" id="empIdFeed">{{employeeIdCtrl.hasError('pattern') ? "Enter a valid employee Id.": employeeIdCtrl.hasError('minlength') || employeeIdCtrl.hasError('minlength') ? 'Employee Id\'s length should be 5-25.' : 'Employee Id is required.'}}</div>
+    </div>
+    <div class="col-12 col-sm-6">
         <label for="roleCtrl">Role <i class="text-danger">*</i></label>
-        <select name="role" id="roleCtrl" aria-placeholder="Select" class="form-select" formControlName="role" [required]="true"aria-describedby="roleFeed" (change)="changeRole($event)" #roleSelect>
+        <select name="role" id="roleCtrl" aria-placeholder="Select" class="form-select {{inputClass('role')}}" formControlName="role" [required]="true"aria-describedby="roleFeed" (change)="changeRole($event)" #roleSelect>
             <option value="hr">HR</option>
             <option value="employee">Employee</option>
         </select>
         <div class="invalid-feedback" id="roleFeed">Role is required.</div>
     </div>
-    @if (roleSelect.value === 'hr' && user && ['employee', 'admin'].includes(user.role)) {
-        <div class="col-12">
-            <p class="h6">Permissions</p>
-            @for (item of permissions; track $index) {
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="checkbox" [checked]="isPermit(item)" (change)="selectPermision($event)" [id]="item+'_per'" [value]="item">
-                    <label class="form-check-label" [for]="item+'_per'">{{item | titlecase}}</label>
-                </div>
-            }
-        </div>
-    }
     <div class="col-12 col-sm-6">
         <label for="departCtrl">Department <i class="text-danger">*</i></label>
-        <select id="departCtrl" aria-placeholder="Select" class="form-select" formControlName="department" [required]="true" aria-describedby="departFeed">
+        <select id="departCtrl" aria-placeholder="Select" class="form-select {{inputClass('department')}}" formControlName="department" [required]="true" aria-describedby="departFeed">
             @for (depart of departments; track depart.code) {
                 <option [value]="depart.uuid">{{depart.name}}</option>
             }
@@ -52,7 +56,7 @@
     </div>
     <div class="col-12 col-sm-6">
         <label for="subdepartmentCtrl">Sub-department <i class="text-danger">*</i></label>
-        <select id="subdepartmentCtrl" aria-placeholder="Select" class="form-select" formControlName="subDepartment" [required]="true" aria-describedby="subdepartFeed">
+        <select id="subdepartmentCtrl" aria-placeholder="Select" class="form-select {{inputClass('subDepartment')}}" formControlName="subDepartment" [required]="true" aria-describedby="subdepartFeed">
             @for (item of subDepartments; track item.code) {
                 <option [value]="item.code">{{item.name}}</option>
             }
@@ -61,13 +65,13 @@
     </div>
     <div class="col-12 col-sm-6">
         <label for="designationCtrl">Designation <i class="text-danger">*</i></label>
-        <input type="string" id="designationCtrl" class="form-control" autocomplete="off" [minLength]="5" [maxLength]="35" formControlName="designation" aria-describedby="designationFeed">
-        <div class="invalid-feedback" id="designationFeed">Designation is required.</div>
+        <input type="string" id="designationCtrl" class="form-control {{inputClass('designation')}}" autocomplete="off" [minLength]="5" [maxLength]="35" formControlName="designation" aria-describedby="designationFeed">
+        <div class="invalid-feedback" id="designationFeed">{{employeeForm.controls['designation'].invalid ? 'Enter a valid designation.' : 'Designation is required.'}}</div>
     </div>
     <div class="col-12 col-sm-6">
         <label for="positionCtrl">Position <i class="text-danger">*</i></label>
-        <input type="string" id="positionCtrl" class="form-control" autocomplete="off" [minLength]="5" [maxLength]="35" formControlName="position" aria-describedby="positionFeed">
-        <div class="invalid-feedback" id="positionFeed">Position is required.</div>
+        <input type="string" id="positionCtrl" class="form-control {{inputClass('position')}}" autocomplete="off" [minLength]="5" [maxLength]="35" formControlName="position" aria-describedby="positionFeed">
+        <div class="invalid-feedback" id="positionFeed">{{employeeForm.controls['position'].invalid ? 'Enter a valid position.' : 'Position is required.'}}</div>
     </div>
     <div class="col-12 col-sm-6">
         <label for="joiningCtrl">Joining Date <i class="text-danger">*</i></label>
@@ -75,21 +79,30 @@
             @if (joinDateCtrl.valid) {
                 <span class="input-group-text" id="clearJoinBtn" role="button" tabindex="-1" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Reset date" (click)="joinDateCtrl.reset()"><i class="bi bi-x-lg"></i></span>
             }
-            <input type="date" id="joiningCtrl" class="form-control" autocomplete="off" [max]="maxJoinDate" formControlName="joiningDate" aria-describedby="joiningDateFeed clearJoinBtn">
-            <div class="invalid-feedback" id="joiningDateFeed">Joining date is required.</div>
+            <input type="date" id="joiningCtrl" class="form-control {{inputClass('joiningDate')}}" autocomplete="off" [max]="maxJoinDate" formControlName="joiningDate" aria-describedby="joiningDateFeed clearJoinBtn">
         </div>
+        <div class="invalid-feedback" id="joiningDateFeed">Joining date is required.</div>
     </div>
-    @if (parentController.controls['isActive'].value === false) {
+    @if (employeeForm.controls['isActive'].value === false) {
         <div class="col-12 col-sm-6">
             <label for="resignationCtrl">Resignation Date <i class="text-danger">*</i></label>
-            <input type="date" id="resignationCtrl" class="form-control" [min]="minResignDate" [max]="todayDate" autocomplete="off" formControlName="resignationDate" aria-describedby="resignationFeed">
+            <input type="date" id="resignationCtrl" class="form-control {{inputClass('resignationDate')}}" [min]="minResignDate" [max]="todayDate" autocomplete="off" formControlName="resignationDate" aria-describedby="resignationFeed">
             <div class="invalid-feedback" id="resignationFeed">Resignation date is required.</div>
         </div>
     }
     <div class="col-12">
-        <div class="form-check">
+        <div class="form-check my-3">
             <input class="form-check-input" type="checkbox" formControlName="isActive" id="statusCtrl">
             <label class="form-check-label" for="statusCtrl">Employee is currentlly working in our organization.</label>
         </div>
     </div>
-</div>
+    <div class="col-12">
+        <p class="h6">Permissions</p>
+        @for (item of permissions; track $index) {
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" [disabled]="employeeForm.disabled" [checked]="isPermit(item)" (change)="selectPermision($event)" [id]="item+'_per'" [value]="item">
+                <label class="form-check-label" [for]="item+'_per'">{{item | titlecase}}</label>
+            </div>
+        }
+    </div>
+</form>

@@ -1,6 +1,5 @@
-.card-icon {
-    font-size: 2rem; margin-inline-end: 1rem;
-}
+.card-icon {font-size: 2rem; margin-inline-end: 1rem;}
+.modal {--bs-modal-width: 700px;}
 @media screen and (max-width: 550px) {
     .topCards{flex-direction: row; gap: 1rem; justify-content: space-between;}
 }

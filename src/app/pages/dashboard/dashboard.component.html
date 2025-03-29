@@ -1,5 +1,5 @@
 @defer (when userRole.trim() != '') {
-    <div class="container-lg pt-3">
+    <div class="container-xl pt-3">
         <div class="row g-3">
             <aside class="col-sm-6 col-md-4 col-lg-4">
                 @defer (when !isFetchingClockin ) {
@@ -34,20 +34,20 @@
             @defer (when !isEventLoading || events ) {
                 @if (events && events.birthdays.length > 0) {
                     <article class="col-sm-6 col-md-4">
-                        <div class="card text-bg-primary p-3 shadow">
-                            <p class="card-title"><i class="bi bi-cake"></i> Upcoming Birthday</p>
+                        <div class="card text-bg-primary p-3 shadow-sm h-100">
+                            <p class="card-title h5 mb-3"><i class="bi bi-cake"></i>&nbsp; Today's Birthday(s)</p>
                             @for (item of events.birthdays; track item) {
-                                <p class="mb-1"></p>
+                                <p class="mb-1"><span class="bg-secondary px-1 rounded-5 d-inline-flex align-items-center"><i class="bi bi-person"></i></span>&nbsp; {{item.name}}</p>
                             }
                         </div>
                     </article>
                 }
-                @if (events.holidays) {
+                @if (events && events.holidays) {
                     @let month = eventDate(events.holidays.date).split(' ')[0];
                     @let date = eventDate(events.holidays.date).split(' ')[1];
                     <article class="col-sm-6 col-md-4">
                         <div class="card holidayCard p-3 shadow-sm">
-                            <p class="card-title h5">Holidays</p>
+                            <p class="card-title h5">Holidays <a href="/holidays" class="rounded-circle px-2 py-1 small float-end d-flex align-items-center"><i class="bi bi-arrow-right"></i></a></p>
                             <strong>{{month}}</strong>
                             <p class="mb-1 mt-2 d-flex rounded-4 gap-2 fw-medium">
                                 <small class="eventItem rounded-4 d-inline-block px-2 py-1">{{date}}</small>

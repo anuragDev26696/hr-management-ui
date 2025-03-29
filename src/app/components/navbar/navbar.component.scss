@@ -2,6 +2,9 @@
     // --bs-scroll-height: 300px; // Set max height for navbar by default 75vh
 }
 button.dropdown-toggle::after{border-color: transparent; border: 0; margin-inline: 0;}
+@media screen and (min-width: 1000px) {
+    .navbar-nav{column-gap: 0.5rem;}
+}
 @media screen and (max-width: 991px) {
     :host > .container-fluid {justify-content: flex-start;}
     .navbar-collapse{ order: 1;}

@@ -16,18 +16,21 @@
       <li class="nav-item">
         <a class="nav-link" [routerLink]="['leaves']" [routerLinkActive]="'active'" [routerLinkActiveOptions]="{exact: true}" [ariaCurrentWhenActive]="'page'">Leaves</a>
       </li>
-      @if (user && user.role === 'admin') {
+      @if (user && user.permissions.includes('department')) {
         <li class="nav-item">
           <a class="nav-link" [routerLink]="['departments']" [routerLinkActive]="'active'" [routerLinkActiveOptions]="{exact: true}" [ariaCurrentWhenActive]="'page'">Departments</a>
         </li>
       }
-      <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle" href="javascript:void(0);" role="button" data-bs-toggle="dropdown" aria-expanded="false">Payroll Management</a>
-        <ul class="dropdown-menu dropdown-menu-lg-end border-light shadow rounded-3" data-bs-theme="light">
-          <li><a class="dropdown-item" [routerLink]="['salary-structure']" [routerLinkActive]="'active'" [routerLinkActiveOptions]="{exact: true}" [ariaCurrentWhenActive]="'page'">Salary Structure</a></li>
-          <li><a class="dropdown-item" [routerLink]="['payroll']" [routerLinkActive]="'active'" [routerLinkActiveOptions]="{exact: true}" [ariaCurrentWhenActive]="'page'">Payroll</a></li>
-        </ul>
-      </li>
+      @if (user && user.permissions.includes('payroll')) {
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="javascript:void(0);" role="button" data-bs-toggle="dropdown" aria-expanded="false">Payroll Management</a>
+          <ul class="dropdown-menu dropdown-menu-lg-end border-light shadow rounded-3" data-bs-theme="light">
+            <li><a class="dropdown-item" [routerLink]="['salary-structure']" [routerLinkActive]="'active'" [routerLinkActiveOptions]="{exact: true}" [ariaCurrentWhenActive]="'page'">Salary Structure</a></li>
+            <li><a class="dropdown-item" [routerLink]="['payroll']" [routerLinkActive]="'active'" [routerLinkActiveOptions]="{exact: true}" [ariaCurrentWhenActive]="'page'">Payroll</a></li>
+          </ul>
+        </li>
+
+      }
       <li class="nav-item dropdown">
         <a class="nav-link dropdown-toggle" href="javascript:void(0);" role="button" data-bs-toggle="dropdown" aria-expanded="false">Attendance Management</a>
         <ul class="dropdown-menu dropdown-menu-lg-end border-light shadow rounded-3" data-bs-theme="light">

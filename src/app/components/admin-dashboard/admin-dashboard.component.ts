@@ -13,6 +13,7 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { EmployeeFormComponent } from '../employee-form/employee-form.component';
 import { ToastService } from '../../services/toast.service';
 import { LoaderService } from '../../services/loader.service';
+import { EmployeeService } from '../../services/employee.service';
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -24,6 +25,7 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
   private adminService = inject(AdminService);
   private dashboardServ = inject(DashboardService);
   private authServ = inject(AuthService);
+  private userService = inject(EmployeeService);
   public attendanceSummary: Record<string, number> = {};
   public activitis: Array<IActivity> = [];
   public isMoreActivity: boolean = true;
@@ -32,7 +34,6 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
   public masterSummary: IDashboardMaster = this.newMsterSummary();
   public isMasterSummaryLoaded: boolean = false;
   public loggedinUser: IUserRes | null = null;
-  requiredReset: boolean = false;
   employeeForm: FormGroup = new FormGroup({});
   private apiSubscriber = new Subscription;
 
@@ -127,7 +128,9 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
       mobile: new FormControl<string | null>({value: null, disabled: false}, [Validators.required, Validators.minLength(10), Validators.maxLength(10)]),
       gender: new FormControl<string>({value: 'Male', disabled: false}, Validators.required),
       dateOfBirth: new FormControl<string|null>({value: null, disabled: false}),
+      bloodGroup: new FormControl<string>({value: '', disabled: false}),
       role: new FormControl<string>({value: 'employee', disabled: false}, Validators.required),
+      employeeId: new FormControl<string | null>({value: null, disabled: false}, [Validators.required, Validators.pattern(/^[a-zA-Z0-9]+(-[a-zA-Z0-9]+)*$/)]),
       designation: new FormControl<string | null>({value: null, disabled: false}, Validators.required),
       position: new FormControl<string | null>({value: null, disabled: false}, Validators.required),
       department: new FormControl<string | null>({value: null, disabled: false}, Validators.required),
@@ -144,40 +147,32 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
 
   private get buildAddressForm(): FormGroup {
     return new FormGroup({
-      addressLine1: new FormControl<string | null>({value: null, disabled: false}, [Validators.minLength(2), Validators.maxLength(15), Validators.pattern(/^[a-zA-Z ][0-9]$/)]),
-      addressLine2: new FormControl<string | null>({value: null, disabled: false}, [Validators.minLength(2), Validators.maxLength(15), Validators.pattern(/^[a-zA-Z ][0-9]$/)]),
-      district: new FormControl<string | null>({value: null, disabled: false}, [Validators.minLength(2), Validators.maxLength(25), Validators.pattern(/^[a-zA-Z ]$/)]),
-      city: new FormControl<string | null>({value: null, disabled: false}, [Validators.minLength(2), Validators.maxLength(25), Validators.pattern(/^[a-zA-Z ]$/)]),
+      addressLine1: new FormControl<string | null>({value: null, disabled: false}, [Validators.required, Validators.minLength(2), Validators.maxLength(15), Validators.pattern(/^[a-zA-Z0-9 ,.-]+$/)]),
+      addressLine2: new FormControl<string | null>({value: null, disabled: false}, [Validators.required, Validators.minLength(2), Validators.maxLength(15), Validators.pattern(/^[a-zA-Z0-9 ,.-]+$/)]),
+      district: new FormControl<string | null>({value: null, disabled: false}, [Validators.required, Validators.minLength(2), Validators.maxLength(25), Validators.pattern(/^[a-zA-Z ]+$/)]),
+      state: new FormControl<string | null>({value: null, disabled: false}, [Validators.required]),
+      city: new FormControl<string | null>({value: null, disabled: true}, [Validators.required,]),
       pincode: new FormControl<string | null>({value: null, disabled: false}, [Validators.pattern(/^[0-9]{6}$/)]),
     });
   }
 
-  public toggleReset(): void {
-    this.requiredReset = true;
-    setTimeout(() => {
-      this.requiredReset = false;
-    }, 1000);
+  public openUserModal(event: Event): void {
+    if(!event.isTrusted) return;
+    event.stopImmediatePropagation();
+    this.userService.resetForm();
   }
 
   public onSubmit(event: Event): void {
-    this.loader.show('circle', 'Form submitting. Please wait.');
+    // this.loader.show('circle', 'Form submitting. Please wait.');
     event.stopImmediatePropagation();
     event.preventDefault();
-    let subscriber = this.shareServ.craeteNewUser(this.employeeForm.value);
-    subscriber.subscribe({
+    this.userService.submitForm().subscribe({
       next: (value) => {
         this.toast.success(value.message);
         document.getElementById('closeModalBtn')?.click();
-        this.toggleReset();
-        this.employeeForm.reset();
-        this.employeeForm.markAsPristine();
-        this.employeeForm.updateValueAndValidity();
-        this.buildForm();
-        this.loader.hide();
       },
       error: (err) => {
         this.toast.error(err.error || err.message);
-        this.loader.hide();
       },
     });
   }

@@ -15,7 +15,7 @@
                 <aside class="col-sm-6 col-md-4 col-xl-3">
                     <div class="card p-3 placeholder-glow">
                         <p class="h5 rounded-1 mt-auto placeholder col-10"></p>
-                        <h3 class="w-100 rounded-1 placeholder col-5">100</h3>
+                        <h3 class="w-100 rounded-1 placeholder col-5"></h3>
                     </div>
                 </aside>
             }
@@ -94,7 +94,7 @@
     <div class="row g-2 mt-3">
         @if (loggedinUser !== null && loggedinUser.permissions.includes('employee')) {
             <div class="col-6 col-md-4 col-lg-3">
-                <button class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#employeeModal"><i class="bi bi-person-plus"></i> Add Employee</button>
+                <button class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#employeeModal" (click)="openUserModal($event)"><i class="bi bi-person-plus"></i> Add Employee</button>
             </div>
         }
         <div class="col-6 col-md-4 col-lg-3">
@@ -108,20 +108,18 @@
 @if (loggedinUser !== null && loggedinUser.permissions.includes('employee')) {
     <!-- Employee Modal -->
     <div class="modal fade" id="employeeModal" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="modalLabel" aria-hidden="true" tabindex="-1">
-        <div class="modal-dialog modal-lg modal-fullscreen-lg-down modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-dialog modal-fullscreen-md-down modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="modalLabel">Add Employee</h5>
-                    <button type="button" class="btn-close" [tabIndex]="-1" data-bs-dismiss="modal" aria-label="Close" data-bs-toggle="tooltip" title="Close modal" aria-label="Close table"[id]="'closeModalBtn'" (click)="toggleReset()"></button>
+                    <button type="button" class="btn-close" [tabIndex]="-1" data-bs-dismiss="modal" aria-label="Close" data-bs-toggle="tooltip" title="Close modal" aria-label="Close table"[id]="'closeModalBtn'"></button>
                 </div>
                 <div class="modal-body">
-                    <form [formGroup]="employeeForm">
-                        <app-employee-form [resetAll]="requiredReset" />
-                    </form>
+                    <app-employee-form />
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal" (click)="toggleReset()">Close</button>
-                    <button type="button" class="btn btn-primary" [disabled]="employeeForm.invalid" (click)="onSubmit($event)">Save changes</button>
+                    <button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" [disabled]="employeeForm.invalid || employeeForm.disabled || employeeForm.untouched" (click)="onSubmit($event)">Save changes</button>
                 </div>
             </div>
         </div>
