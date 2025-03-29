@@ -1,50 +1,274 @@
 <section class="pb-3 employee-profile">
-    @defer (when employee) {
-        <!-- Employee Header -->
-        <div class="container-xl profile-header">
-            <span class="fs-1 text-bg-secondary fw-bold display-6"><i class="bi bi-person-circle"></i></span>
-          <!-- <img [src]="employee.imageUrl" alt="Profile Image" class="profile-img" /> -->
-          <div class="profile-info pt-2">
-            <p class="fs-2 fw-medium mb-2">{{ employee.name }}</p>
-            <p class="role mb-1">{{ employee.designation | titlecase }} | <a title="Mail to user" href="mailto:{{employee.email}}">{{ employee.email }}</a> </p>
-            <p class="phone">
-                <i class="bi bi-phone"></i>
-                {{ employee.mobile }}
-            </p>
+  @defer (when employee) {
+    <!-- Employee Header -->
+    <div class="container-xl profile-header">
+        <span class="text-bg-secondary fw-bold profileAvatar"><i class="bi bi-person-circle"></i></span>
+      <!-- <img [src]="employee.imageUrl" alt="Profile Image" class="profile-img" /> -->
+      <div class="profile-info pt-3">
+        <p class="fs-2 fw-medium mb-2">{{ employee.name }}</p>
+        <p class="role mb-1">{{ employee.designation | titlecase }} | <a title="Mail to user" href="mailto:{{employee.email}}">{{ employee.email }}</a> </p>
+        <p class="phone">
+            <i class="bi bi-phone"></i>
+            {{ employee.mobile }}
+        </p>
+      </div>
+    </div>
+  
+    <!-- Employee Details -->
+    <div class="container-xl profile-details">
+      <article class="card detail-card mb-3 rounded-3 border-light shadow-sm">
+        <p class="card-title fw-medium clearfix card-header"><i class="bi bi-person-fill"></i>&nbsp;Personal Information <button class="btn btn-sm glow-btn float-end primaryBtn rounded-2" data-bs-target="#profileUpdateModal" (click)="openModal($event,'profile')" data-bs-toggle="modal"><i class="bi bi-pencil-square"></i>&nbsp; Edit</button></p>
+        <div class="card-body">
+          <p class="mb-1 card-text"><strong>Date of Birth:</strong> {{ employee.dateOfBirth != null ? (employee.dateOfBirth | date:'longDate') : "Not Available" }}</p>
+          <p class="mb-1 card-text"><strong>Blood Group:</strong> {{ employee.bloodGroup || "Not Available" }}</p>
+          <p class="mb-1 card-text"><strong>Gender:</strong> {{ employee.gender || "Not Available" }}</p>
+          <p class="mb-1 card-text"><strong>Marital Status:</strong> {{ employee.maritalStatus || "Not Available" }}</p>
+        </div>
+      </article>
+      @if (employee.permanentAddress.addressLine1 == null) {
+        <button type="button" [tabIndex]="-1" class="btn btn-outline-primary border-0 mb-3 primaryBtn fw-medium rounded-3 text-start d-flex gap-2 align-items-center w-100 shadow-sm" data-bs-target="#addressModal" (click)="openModal($event,'permanentAddress')" data-bs-toggle="modal">Add Permanent Address <i class="ms-auto bi bi-plus"></i></button>
+      }
+      @if (employee.currentAddress.addressLine1 == null) {
+        <button type="button" [tabIndex]="-1" class="btn btn-outline-primary border-0 mb-3 primaryBtn fw-medium rounded-3 text-start d-flex gap-2 align-items-center w-100 shadow-sm" data-bs-target="#addressModal" (click)="openModal($event,'currentAddress')" data-bs-toggle="modal">Add Current Address <i class="ms-auto bi bi-plus"></i></button>
+      }
+
+      @if (employee.permanentAddress.addressLine1 !== null || employee.currentAddress.addressLine1 !== null) {
+        <!-- Address Details -->
+        <article class="card detail-card mb-3 rounded-3 border-light shadow-sm">
+          <p class="card-title fw-medium card-header"><i class="bi bi-geo-alt-fill"></i>&nbsp;Address Information</p>
+          <div class="card-body">
+            @if (employee.currentAddress.addressLine1 != null) {
+              <p class="mb-0 card-text"><strong>Current Address:</strong>  <button type="button" [tabIndex]="-1" class="btn primaryBtn btn-sm glow-btn border-0 primaryBtn rounded-2 float-end" data-bs-target="#addressModal" (click)="openModal($event,'currentAddress')" data-bs-toggle="modal"><i class="bi bi-pencil-square"></i>&nbsp; Update</button></p>
+              <address>{{ getAddressString(employee.currentAddress)}}</address>
+            }
+            @if (employee.permanentAddress.addressLine1 != null) {
+              <p class="mb-0 card-text"><strong>Permanent Address:</strong>  <button type="button" [tabIndex]="-1" class="btn primaryBtn btn-sm glow-btn border-0 primaryBtn rounded-2 float-end" data-bs-target="#addressModal" (click)="openModal($event,'permanentAddress')" data-bs-toggle="modal"><i class="bi bi-pencil-square"></i>&nbsp; Update</button></p>
+              <address>{{ getAddressString(employee.permanentAddress)}}</address>
+            }
+          </div>
+        </article>
+      }
+  
+      <aside class="card detail-card mb-3 rounded-3 border-light shadow-sm">
+        <p class="card-title fw-medium card-header"><i class="bi bi-suitcase-lg-fill"></i>&nbsp; Work Information</p>
+        <div class="card-body">
+          <p class="mb-1 card-text"><strong>Department:</strong> {{ employee.departmentDetail?.name || "" }}</p>
+          <p class="mb-1 card-text"><strong>Role:</strong> {{ employee.role || "" }}</p>
+          <p class="mb-1 card-text"><strong>Position:</strong> {{ employee.position || "" }}</p>
+          <p class="mb-1 card-text"><strong>Designation:</strong> {{ employee.designation || "" }}</p>
+          <p class="mb-1 card-text"><strong>Joining Date:</strong> {{ employee.joiningDate | date:'longDate' }}</p>
+          <p class="mb-1 card-text"><strong>Employee ID:</strong> {{ employee.uuid }}</p>
+        </div>
+      </aside>
+      <aside class="settingSec mb-3">
+        @if (employee.workingDays != null) {
+          <p class="fw-medium"><i class="bi bi-calendar-week"></i>&nbsp; Working Days</p>
+          <p class="d-flex gap-2">
+            @for (item of employee.workingDays; track item) {
+              <span class="badge text-success bg-secondary bg-opacity-25">{{item.slice(0,3)}}</span>
+            }
+          </p>
+          <hr>
+        }
+        @if (employee.personalEmail !== '') {
+          <p class="overflow-hidden text-truncate"><span class="fw-medium">Personal Email:</span><br><a class="text-truncate" href="mailto:{{employee.personalEmail}}">{{employee.personalEmail}}</a></p>
+          <hr>
+        }
+        @if (['hr', 'admin'].includes(employee.role)) {
+          <details class="mb-3 permissionDetils" open>
+            <summary class="fw-medium mb-2 rounded"><i class="bi bi-shield-fill-check"></i>&nbsp; Permissions</summary>
+            @for (item of employee.permissions; track item) {
+              <span class=""><i class="bi bi-check fs-5 align-middle text-success"></i>&nbsp; {{item | titlecase}}</span><br>
+            }
+          </details>
+          <hr>
+        }
+        <p class="fw-medium"><i class="bi bi-gear-fill"></i>&nbsp; Settings</p>
+        <a [routerLink]="['/leaves']" class="btn rounded-3 mb-2 d-inline-flex w-100 justify-content-between text-start">Apply Leaves <i class="bi bi-arrow-right"></i></a><br>
+        <a [routerLink]="['']" class="btn rounded-3 mb-2 d-inline-flex w-100 justify-content-between text-start">View Payslip <i class="bi bi-arrow-right"></i></a><br>
+        <a [routerLink]="['/regularizations']" class="btn rounded-3 mb-2 d-inline-flex w-100 justify-content-between text-start">Go for Regularization <i class="bi bi-arrow-right"></i></a><br>
+        <a href="http://" class="btn rounded-3 btn-danger mb-2 w-100 text-start">Change Password</a><br>
+      </aside>
+    </div>
+
+    <!-- Address Modal -->
+    <div class="modal fade" id="addressModal" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="modalLabel" aria-hidden="true" tabindex="-1">
+      <div class="modal-dialog modal-fullscreen-sm-down modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="modalLabel">Add Address</h5>
+            <button type="button" class="btn-close" [tabIndex]="-1" data-bs-dismiss="modal" aria-label="Close" data-bs-toggle="tooltip" title="Close modal" aria-label="Close table"[id]="'closeModalBtn'"></button>
+          </div>
+          <div class="modal-body">
+            <form class="row gy-2 hasValidate" [formGroup]="addressForm">
+              <div class="col-12">
+                <label for="addressLine1Ctrl">Address Line 1 <i class="text-danger">*</i></label>
+                <input type="text" id="addressLine1Ctrl" class="form-control {{inputClass('addressLine1')}}" formControlName="addressLine1" autocomplete="off" [minLength]="2" [maxLength]="35" aria-describedby="addressLine1Feed">
+                @let add1 = addressForm.controls['addressLine1'];
+                <div class="invalid-feedback" id="addressLine1Feed">{{add1.hasError('pattern') ? 'Accept only character, space, digit, -' : add1.hasError('invalid') || add1.hasError('maxlength') ? 'Address legth should be max 15' : 'Address line 1 is required.'}}</div>
+              </div>
+              <div class="col-12">
+                <label for="addressLine2Ctrl">Address Line 2 <i class="text-danger">*</i></label>
+                <input type="text" id="addressLine2Ctrl" class="form-control {{inputClass('addressLine2')}}" formControlName="addressLine2" autocomplete="off" [minLength]="2" [maxLength]="35" aria-describedby="addressLine2Feed">
+                @let add2 = addressForm.controls['addressLine2'];
+                <div class="invalid-feedback" id="addressLine2Feed">{{add2.hasError('pattern') ? 'Accept only character, space, digit, -' : add2.hasError('invalid') || add2.hasError('maxlength') ? 'Address legth should be max 15' : 'Address line 2 is required.'}}</div>
+              </div>
+              <div class="col-12">
+                <label for="districtCtrl">District <i class="text-danger">*</i></label>
+                <input type="text" id="districtCtrl" class="form-control {{inputClass('district')}}" formControlName="district" autocomplete="off" [minLength]="2" [maxLength]="35" aria-describedby="districtFeed">
+                <div class="invalid-feedback" id="districtFeed">{{addressForm.controls['district'].hasError('pattern') ? 'Accept only character and space' : addressForm.controls['district'].hasError('invalid') ? 'Enter a valid district name' : 'District is required.'}}</div>
+              </div>
+              <div class="col-12">
+                <label for="stateCtrl">State <i class="text-danger">*</i></label>
+                <select name="state" id="stateCtrl" aria-placeholder="Select" class="form-select {{inputClass('state')}}" formControlName="state" [required]="true" aria-describedby="stateFeed" (change)="changeState($event)">
+                  @for (state of stateList; track state.state_code) {
+                    <option [value]="state.name">{{state.name}}</option>
+                  }
+                </select>
+                <div class="invalid-feedback" id="stateFeed">{{'State is required.'}}</div>
+              </div>
+              <div class="col-12">
+                <label for="cityCtrl">City <i class="text-danger">*</i></label>
+                <select name="city" id="cityCtrl" aria-placeholder="Select" class="form-select {{inputClass('city')}}" formControlName="city" [required]="true" aria-describedby="cityFeed">
+                  @for (city of cityList; track city) {
+                    <option [value]="city">{{city}}</option>
+                  }
+                </select>
+                <div class="invalid-feedback" id="cityFeed">{{'City is required.'}}</div>
+              </div>
+              <div class="col-12">
+                <label for="pincodeCtrl">Pincode <i class="text-danger">*</i></label>
+                <input type="text" id="pincodeCtrl" class="form-control" formControlName="pincode" autocomplete="off" inputmode="numeric" [minLength]="2" [maxLength]="35" aria-describedby="pincodeFeed">
+                <div class="invalid-feedback" id="pincodeFeed">{{addressForm.controls['pincode'].hasError('pattern') ? 'Accept only digit.' : addressForm.controls['pincode'].hasError('invalid') ? 'Enter 6 digit\'s pincode.' :'Pincode is required.'}}</div>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary" [disabled]="addressForm.invalid || addressForm.disabled" (click)="onSubmit($event)">
+              @if (addressForm.disabled) {
+                <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+                <span role="status">Submitting...</span>
+              }@else {Save changes}
+            </button>
           </div>
         </div>
-      
-        <!-- Employee Details -->
-        <div class="container-xl profile-details">
-          <article class="card detail-card mb-3 rounded-3 border-light shadow-sm">
-            <p class="card-title fw-medium card-header"><i class="bi bi-person-fill"></i>&nbsp;Personal Information</p>
-            <div class="card-body">
-              <p class="mb-1 card-text"><strong>Date of Birth:</strong> {{ employee.dateOfBirth | date:'longDate' }}</p>
-              <p class="mb-1 card-text"><strong>Blood Group:</strong> {{ employee.bloodGroup }}</p>
-              <p class="mb-1 card-text"><strong>Permanent Address:</strong> {{ employee.permanentAddress }}</p>
-            </div>
-          </article>
-      
-          <aside class="card detail-card mb-3 rounded-3 border-light shadow-sm">
-            <p class="card-title fw-medium card-header"><i class="bi bi-suitcase-lg-fill"></i>&nbsp; Work Information</p>
-            <div class="card-body">
-              <p class="mb-1 card-text"><strong>Department:</strong> {{ employee.department }}</p>
-              <p class="mb-1 card-text"><strong>Joining Date:</strong> {{ employee.joiningDate | date:'longDate' }}</p>
-              <p class="mb-1 card-text"><strong>Employee ID:</strong> {{ employee.uuid }}</p>
-            </div>
-          </aside>
-          <aside class="settingSec mb-3">
-            <p class="fw-medium"><i class="bi bi-gear-fill"></i>&nbsp; Settings</p>
-            <a [routerLink]="['/leaves']" class="btn rounded-3 mb-2 d-inline-flex w-100 justify-content-between text-start">Apply Leaves <i class="bi bi-arrow-right"></i></a><br>
-            <a [routerLink]="['']" class="btn rounded-3 mb-2 d-inline-flex w-100 justify-content-between text-start">View Payslip <i class="bi bi-arrow-right"></i></a><br>
-            <a [routerLink]="['/regularizations']" class="btn rounded-3 mb-2 d-inline-flex w-100 justify-content-between text-start">Go for Regularization <i class="bi bi-arrow-right"></i></a><br>
-            <a href="http://" class="btn rounded-3 btn-danger mb-2 w-100 text-start">Change Password</a><br>
-          </aside>
+      </div>
+    </div>
+    <!-- Profile form Modal -->
+    <div class="modal fade" id="profileUpdateModal" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="modal2Label" aria-hidden="true" tabindex="-1">
+      <div class="modal-dialog modal-fullscreen-sm-down modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="modal2Label">Update Profile</h5>
+            <button type="button" class="btn-close" [tabIndex]="-1" data-bs-dismiss="modal" aria-label="Close" data-bs-toggle="tooltip" title="Close modal" aria-label="Close table"[id]="'closeProfileModalBtn'"></button>
+          </div>
+          <div class="modal-body">
+            <form class="row gy-2 hasValidate" [formGroup]="profileForm">
+              <div class="col-12">
+                <label for="fullNameCtrl">Full Name <i class="text-danger">*</i></label>
+                <input type="text" id="fullNameCtrl" class="form-control {{inputClass('name', true)}}" formControlName="name" autocomplete="off" [minLength]="2" [maxLength]="75" aria-describedby="nameFeed">
+                @let nameCtrl = profileForm.controls['name'];
+                <div class="invalid-feedback" id="nameFeed">{{nameCtrl.hasError('pattern') ? 'Accept only character and space' : nameCtrl.hasError('invalid') || nameCtrl.hasError('maxlength') ? 'Name should be max 75' : 'Name is required.'}}</div>
+              </div>
+              <div class="col-12">
+                <label for="emailCtrl">Personal Email <i class="text-danger">*</i></label>
+                <input type="email" id="emailCtrl" class="form-control {{inputClass('personalEmail', true)}}" formControlName="personalEmail" autocomplete="off" inputmode="email" [minLength]="15" [maxLength]="100" aria-describedby="emailFeed">
+                @let emailCtrl = profileForm.controls['personalEmail'];
+                <div class="invalid-feedback" id="emailFeed">{{emailCtrl.hasError('pattern') || emailCtrl.hasError('email') ? 'Enter a valid email.' : emailCtrl.hasError('maxlength') ? 'Email should be max 100.' : 'Email is required.'}}</div>
+              </div>
+              <div class="col-12">
+                <label for="dobCtrl">Date Of Birth <i class="text-danger">*</i></label>
+                <input type="date" id="dobCtrl" class="form-control {{inputClass('dateOfBirth', true)}}" formControlName="dateOfBirth" autocomplete="off" [max]="maxDate" aria-describedby="dobFeed">
+                @let dobCtrl = profileForm.controls['dateOfBirth'];
+                <div class="invalid-feedback" id="dobFeed">{{dobCtrl.hasError('invalid') ? 'Enter a valid date of birth.' : 'Date of Birth is required.'}}</div>
+              </div>
+              <div class="col-12">
+                <label for="genderCtrl">Gender <i class="text-danger">*</i></label>
+                <select name="gender" id="genderCtrl" aria-placeholder="Select" class="form-select {{inputClass('gender', true)}}" formControlName="gender" [required]="true" aria-describedby="genderFeed">
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                </select>
+                <div class="invalid-feedback" id="genderFeed">Gender is required.</div>
+              </div>
+              <div class="col-12">
+                <label for="bloodGroupCtrl">Blood Group <i class="text-danger">*</i></label>
+                <select name="bloodGroup" id="bloodGroupCtrl" aria-placeholder="Select" class="form-select {{inputClass('bloodGroup', true)}}" formControlName="bloodGroup" [required]="true" aria-describedby="bloodFeed">
+                  @for (item of bloodGroupArray; track item) {
+                    <option [value]="item">{{item}}</option>
+                  }
+                </select>
+                @let bloodGroupCtrl = profileForm.controls['bloodGroup'];
+                <div class="invalid-feedback" id="bloodFeed">{{bloodGroupCtrl.hasError('invalid') ? 'Enter a valid Blood group.' : 'Blood group is required.'}}</div>
+              </div>
+              <div class="col-12">
+                <label for="maritalCtrl">Marital Status <i class="text-danger">*</i></label>
+                <select name="maritalStatus" id="maritalCtrl" aria-placeholder="Select" class="form-select {{inputClass('maritalStatus', true)}}" formControlName="maritalStatus" [required]="true" aria-describedby="maritalFeed">
+                  <option value="Married">Married</option>
+                  <option value="Single">Single</option>
+                </select>
+                <div class="invalid-feedback" id="maritalFeed">Marital Status is required.</div>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary" [disabled]="profileForm.invalid || profileForm.disabled" (click)="onSubmit($event)">
+              @if (profileForm.disabled) {
+                <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+                <span role="status">Submitting...</span>
+              }@else {Save changes}
+            </button>
+          </div>
         </div>
-    } @placeholder {
-        <div class="bg-primary bg-opacity-10 px-3 py-2 d-flex gap-2 align-items-center">
-            <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
-            <span role="status">Loading...</span>
+      </div>
+    </div>
+  } @placeholder {
+    <!-- <div class="bg-primary bg-opacity-10 px-3 py-2 d-flex gap-2 align-items-center" aria-hidden="true">
+      <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+      <span role="status">Loading...</span>
+    </div> -->
+    <div class="container-xl profile-header placeholder-wave" aria-hidden="true">
+      <span class="text-secondary fw-bold profileAvatar"><i class="bi bi-person-circle"></i></span>
+      <div class="profile-info pt-3 mt-3">
+        <p class="fs-2 fw-medium mb-2 col-6 col-sm-5 col-lg-4 placeholder"></p>
+        <p class="col-12 col-sm-7 col-md-6 mb-1"><span class="col-5 placeholder"></span> &nbsp;<span class="col-3 placeholder"></span></p>
+        <p class="col-4 col-lg-3 placeholder"></p>
+      </div>
+    </div>
+  
+    <div class="container-xl profile-details placeholder-wave" aria-hidden="true">
+      <article class="card detail-card mb-3 rounded-3 border-light shadow-sm">
+        <p class="card-title fw-medium clearfix card-header"><span class="col-7 h3 mb-0 placeholder"></span> <button class="btn btn-sm float-end primaryBtn rounded-2 btn-dark placeholder col-2" disabled></button></p>
+        <div class="card-body">
+          <p class="mb-1 card-text"><strong class="col-3 placeholder"></strong>&nbsp; <span class="col-7 placeholder"></span></p>
+          <p class="mb-1 card-text"><strong class="col-3 placeholder"></strong>&nbsp; <span class="col-6 placeholder"></span></p>
+          <p class="mb-1 card-text"><strong class="col-3 placeholder"></strong>&nbsp; <span class="col-5 placeholder"></span></p>
         </div>
-    }
+      </article>
+  
+      <article class="card detail-card mb-3 rounded-3 border-light shadow-sm placeholder-wave" aria-hidden="true">
+        <p class="card-title fw-medium clearfix card-header"><span class="col-7 h3 mb-0 placeholder"></span></p>
+        <div class="card-body">
+          <p class="col-12 d-flex gap-1"><span class="col-7 placeholder"></span>&nbsp;<span class="col-3 placeholder"></span></p>
+          <p class="col-12 d-flex gap-1"><span class="col-7 placeholder"></span>&nbsp;<span class="col-3 placeholder"></span></p>
+        </div>
+      </article>
+  
+      <aside class="card detail-card mb-3 rounded-3 border-light shadow-sm">
+        <p class="card-title fw-medium clearfix card-header"><span class="col-7 h3 mb-0 placeholder"></span></p>
+        <div class="card-body">
+          <p class="col-12 mb-1 d-flex gap-1"><span class="col-7 placeholder"></span>&nbsp;<span class="col-3 placeholder"></span></p>
+          <p class="col-12 mb-1 d-flex gap-1"><span class="col-7 placeholder"></span>&nbsp;<span class="col-3 placeholder"></span></p>
+          <p class="col-12 mb-1 d-flex gap-1"><span class="col-7 placeholder"></span>&nbsp;<span class="col-3 placeholder"></span></p>
+        </div>
+      </aside>
+      <aside class="settingSec mb-3">
+        <p class="col-7 h3 col-md-6 mb-4 placeholder"></p>
+        <button class="btn btn-dark placeholder w-100 mb-2" disabled></button>
+        <button class="btn btn-dark placeholder w-100 mb-2" disabled></button>
+        <button class="btn btn-dark placeholder w-100 mb-2" disabled></button>
+      </aside>
+    </div>
+  }
 </section>

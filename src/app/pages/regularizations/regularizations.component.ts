@@ -152,6 +152,8 @@ export class RegularizationsComponent {
     this.attendanceServ.deleteRequest(requestUUID).subscribe({
       next: (value) => {
         this.toastr.success(value.message);
+        this.paginate.skip = 0;
+        this.fetchRequestList();
       },
       error: (err) => {
         this.toastr.error(err.error.error || err.error.message);

@@ -1,4 +1,4 @@
-import { Component, inject, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { AfterContentChecked, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { AbstractControl, ControlContainer, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { DepartmentService } from '../../services/department.service';
 import { DepartmentRes, SubDepartment } from '../../interfaces/IDepartment';
@@ -7,6 +7,7 @@ import { ShareService } from '../../services/share.service';
 import { TitleCasePipe } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
 import { IUserRes } from '../../interfaces/IUser';
+import { EmployeeService } from '../../services/employee.service';
 
 @Component({
   selector: 'app-employee-form',
@@ -14,47 +15,55 @@ import { IUserRes } from '../../interfaces/IUser';
   templateUrl: './employee-form.component.html',
   styleUrl: './employee-form.component.scss',
 })
-export class EmployeeFormComponent implements OnChanges {
-  @Input() resetAll: boolean = true;
-  parentForm = inject(ControlContainer);
+export class EmployeeFormComponent implements OnInit, AfterContentChecked {
+  employeeForm: FormGroup = new FormGroup({});
   public departments: Array<DepartmentRes> = [];
   public subDepartments: Array<SubDepartment> = [];
   public departLoaded: boolean = false;
-  public get parentController(): FormGroup {return this.parentForm.control as FormGroup;}
   public maxJoinDate: string = '';
   public minResignDate: string = '';
   public todayDate: string = '';
-  public permissions: Array<string> = ["payroll", "employee", "leave", "attendance", "holiday"];
+  public permissions: Array<string> = ["payroll", "employee", "leave", "attendance", "holiday", "department"];
+  public bloodGroupArray: Array<string> = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
   public user: IUserRes | null = null;
 
-  constructor(private departServ: DepartmentService, private shareServ: ShareService, private auth: AuthService,) {
+  constructor(
+    private departServ: DepartmentService,
+    private shareServ: ShareService,
+    private auth: AuthService,
+    private cdr: ChangeDetectorRef,
+    private userService: EmployeeService,
+  ) {
     auth.loggedinUser.subscribe({
       next: (value) => {
         this.user = value;
       }
+    });
+    this.employeeForm = userService.getForm;
+    userService.formMode$.subscribe({
+      next: (value) => {
+        if(value === 'add'){
+          this.minResignDate = this.todayDate;
+          this.maxJoinDate = this.todayDate;
+        } else {
+          if (this.joinDateCtrl.valid) {
+            this.minResignDate = this.shareServ.dateForInput(this.joinDateCtrl.value);
+          }
+          if (this.resignDateCtrl.value) {
+            this.maxJoinDate = this.shareServ.dateForInput(this.resignDateCtrl.value);
+          }
+        }
+      },
     })
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
-    this.todayDate = this.shareServ.dateForInput(new Date());
-    if (changes['resetAll'].currentValue === true) {
-      if (this.joinDateCtrl.valid) {
-        this.minResignDate = this.shareServ.dateForInput(this.joinDateCtrl.value);
-      } else {
-        this.minResignDate = this.todayDate;
-      }
-      
-      if (this.resignDateCtrl.value) {
-        this.maxJoinDate = this.shareServ.dateForInput(this.resignDateCtrl.value);
-      } else {
-        this.maxJoinDate = this.todayDate;
-      }
-    }
+  ngAfterContentChecked(): void {
+    this.cdr.detectChanges();
   }
 
   ngOnInit(): void {
     this.fetchDepartments();
-    this.parentController.controls['department'].valueChanges.subscribe({
+    this.employeeForm.controls['department'].valueChanges.subscribe({
       next: (value) => {
         if (value) {
           const index = this.departments.findIndex((item) => item.uuid === value);
@@ -64,7 +73,7 @@ export class EmployeeFormComponent implements OnChanges {
         }
       },
     });
-    this.parentController.controls['isActive'].valueChanges.pipe(debounceTime(500)).subscribe({
+    this.employeeForm.controls['isActive'].valueChanges.pipe(debounceTime(500)).subscribe({
       next: (value) => {
         this.resignDateCtrl.clearValidators();
         if (!value) {
@@ -93,10 +102,28 @@ export class EmployeeFormComponent implements OnChanges {
         }
       },
     });
+    this.isActiveCtrl.valueChanges.subscribe({
+      next: (value) => {
+        if(value === true){} else {
+          this.resignDateCtrl.reset();
+          this.employeeForm.updateValueAndValidity();
+        }
+      },
+    })
   }
 
-  public get resignDateCtrl(): AbstractControl { return this.parentController.controls['resignationDate']; }
-  public get joinDateCtrl(): AbstractControl { return this.parentController.controls['joiningDate']; }
+  public get resignDateCtrl(): AbstractControl { return this.employeeForm.controls['resignationDate']; }
+  public get joinDateCtrl(): AbstractControl { return this.employeeForm.controls['joiningDate']; }
+  public get isActiveCtrl(): AbstractControl { return this.employeeForm.controls['isActive']; }
+
+  public inputClass(ctrlName: string): string {
+    const ctrl: AbstractControl | null = this.employeeForm.get(ctrlName);
+    if(!ctrl) return '';
+    if(ctrl.valid) return 'is-valid';
+    if(ctrl.untouched) return '';
+    if(ctrl.touched && ctrl.invalid || ctrl.errors) return 'is-invalid';
+    return '';
+  }
 
   private fetchDepartments(): void {
     this.departServ.searchDepartments({skip: 0, limit: 100}).subscribe({
@@ -114,28 +141,29 @@ export class EmployeeFormComponent implements OnChanges {
     event.stopPropagation();
     const select = event.target as HTMLSelectElement;
     if(select.value.trim().toLocaleLowerCase() === 'employee') {
-      this.parentController.controls['permissions'].patchValue([]);
+      this.employeeForm.controls['permissions'].patchValue([]);
     }
   }
   public selectPermision(event: Event): void {
     event.stopPropagation();
     const input = event.target as HTMLInputElement;
-    const permissions: Array<String> = this.parentController.controls['permissions'].value ?? [];
+    const permissions: Array<String> = this.employeeForm.controls['permissions'].value ?? [];
     const itemIndex = permissions.indexOf(input.value);
     if(input.checked) {
       if(itemIndex < 0){
         permissions.push(input.value);
-        this.parentController.controls['permissions'].patchValue(permissions);
+        this.employeeForm.controls['permissions'].patchValue(permissions);
       }
     } else {
       if(itemIndex >= 0){
         permissions.splice(itemIndex, 1);
-        this.parentController.controls['permissions'].patchValue(permissions);
+        this.employeeForm.controls['permissions'].patchValue(permissions);
       }
     }
+    if(this.employeeForm.untouched && this.employeeForm.valid ) this.employeeForm.markAllAsTouched();
   }
   public isPermit(value: string): boolean {
-    const permissions: Array<String> = this.parentController.controls['permissions'].value ?? [];
+    const permissions: Array<String> = this.employeeForm.controls['permissions'].value ?? [];
     return permissions.includes(value);
   }
 }

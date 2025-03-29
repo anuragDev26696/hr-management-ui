@@ -39,8 +39,12 @@
                 <a routerLink="/forgot-password" class="link">Forgot password?</a>
             </div>
             <br>
-            <button type="button" class="btn w-100 mb-2 btn-primary fw-medium fs-5" [disabled]="loginForm.invalid" (click)="ngSubmit($event)">Login</button>
-            
+            <button type="button" class="btn w-100 mb-2 btn-primary fw-medium fs-5" [disabled]="loginForm.invalid || loginForm.disabled" (click)="ngSubmit($event)">
+                @if (loginForm.disabled) {
+                    <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+                    <span role="status">Submitting...</span>
+                }@else {Login}
+            </button>
         </div>
     </div>
 </main>

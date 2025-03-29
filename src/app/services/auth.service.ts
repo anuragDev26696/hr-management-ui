@@ -71,6 +71,10 @@ export class AuthService {
     return this.http.get<APIResponse<IUserRes>>(`${environment.api}user/${this.userId.getValue()}`, {headers: this.header});
   }
 
+  public updateProfile(data: Object): Observable<APIResponse<any>> {
+    return this.http.patch<APIResponse<any>>(`${environment.api}user/${this.userId.getValue()}`, data, {headers: this.header});
+  }
+
   public logout(): void {
     this.tokenSub.next('');
     this.userId.next('');

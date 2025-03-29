@@ -29,7 +29,7 @@
                 </button>
             </div>
             @if (isPermit) {
-                <button class="btn btn-primary text-nowrap ms-2" type="button" data-bs-toggle="modal" data-bs-target="#holidayModal" (click)="formAction = 'add'"><i class="bi bi-plus"></i> Add Holiday</button>
+                <button class="btn btn-primary text-nowrap ms-2" type="button" data-bs-toggle="modal" data-bs-target="#holidayModal"><i class="bi bi-plus"></i> Add Holiday</button>
             }
         </div>
         <div class="card-body">
@@ -117,7 +117,7 @@
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title" id="modalLabel">{{formAction | titlecase}} Event</h5>
-          <button type="button" class="btn-close" [tabIndex]="-1" data-bs-dismiss="modal" aria-label="Close" data-bs-toggle="tooltip" title="Close modal" aria-label="Close table"[id]="'closeModalBtn'"></button>
+          <button type="button" class="btn-close" [tabIndex]="-1" data-bs-dismiss="modal" aria-label="Close" data-bs-toggle="tooltip" title="Close modal" aria-label="Close table"[id]="'closeModalBtn'" (click)="onCloseModal($event)"></button>
         </div>
         <div class="modal-body">
             <form [formGroup]="eventForm">
@@ -152,7 +152,7 @@
             </form>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal" (click)="onCloseModal($event)">Close</button>
           <button type="button" class="btn btn-primary" [disabled]="eventForm.invalid" (click)="onSubmit($event)">Save changes</button>
         </div>
       </div>

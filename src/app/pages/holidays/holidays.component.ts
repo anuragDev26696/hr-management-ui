@@ -102,13 +102,27 @@ export class HolidaysComponent {
   public isValid(ctrl: AbstractControl): boolean {return ctrl.valid;}
 
   public actionUpdate(event: Event, item: IHolidayRes): void {
-    event.stopImmediatePropagation();
+    if(!event.isTrusted) return;
     this.formAction = 'update';
     this.holidayData = item;
     const formatDate = this.shareServ.dateForInput(item.date);
     this.eventForm.patchValue(item);
     this.eventForm.controls['date'].patchValue(formatDate);
     this.holidayId = item.uuid;
+  }
+
+  public onCloseModal(event: Event): void {
+    event.stopPropagation();
+    if(!event.isTrusted) return;
+    this.resetAndRebuild();
+  }
+  private resetAndRebuild(): void {
+    this.formAction = 'add';
+    this.holidayId = '';
+    this.eventForm.reset();
+    this.eventForm.markAsPristine();
+    this.eventForm.updateValueAndValidity();
+    this.buildForm();
   }
 
   public onSubmit(event: Event): void {
@@ -121,12 +135,7 @@ export class HolidaysComponent {
       next: (value) => {
         this.toastr.success(value.message);
         document.getElementById('closeModalBtn')?.click();
-        this.formAction = 'add';
-        this.holidayId = '';
-        this.eventForm.reset();
-        this.eventForm.markAsPristine();
-        this.eventForm.updateValueAndValidity();
-        this.buildForm();
+        this.resetAndRebuild();
         this.fetchHolidays();
       },
       error: (err) => {
