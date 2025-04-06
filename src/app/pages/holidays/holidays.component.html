@@ -53,16 +53,18 @@
                                             } @else if (col === 'date') {
                                                 {{strToDate(event.date) | date}}
                                             } @else {
-                                                <div class="dropdown">
-                                                    <button class="btn btn-sm icon-btn dropdown-toggle border-0 outline-0 rounded-5 btn-light" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false" [tabIndex]="-1" [attr.aria-controls]="'#userMenu_'+i" aria-label="Options">
-                                                        <i class="bi bi-three-dots-vertical"></i>
-                                                    </button>
-                                                    <ul class="dropdown-menu dropdown-menu-end border-light shadow rounded-3" [id]="'#userMenu_'+i">
-                                                        <li><button class="dropdown-item small" data-bs-toggle="modal" data-bs-target="#holidayModal" (click)="actionUpdate($event, event)">Edit</button></li>
-                                                        <!-- <li><button class="dropdown-item small">Deactive</button></li> -->
-                                                        <li><button class="dropdown-item small danger-item" (click)="requestTrash($event, event.uuid)">Delete</button></li>
-                                                    </ul>
-                                                </div>
+                                                @if (isPermit) {
+                                                    <div class="btn-group">
+                                                        <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#holidayModal" (click)="actionUpdate($event, event)">Update</button>
+                                                        <button type="button" class="btn btn-primary btn-sm dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false" [tabIndex]="-1" [attr.aria-controls]="'#event_'+i" aria-label="Options">
+                                                            <span class="visually-hidden">Toggle Dropdown</span>
+                                                        </button>
+                                                        <ul class="dropdown-menu dropdown-menu-end border-light shadow rounded-3" [id]="'event_'+i">
+                                                            <li><button class="dropdown-item small"  data-bs-toggle="modal" data-bs-target="#holidayModal" (click)="actionUpdate($event, event)">Update</button></li>
+                                                            <li><button class="dropdown-item small danger-item" (click)="requestTrash($event, event.uuid)">Delete</button></li>
+                                                        </ul>
+                                                    </div>
+                                                }
                                             }
                                         </td>
                                     }

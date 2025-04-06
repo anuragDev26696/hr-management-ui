@@ -12,4 +12,5 @@
 .form-select.listFilter{width: fit-content;}
 .table-active{ --bs-table-bg-state: rgb(62 97 148 / 10%); }
 .yearGroup{width: 120px;}
+.dropdown-toggle-split{border-left-color: var(--bs-btn-active-bg); --bs-btn-bg: var(--bs-btn-active-bg);}
 datalist{max-height: 300px;}

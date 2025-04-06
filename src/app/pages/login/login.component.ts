@@ -42,6 +42,7 @@ export class LoginComponent {
         if(error && error === 'NO_PASSWORD') {
           this.toastr.warning(error);
           this.router.navigate(['set-password']);
+          return;
         }
         this.toastr.error(error || message || 'Something went wrong');
         console.log(err.message);

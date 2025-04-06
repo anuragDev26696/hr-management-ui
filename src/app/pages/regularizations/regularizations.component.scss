@@ -1,4 +1,4 @@
-main {height: calc(100dvh - 100px)}
+main {min-height: calc(100dvh - 100px)}
 .table {--bs-table-color: var(--gray-700);}
 .table-group-divider{border-top-color: darkgray}
 .userProfile{font-size: 35px;}

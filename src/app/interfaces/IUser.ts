@@ -23,6 +23,9 @@ export interface IUserReq {
   currentAddress: IAddress;
   permanentAddress: IAddress;
   permissions: Array<string>;
+  facebookUrl: string;
+  linkedinUrl: string;
+  githubUrl: string;
 }
 
 export interface IAddress {

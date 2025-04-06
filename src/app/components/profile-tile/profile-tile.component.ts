@@ -1,10 +1,10 @@
-import { AfterContentInit, Component, ContentChildren, ElementRef, HostBinding, Input, QueryList, Renderer2} from "@angular/core";
+import { AfterContentInit, Component, ContentChildren, ElementRef, HostBinding, Input, OnChanges, QueryList, Renderer2, SimpleChanges} from "@angular/core";
 
 @Component({
   selector: "profile-image",
   standalone: false,
   template: ` @if(icon.trim() !== ''){
-    <i [class]="icon" [style.font-size.px]="size"></i>
+    <i [class]="icon + ' d-flex'"></i>
     } @else {
     <img [src]="bg" [alt]="alt" [width]="size" [height]="size" loading="lazy" fetchpriority="high" />
     }
@@ -14,9 +14,12 @@ import { AfterContentInit, Component, ContentChildren, ElementRef, HostBinding, 
       </span>
     }
     `,
-  styleUrls: [],
+  styles: `
+    i{font-size: var(--size, 35px); width: var(--size, 35px);}
+    img{width: var(--size, 35px); height: var(--size, 35px); object-fit: contain;}
+  `,
 })
-export class ProfileImageComponent {
+export class ProfileImageComponent implements OnChanges {
   @Input() size: number = 35;
   @Input() bg: string = "#fff";
   @Input() alt: string = "";
@@ -30,6 +33,10 @@ export class ProfileImageComponent {
   @HostBinding("attr.boxfit") objectFitStyle = this.fit;
   // @HostBinding("style.min-width") minWidth = `${this.size+1}px`;
   // @HostBinding("style.min-height") minHeight = `${this.size+1}px`;
+
+  ngOnChanges(changes: SimpleChanges): void {
+    this.elementRef.nativeElement.style.setProperty('--size', `${this.size}px`);
+  }
 
   constructor(private elementRef: ElementRef, private renderer: Renderer2) {
     renderer.addClass(elementRef.nativeElement, 'profile-image');

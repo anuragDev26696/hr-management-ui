@@ -57,7 +57,7 @@
           <p class="mb-1 card-text"><strong>Position:</strong> {{ employee.position || "" }}</p>
           <p class="mb-1 card-text"><strong>Designation:</strong> {{ employee.designation || "" }}</p>
           <p class="mb-1 card-text"><strong>Joining Date:</strong> {{ employee.joiningDate | date:'longDate' }}</p>
-          <p class="mb-1 card-text"><strong>Employee ID:</strong> {{ employee.uuid }}</p>
+          <p class="mb-1 card-text"><strong>Employee ID:</strong> {{ employee.employeeId || 'Not available' }}</p>
         </div>
       </aside>
       <aside class="settingSec mb-3">
@@ -70,24 +70,37 @@
           </p>
           <hr>
         }
-        @if (employee.personalEmail !== '') {
+        @if (employee.personalEmail != null && employee.personalEmail !== '') {
           <p class="overflow-hidden text-truncate"><span class="fw-medium">Personal Email:</span><br><a class="text-truncate" href="mailto:{{employee.personalEmail}}">{{employee.personalEmail}}</a></p>
-          <hr>
         }
-        @if (['hr', 'admin'].includes(employee.role)) {
-          <details class="mb-3 permissionDetils" open>
-            <summary class="fw-medium mb-2 rounded"><i class="bi bi-shield-fill-check"></i>&nbsp; Permissions</summary>
-            @for (item of employee.permissions; track item) {
-              <span class=""><i class="bi bi-check fs-5 align-middle text-success"></i>&nbsp; {{item | titlecase}}</span><br>
+        @if(employee.facebookUrl || employee.linkedinUrl || employee.githubUrl){
+          <p class="fs-4">
+            @if (employee.facebookUrl) {
+              <a href="{{employee.facebookUrl}}" target="_blank" rel="noopener noreferrer" aria-label="Facebook Profile" title="Facebook Profile"><i class="bi bi-facebook"></i></a>&nbsp;
             }
-          </details>
+            @if (employee.linkedinUrl) {
+              <a href="{{employee.linkedinUrl}}" target="_blank" rel="noopener noreferrer" aria-label="Linkedin Profile" title="Linkedin Profile" class="text-info"><i class="bi bi-linkedin"></i></a>&nbsp;
+            }
+            @if (employee.githubUrl) {
+              <a href="{{employee.githubUrl}}" target="_blank" rel="noopener noreferrer" aria-label="GitHub Profile" title="GitHub Profile" class="text-dark"><i class="bi bi-github"></i></a>
+            }
+          </p>
           <hr>
         }
+        <details class="mb-3 permissionDetils" open>
+          <summary class="fw-medium py-1 mb-1 rounded"><i class="bi bi-shield-fill-check"></i>&nbsp; Permissions</summary>
+          @for (item of employee.permissions; track item) {
+            <span class=""><i class="bi bi-check fs-5 align-middle text-success"></i>&nbsp; {{item | titlecase}}</span><br>
+          } @empty {
+            <p class="small">You have no any permission.</p>
+          }
+        </details>
+        <hr>
         <p class="fw-medium"><i class="bi bi-gear-fill"></i>&nbsp; Settings</p>
         <a [routerLink]="['/leaves']" class="btn rounded-3 mb-2 d-inline-flex w-100 justify-content-between text-start">Apply Leaves <i class="bi bi-arrow-right"></i></a><br>
         <a [routerLink]="['']" class="btn rounded-3 mb-2 d-inline-flex w-100 justify-content-between text-start">View Payslip <i class="bi bi-arrow-right"></i></a><br>
         <a [routerLink]="['/regularizations']" class="btn rounded-3 mb-2 d-inline-flex w-100 justify-content-between text-start">Go for Regularization <i class="bi bi-arrow-right"></i></a><br>
-        <a href="http://" class="btn rounded-3 btn-danger mb-2 w-100 text-start">Change Password</a><br>
+        <a href="#" role="button" [tabIndex]="-1" data-bs-target="#changePasswordModal" data-bs-toggle="modal" class="btn rounded-3 btn-danger mb-2 w-100 text-start">Change Password</a><br>
       </aside>
     </div>
 
@@ -209,6 +222,39 @@
                 </select>
                 <div class="invalid-feedback" id="maritalFeed">Marital Status is required.</div>
               </div>
+              <div class="col-12">
+                <label for="facebookUrl">Facebook URL</label>
+                <div class="input-group has-validation">
+                  <span class="input-group-text" id="searchBtn" aria-label="Facebook Url">
+                    <i class="bi bi-facebook"></i>
+                  </span>
+                  <input type="url" name="facebookUrl" id="facebookUrl" class="form-control {{inputClass('facebookUrl', true)}}" formControlName="facebookUrl" placeholder="http://example.com" aria-describedby="fbFeed">
+                  @let facebookUrlCtrl = profileForm.controls['facebookUrl'];
+                  <div class="invalid-feedback" id="fbFeed">{{facebookUrlCtrl.hasError('pattern') ? 'Enter a valid Url.' : ''}}</div>
+                </div>
+              </div>
+              <div class="col-12">
+                <label for="linkedinUrl">Linkedin URL</label>
+                <div class="input-group has-validation">
+                  <span class="input-group-text" id="searchBtn" aria-label="Linkedin Url">
+                    <i class="bi bi-linkedin"></i>
+                  </span>
+                  <input type="url" name="linkedinUrl" id="linkedinUrl" class="form-control {{inputClass('linkedinUrl', true)}}" formControlName="linkedinUrl" placeholder="http://example.com" aria-describedby="linkedinFeed">
+                  @let linkedinUrlCtrl = profileForm.controls['linkedinUrl'];
+                  <div class="invalid-feedback" id="linkedinFeed">{{linkedinUrlCtrl.hasError('pattern') ? 'Enter a valid Url.' : ''}}</div>
+                </div>
+              </div>
+              <div class="col-12">
+                <label for="githubUrl">GitHub URL</label>
+                <div class="input-group has-validation">
+                  <span class="input-group-text" id="searchBtn" aria-label="Github Url">
+                    <i class="bi bi-github"></i>
+                  </span>
+                  <input type="url" name="githubUrl" id="githubUrl" class="form-control {{inputClass('githubUrl', true)}}" formControlName="githubUrl" placeholder="http://www.example.com" aria-describedby="githubFeed">
+                  @let githubUrlCtrl = profileForm.controls['githubUrl'];
+                  <div class="invalid-feedback" id="githubFeed">{{githubUrlCtrl.hasError('pattern') ? 'Enter a valid Url.' : ''}}</div>
+                </div>
+              </div>
             </form>
           </div>
           <div class="modal-footer">
@@ -218,6 +264,47 @@
                 <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
                 <span role="status">Submitting...</span>
               }@else {Save changes}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Change password Form Modal -->
+    <div class="modal fade" id="changePasswordModal" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="passwordModalLabel" aria-hidden="true" tabindex="-1">
+      <div class="modal-dialog modal-fullscreen-sm-down modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="passwordModalLabel">Change Password</h5>
+            <button type="button" class="btn-close" [tabIndex]="-1" data-bs-dismiss="modal" aria-label="Close" data-bs-toggle="tooltip" title="Close modal" aria-label="Close Form" id="passModalCloseBtn"></button>
+          </div>
+          <div class="modal-body">
+            <form class="row gy-2 hasValidate" [formGroup]="passwordForm">
+              <div class="col-12">
+                <label for="oldPassCtrl">Old Password <i class="text-danger">*</i></label>
+                <input type="password" id="oldPassCtrl" class="form-control {{inputClass('oldPassword', true)}}" formControlName="oldPassword" autocomplete="off" [minLength]="2" [maxLength]="75" aria-describedby="nameFeed">
+                <div class="invalid-feedback" id="nameFeed">Old password is required.</div>
+              </div>
+              <div class="col-12">
+                <label for="newPassCtrl">New Password <i class="text-danger">*</i></label>
+                <div class="input-group has-validation">
+                  <input [type]="!passCtrl.classList.contains('showPass') ? 'password' : 'text'" id="newPassCtrl" class="form-control {{inputClass('password', true)}}" formControlName="newPassword" autocomplete="off" #passCtrl [minLength]="6" [maxLength]="20" aria-describedby="newPassFeed">
+                  <div role="button" id="passToggleBtn" class="input-group-text" [tabIndex]="-1" (click)="passCtrl.classList.toggle('showPass')" title="Toggle password">
+                    <i [class]="!passCtrl.classList.contains('showPass') ? 'bi bi-eye' : 'bi bi-eye-slash'" aria-hidden="true"></i>
+                    <span class="visually-hidden">Toggle Password</span>
+                  </div>
+                  @let newPassCtrl = passwordForm.controls['newPassword'];
+                  <div class="invalid-feedback" id="newPassFeed">{{newPassCtrl.hasError('pattern') ? 'Enter a valid email.' : newPassCtrl.hasError('maxlength') || newPassCtrl.hasError('minlength') ? 'Password length should be 6-20.' : 'New password is required.'}}</div>
+                </div>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary" [disabled]="passwordForm.invalid || passwordForm.disabled" (click)="onSubmitPassword($event)">
+              @if (passwordForm.disabled) {
+                <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+                <span role="status">Submitting...</span>
+              }@else {Submit}
             </button>
           </div>
         </div>

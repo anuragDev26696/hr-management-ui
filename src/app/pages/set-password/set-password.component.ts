@@ -2,6 +2,7 @@ import { Component, inject } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, FormControl, FormGroup, Validators } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
+import { ToastService } from '../../services/toast.service';
 
 @Component({
   selector: 'app-set-password',
@@ -18,6 +19,7 @@ export class SetPasswordComponent {
   public showPassword: boolean = false;
   auth = inject(AuthService);
   router = inject(Router);
+  private toastr = inject(ToastService);
 
   constructor(){
     const tokenVal = this.auth.currentToken();
@@ -34,12 +36,16 @@ export class SetPasswordComponent {
   
   public ngSubmit(event: Event): void {
     if(!event.isTrusted || this.setPasswordForm.invalid) return;
+    this.setPasswordForm.disable();
     this.auth.setPassword(this.setPasswordForm.value).subscribe({
       next: (value) => {
+        this.toastr.success(value.message);
         this.router.navigate(['login']);
       },
       error: (err) => {
+        this.setPasswordForm.enable();
         const {error, message} = err.error;
+        this.toastr.error(error.error || error.message || message);
         console.log(message);
       },
     });

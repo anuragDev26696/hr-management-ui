@@ -46,6 +46,9 @@ export class EmployeeService {
       isActive: this.fb.control<boolean>({value: true, disabled: false}, [Validators.required]),
       orgId: this.fb.control<string | null>({value: null, disabled: false}),
       permissions: this.fb.control<Array<string>>({value: [], disabled: false}),
+      facebookUrl: this.fb.control<string>({value: '', disabled: false}, Validators.pattern(/^(https?:\/\/)(www\.)?[\w\-]+(\.[\w\-]+)+([\/?#][^\s]*)?$/)),
+      linkedinUrl: this.fb.control<string>({value: '', disabled: false},Validators.pattern(/^(https?:\/\/)(www\.)?[\w\-]+(\.[\w\-]+)+([\/?#][^\s]*)?$/)),
+      githubUrl: this.fb.control<string>({value: '', disabled: false},Validators.pattern(/^(https?:\/\/)(www\.)?[\w\-]+(\.[\w\-]+)+([\/?#][^\s]*)?$/)),
       currentAddress: this.buildAddressForm,
       permanentAddress: this.buildAddressForm,
     });
@@ -76,13 +79,17 @@ export class EmployeeService {
     this.employeeForm.patchValue(user);
     this.formModeSubject.next('edit');
     
-    const dateStr = this.shareServ.dateForInput(new Date(user.joiningDate));
+    let dateStr = this.shareServ.dateForInput(new Date(user.joiningDate));
     this.employeeForm.controls['joiningDate'].patchValue(dateStr);
     this.employeeId = user.uuid;
     if(user.isActive){
       this.employeeForm.controls['resignationDate'].removeValidators([Validators.required]);
     } else {
       this.employeeForm.controls['resignationDate'].addValidators([Validators.required]);
+    }
+    if(user.dateOfBirth != null){
+      dateStr = this.shareServ.dateForInput(new Date(user.dateOfBirth));
+      this.employeeForm.controls['dateOfBirth'].patchValue(dateStr);  
     }
     this.employeeForm.updateValueAndValidity();
   }
