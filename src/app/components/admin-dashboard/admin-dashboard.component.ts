@@ -36,6 +36,7 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
   public loggedinUser: IUserRes | null = null;
   employeeForm: FormGroup = new FormGroup({});
   private apiSubscriber = new Subscription;
+  public today = new Date();
 
   constructor(
     private shareServ: ShareService,

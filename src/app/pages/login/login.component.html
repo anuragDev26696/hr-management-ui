@@ -41,7 +41,7 @@
             <br>
             <button type="button" class="btn w-100 mb-2 btn-primary fw-medium fs-5" [disabled]="loginForm.invalid || loginForm.disabled" (click)="ngSubmit($event)">
                 @if (loginForm.disabled) {
-                    <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+                    <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>&nbsp;
                     <span role="status">Submitting...</span>
                 }@else {Login}
             </button>

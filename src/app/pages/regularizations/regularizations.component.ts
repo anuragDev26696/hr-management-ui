@@ -22,7 +22,8 @@ export class RegularizationsComponent {
   isNext: boolean = false;
   listLoaded: boolean = false;
   isLoading: boolean = false;
-  paginate: pagination = {skip: 0, limit: 20};
+  public isPermit: boolean = false;
+  paginate: pagination = {skip: 0, limit: 10};
   tableColumns: Array<string> = ['sr', 'name', 'details', 'created_at', ''];
   userRole: string = '';
   userId: string = '';
@@ -39,6 +40,7 @@ export class RegularizationsComponent {
       next: (value) => {
         this.userRole = value?.role || "";
         this.userId = value?.uuid || "";
+        this.isPermit = (value?.permissions || []).includes('attendance') || false;
       },
       complete: () => {
         if(!this.listLoaded && !this.isLoading && this.userId.trim() !== '') {
@@ -63,13 +65,15 @@ export class RegularizationsComponent {
   }
 
   private fetchRequestList(): void {
+    this.requestList = [];
     this.isLoading = true;
     this.listLoaded = false;
-    const subsc = this.userRole === 'admin' ? this.attendanceServ.getRequestList(this.paginate) : this.attendanceServ.getRequestList(this.paginate) ;
-    subsc.subscribe({
+    this.attendanceServ.getRequestList(this.paginate).subscribe({
       next: (value)=> {
         if (Array.isArray(value.data.docs)) {
           this.requestList = value.data.docs;
+          const currentTotal = (this.paginate.skip*this.paginate.limit)+value.data.docs.length;
+          this.isNext = currentTotal < value.data.totalCount;
         }
         this.totalDocs = value.data.totalCount;
         this.listLoaded = true;
@@ -159,5 +163,14 @@ export class RegularizationsComponent {
         this.toastr.error(err.error.error || err.error.message);
       },
     });
+  }
+  public loadNext(event: Event, value: number): void {
+    event.preventDefault();
+    if(!event.isTrusted) return;
+    const isValid = (value < 0 && (this.paginate.skip > 0)) || (value > 0 && this.isNext);
+    if (isValid) {
+      this.paginate.skip += value;
+      this.fetchRequestList();
+    }
   }
 }

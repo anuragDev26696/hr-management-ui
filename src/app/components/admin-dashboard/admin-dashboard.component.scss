@@ -1,5 +1,15 @@
+.topCards{display: grid; grid-template-columns: 100px 1fr;}
+.leaveRequest{--bs-card-bg: rgba(255, 111, 0, var(--bs-bg-opacity, 1)); color: white;}
+.departments{--bs-card-bg: rgba(26, 35, 126, var(--bs-bg-opacity, 1)); color: #fff;}
+.employeeCountCard{--bs-card-bg: rgba(56, 125, 60, var(--bs-bg-opacity, 1)); color: #fff;}
+// .recentRegistrations{--bs-card-bg: rgba(57, 73, 171, var(--bs-bg-opacity, 1)); color: #fff;}
+.recentRegistrations{--bs-card-bg: rgba(27, 30, 49, var(--bs-bg-opacity, 1)); color: #fff;}
 .card-icon {font-size: 2rem; margin-inline-end: 1rem;}
 .modal {--bs-modal-width: 700px;}
+.topCards svg, .topCards img {width: 100px; grid-row: 1/4;}
+.text-wrap-balance{text-wrap-style: balance;}
+.addEmpCard{--bs-card-bg: rgba(63, 81, 181, 1);}
+[data-bs-target="#employeeModal"]{width: clamp(180px, 90vw, 250px);}
 @media screen and (max-width: 550px) {
     .topCards{flex-direction: row; gap: 1rem; justify-content: space-between;}
 }

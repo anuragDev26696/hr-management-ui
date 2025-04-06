@@ -3,89 +3,176 @@
     <div class="card border-light">
         <div class="card-header border-light bg-white d-flex gap-2 align-items-center">
             <span  class="fs-5 fw-medium">Employee List <br><small class="small text-secondary fw-normal">{{totalDocs}} Emplloyees</small></span>
-            @if (userRole === 'admin' || isPermit) {
-                <ng-container [ngTemplateOutlet]="statusFilter"></ng-container>
-                <button class="btn btn-primary ms-1" type="button" data-bs-toggle="modal" data-bs-target="#employeeModal" (click)="openUserModal($event)" [tabIndex]="0"><i class="bi bi-plus"></i> Add Employee</button>
+    
+            <div class="btn-group d-none d-sm-flex ms-auto" role="group" aria-label="View type">
+                <button type="button" class="btn btn-{{view === 'list' ? 'primary' : 'outline-primary'}}" data-bs-toggle="tooltip" data-bs-title="List View" title="List View" (click)="view = 'list'">
+                    <i class="bi bi-list-ul" aria-hidden="true"></i> <s class="visually-hidden">List</s>
+                </button>
+                <button type="button" class="btn btn-{{view === 'grid' ? 'primary' : 'outline-primary'}}" data-bs-toggle="tooltip" data-bs-title="Grid View" title="Grid View" (click)="view = 'grid'">
+                    <i class="bi bi-grid" aria-hidden="true"></i> <s class="visually-hidden">Grid</s>
+                </button>
+            </div>
+            @if (isPermit) {
+                <button class="btn btn-primary ms-auto ms-sm-0" type="button" data-bs-toggle="modal" data-bs-target="#employeeModal" (click)="openUserModal($event)" [tabIndex]="0"><i class="bi bi-plus"></i> Add Employee</button>
             }
         </div>
         <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-hover table-sm align-middle">
-                    <thead>
-                        <tr>
-                            @for (item of tableColumns; track $index) {
-                                <th class="">{{$first ? '#' : item | titlecase}}</th>
+            <div class="d-flex gap-2 mb-3">
+                <div class="input-group searchGroup">
+                    <input type="search" placeholder="Search name" [formControl]="searchText" class="form-control" aria-describedby="searchBtn" aria-label="Search User">
+                    <span class="input-group-text" id="searchBtn" aria-label="Seach Employee">
+                        @if (isSearching) {
+                            <div class="spinner-border spinner-border-sm" role="status">
+                                <span class="visually-hidden">Searching...</span>
+                            </div>
+                        }@else {
+                            <i class="bi bi-search"></i>
+                        }
+                    </span>
+                </div>
+
+                @if (isPermit) {
+                    <ng-container [ngTemplateOutlet]="statusFilter"></ng-container>
+                }
+            </div>
+            @if (view === 'grid') {
+                <div class="row gy-3">
+                    @for (user of userList; track user.uuid;) {
+                        <div class="col-sm-6 col-md-4 col-xl-3 overflow-hidden position-relative userItem">
+                            <app-profile-tile class="py-2">
+                                <profile-image [showStatus]="false" [status]="user.isActive ? 'success' : 'danger'" icon="bi bi-person-circle text-muted" [size]="60"/>
+                                <profile-title>{{user.name}}</profile-title>
+                                <profile-subtitle>
+                                    {{user.designation}}<br>
+                                    <a href="mailto:{{user.email}}" [title]="user.email">Email</a>
+                                </profile-subtitle>
+                            </app-profile-tile>
+                            <span class="position-absolute profileStatus translate-middle p-1 bg-{{user.isActive ? 'success' : 'danger'}} border border-2 border-light rounded-circle">
+                                <span class="visually-hidden">New alerts</span>
+                            </span>
+                            <div class="actions d-flex align-items-center justify-content-center gap-2 bg-white rounded position-absolute overflow-hidden bg-opacity-25">
+                                <button class="btn btn-sm btn-primary shadow" data-bs-toggle="modal" data-bs-target="#empViewModal" (click)="$event.preventDefault(); selectedEmp = user">View</button>
+                                @if (isPermit) {
+                                    <button class="btn btn-sm btn-secondary shadow" data-bs-toggle="modal" data-bs-target="#employeeModal" (click)="openUserModal($event, user)">Edit</button>
+                                    <button class="btn btn-sm btn-danger shadow" (click)="requestTrash($event, user.uuid)">Delete</button>
+                                }
+                            </div>
+                        </div>
+                    } @empty {
+                        @if (listLoaded) {
+                            <p class="col-12 text-center">Document not available.</p>
+                        } @else {
+                            @for (item of ['temp1', 'temp2','temp3', 'temp-4']; track $index) {
+                                <div class="col-sm-6 col-md-4 col-xl-3 d-flex gap-2 align-items-center" aria-hidden="true">
+                                    <div class="placheolder-glow"><span class="placeholder rounded-circle d-block avatar"></span></div>
+                                    <div class="placeholder-wave flex-grow-1">
+                                        <h4 class="placeholder col-10 mb-0"></h4>
+                                        <p class="placeholder col-7 mb-0 placeholder-xs"></p>
+                                    </div>
+                                </div>
                             }
-                        </tr>
-                    </thead>
-                    <tbody class="table-group-divider">
-                        @for (user of userList; track user.uuid; let i = $index;) {
+                        }
+                    }
+                </div>
+            } @else {
+                <div class="table-responsive">
+                    <table class="table table-hover table-sm align-middle">
+                        <thead>
                             <tr>
-                                @for (col of tableColumns; track col; let isFirst = $first;) {
-                                    @if (isFirst) {
-                                        <td>{{i+1}}</td>
-                                    } @else if(col === 'name'){
-                                        <td>
-                                            <app-profile-tile>
-                                                <profile-image [showStatus]="true" [status]="user.isActive ? 'success' : 'danger'" icon="bi bi-person-circle text-muted"/>
-                                                <profile-title>{{user.name}}</profile-title>
-                                                <profile-subtitle>{{user.email}}</profile-subtitle>
-                                            </app-profile-tile>
-                                            <!-- <span class="float-start me-3 mb-1"><i class=""></i></span>
-                                            <span class="mb-0">{{user.name}}</span><br>
-                                            <small class="text-secondary">{{user.email}}</small> -->
-                                        </td>
-                                    } @else if (col === 'role') {
-                                        <td>
-                                            {{user.role | titlecase}}
-                                        </td>
-                                    } @else if (col === 'designation') {
-                                        <td>
-                                            <small>{{user.designation | titlecase}}</small>
-                                        </td>
-                                    } @else if (col === 'created At') {
-                                        <td class="text-truncate">
-                                            {{strToDate(user.createdAt) | date}}
-                                        </td>
-                                    } @else {
-                                        <td>
-                                            @if (isPermit) {
-                                                <div class="dropdown">
-                                                    <button class="btn btn-sm icon-btn dropdown-toggle border-0 outline-0 rounded-5 btn-light" data-bs-toggle="dropdown" aria-expanded="false" [tabIndex]="-1" [attr.aria-controls]="'#userMenu_'+i" aria-label="Options">
-                                                        <i class="bi bi-three-dots-vertical"></i>
-                                                    </button>
-                                                    <ul class="dropdown-menu dropdown-menu-end border-light shadow rounded-3" [id]="'userMenu_'+i">
-                                                        <li><button class="dropdown-item small" data-bs-toggle="modal" data-bs-target="#employeeModal" (click)="openUserModal($event, user)">Edit</button></li>
-                                                        <li><button class="dropdown-item small danger-item" (click)="requestTrash($event, user.uuid)">Delete</button></li>
-                                                    </ul>
-                                                </div>
-                                            }
-                                        </td>
-                                    }
+                                @for (item of tableColumns; track $index) {
+                                    <th class="">{{$first ? '#' : item | titlecase}}</th>
                                 }
                             </tr>
-                        } @empty {
-                            <tr>
-                                <td [colSpan]="tableColumns.length" class="text-center">
-                                    @if (listLoaded) {
-                                        <p class="my-3">Employee list is not available.</p>
-                                    } @else {
-                                        <div class="d-flex align-items-center gap-2 py-3 justify-content-center">
-                                            <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
-                                            <span role="status">Loading...</span>
-                                        </div>
+                        </thead>
+                        <tbody class="table-group-divider">
+                            @for (user of userList; track user.uuid; let i = $index;) {
+                                <tr>
+                                    @for (col of tableColumns; track col; let isFirst = $first;) {
+                                        @if (isFirst) {
+                                            <td>{{i+1}}</td>
+                                        } @else if(col === 'name'){
+                                            <td>
+                                                <app-profile-tile>
+                                                    <profile-image [showStatus]="true" [status]="user.isActive ? 'success' : 'danger'" icon="bi bi-person-circle text-muted"/>
+                                                    <profile-title>{{user.name}}</profile-title>
+                                                    <profile-subtitle>{{user.email}}</profile-subtitle>
+                                                </app-profile-tile>
+                                                <!-- <span class="float-start me-3 mb-1"><i class=""></i></span>
+                                                <span class="mb-0">{{user.name}}</span><br>
+                                                <small class="text-secondary">{{user.email}}</small> -->
+                                            </td>
+                                        } @else if (col === 'role') {
+                                            <td>
+                                                {{user.role | titlecase}}
+                                            </td>
+                                        } @else if (col === 'designation') {
+                                            <td>
+                                                <small>{{user.designation | titlecase}}</small>
+                                            </td>
+                                        } @else if (col === 'created At') {
+                                            <td class="text-truncate">
+                                                {{strToDate(user.createdAt) | date}}
+                                            </td>
+                                        } @else {
+                                            <td class="text-center">
+                                                <div [class.btn-group]="isPermit">
+                                                    <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#empViewModal" (click)="$event.preventDefault(); selectedEmp = user">View</button>
+                                                    @if (isPermit) {
+                                                        <button type="button" class="btn btn-primary btn-sm dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false" [tabIndex]="-1" [attr.aria-controls]="'#userMenu_'+i" aria-label="Options">
+                                                            <span class="visually-hidden">Toggle Dropdown</span>
+                                                        </button>
+                                                    }
+                                                    <ul class="dropdown-menu dropdown-menu-end border-light shadow rounded-3" [id]="'userMenu_'+i">
+                                                        <li><button class="dropdown-item small" data-bs-toggle="modal" data-bs-target="#empViewModal" (click)="$event.preventDefault(); selectedEmp = user">View</button></li>
+                                                        @if (isPermit) {
+                                                            <li><button class="dropdown-item small" data-bs-toggle="modal" data-bs-target="#employeeModal" (click)="openUserModal($event, user)">Edit</button></li>
+                                                            <li><button class="dropdown-item small danger-item" (click)="requestTrash($event, user.uuid)">Delete</button></li>
+                                                        }
+                                                    </ul>
+                                                </div>
+                                            </td>
+                                        }
                                     }
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
+                                </tr>
+                            } @empty {
+                                <tr>
+                                    <td [colSpan]="tableColumns.length" class="text-center">
+                                        @if (listLoaded) {
+                                            <p class="my-3">Document not available.</p>
+                                        } @else {
+                                            <div class="d-flex align-items-center gap-2 py-3 justify-content-center">
+                                                <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+                                                <span role="status">Loading...</span>
+                                            </div>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            <nav class="mt-3" aria-label="Page navigation">
+                <ul class="pagination pagination-sm mb-0 justify-content-end">
+                    <li class="page-item {{paginate.skip < 1 ?'opacity-50 disabled'  : ''}}">
+                        <a class="page-link" href="#" aria-label="Previous" role="button" [tabIndex]="-1">
+                            <!-- <span aria-hidden="true">&laquo;</span>  -->
+                            Previous
+                        </a>
+                    </li>
+                    <li class="page-item {{!isNext ?'opacity-50 disabled'  : ''}}">
+                        <a class="page-link" href="#" aria-label="Next" role="button" [tabIndex]="-1">
+                            <!-- <span aria-hidden="true">&raquo;</span> -->
+                            Next
+                        </a>
+                    </li>
+                </ul>
+            </nav>
         </div>
     </div>
 </main>
 <ng-template #statusFilter>
-    <div class="btn-group ms-auto">
+    <div class="btn-group">
         <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-controls="statusMenu">{{filterStatus === null ? 'ALL' : filterStatus === true ? 'Active' : 'In Active'}}</button>
         <ul class="dropdown-menu dropdown-menu-end border-light shadow rounded-3" id="statusMenu">
             <li><button class="dropdown-item small" (click)="filterByStatus($event, null)">All</button></li>
@@ -110,6 +197,47 @@
           <button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal">Close</button>
           <button type="button" class="btn btn-primary" [disabled]="employeeForm.invalid || employeeForm.disabled || employeeForm.untouched" (click)="onSubmit($event)">Save changes</button>
         </div>
+      </div>
+    </div>
+</div>
+
+<!-- Employee Modal -->
+<div class="modal fade" id="empViewModal" aria-label="View Employee Details" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-fullscreen-sm-down modal-sm modal-dialog-centered modal-dialog-scrollable">
+      <div class="modal-content">
+        <!-- <div class="modal-header">
+          <h5 class="modal-title" id="modalLabel">{{employeeId.trim() === '' ? 'Add' : 'Update'}} Employee</h5>
+          <button type="button" class="btn-close" [tabIndex]="-1" data-bs-dismiss="modal" aria-label="Close" data-bs-toggle="tooltip" title="Close modal" aria-label="Close table"[id]="'closeModalBtn'"></button>
+        </div> -->
+        <div class="modal-body text-center">
+            @if (selectedEmp != undefined) {
+                <div class="text-center"><span class="avatar d-inline-flex"><i class="d-inline-flex bi bi-person-fill"></i></span></div>
+                <h5 class="text-truncate">{{selectedEmp.name}} <small class="small">{{['hr', 'admin'].includes(selectedEmp.role) ? '('+selectedEmp.role+')' : ''}}</small></h5>
+                <small class="text-truncate px-3 py-1 rounded text-primary bg-primary bg-opacity-25 fw-medium sm mb-1">{{selectedEmp.designation}}</small>
+                <p class="mt-2"><i class="bi bi-envelope"></i>&nbsp;<a class="text-truncate" href="mailto:{{selectedEmp.email}}">{{selectedEmp.email}}</a><br> <span class="text-truncate"><i class="bi bi-phone"></i> {{selectedEmp.mobile || ''}}</span> </p>
+                <p class="fs-5">
+                    @if (selectedEmp.facebookUrl != null && selectedEmp.facebookUrl.trim() !== '') {
+                      <a href="{{selectedEmp.facebookUrl}}" target="_blank" rel="noopener noreferrer" aria-label="Facebook Profile" title="Facebook Profile"><i class="bi bi-facebook"></i></a>&nbsp;
+                    }
+                    @if (selectedEmp.linkedinUrl != null && selectedEmp.linkedinUrl.trim() !== '') {
+                      <a href="{{selectedEmp.linkedinUrl}}" target="_blank" rel="noopener noreferrer" aria-label="Linkedin Profile" title="Linkedin Profile" class="text-info"><i class="bi bi-linkedin"></i></a>&nbsp;
+                    }
+                    @if (selectedEmp.githubUrl != null && selectedEmp.githubUrl.trim() !== '') {
+                      <a href="{{selectedEmp.githubUrl}}" target="_blank" rel="noopener noreferrer" aria-label="GitHub Profile" title="GitHub Profile" class="text-dark"><i class="bi bi-github"></i></a>
+                    }
+                </p>
+                <div class="d-flex gap-2 mt-2" data-bs-dismiss="modal" data-bs-target="#empViewModal">
+                    @if (isPermit) {
+                        <button class="btn btn-secondary shadow flex-grow-1" data-bs-toggle="modal" data-bs-target="#employeeModal" (click)="openUserModal($event, selectedEmp)"><i class="bi bi-pencil-square"></i>&nbsp; Edit</button>
+                        <button class="btn btn-danger shadow flex-grow-1" (click)="requestTrash($event, selectedEmp.uuid)"><i class="bi bi-trash"></i> Delete</button>
+                    }
+                </div>
+            }
+        </div>
+        <!-- <div class="modal-footer">
+          <button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary" [disabled]="employeeForm.invalid || employeeForm.disabled || employeeForm.untouched" (click)="onSubmit($event)">Save changes</button>
+        </div> -->
       </div>
     </div>
 </div>

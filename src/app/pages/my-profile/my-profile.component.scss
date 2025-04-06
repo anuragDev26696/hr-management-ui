@@ -13,9 +13,11 @@
 }
 .primaryBtn{--bg-rgb: var(--bs-primary-rgb); }
 .primaryBtn:not(.glow-btn){--bs-btn-bg: #fff;}
-summary{display: flex; transition: background-color 0.3s ease; &:hover{background-color: rgba(1,27,86,0.05); transition: background-color 0.3s ease;}}
+summary{display: flex; transform: translate3d(-0.15rem, 0, 0); padding-inline-start: 0.3rem; width: calc(100% + 0.3rem); transition: background-color 0.3s ease; &:hover{background-color: rgba(1,27,86,0.05); transition: background-color 0.3s ease;}}
 @media screen and (min-width: 768px) {
-    .profile-details{display: grid; grid-template-columns: 1fr 300px; column-gap: 1rem; 
+    .profile-details{display: grid; grid-template-columns: 1fr calc(300px + 1rem); /*column-gap: 1rem;*/ 
         .settingSec{ grid-row: 1 / 5; grid-column: 2;}
     }
+    .settingSec > *:not(a, button){padding-inline-start: 1rem;}
+    .settingSec > :is(hr, a, button){margin-inline-start: 1rem; max-width: calc(100% - 1rem);}
 }

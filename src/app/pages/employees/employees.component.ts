@@ -24,13 +24,17 @@ export class EmployeesComponent {
   isNext: boolean = false;
   listLoaded: boolean = false;
   paginate: pagination = {skip: 0, limit: 20};
-  tableColumns: Array<string> = ['sr', 'name', 'role', 'created At'];
+  tableColumns: Array<string> = ['sr', 'name', 'role', 'created At', ''];
   employeeForm: FormGroup = new FormGroup({});
+  searchText: FormControl = new FormControl<string>({value: '', disabled: false});
   // public formAction: 'add' | 'edit' = 'add'
   public employeeId: string = "";
   public userRole: string = '';
   public filterStatus: null | boolean = null;
   public isPermit: boolean = false;
+  public isSearching: boolean = false;
+  public view: 'list' | 'grid' = 'list';
+  public selectedEmp!: IUserRes;
 
   constructor(
     private shareServ: ShareService,
@@ -43,9 +47,6 @@ export class EmployeesComponent {
       next: (value) => {
         this.userRole = value?.role || "";
         this.isPermit = (value?.permissions ?? []).includes('employee');
-        if (this.isPermit) {
-          this.tableColumns = ['sr', 'name', 'designation', 'created At', ''];
-        }
       },
     });
     this.employeeForm = userService.getForm;
@@ -56,20 +57,29 @@ export class EmployeesComponent {
     this.employeeForm = this.userService.getForm;
     // this.userService.formValid$.subscribe((value) => this.isFormValid = value);
     // this.userService.isSubmitting$.subscribe((value) => this.isSubmitting = value);
+    this.searchText.valueChanges.pipe(debounceTime(700)).subscribe({
+      next: (value) => {
+        this.isSearching = true;
+        this.userList = [];
+        this.fetchUsers();
+      },
+    });
   }
 
   private fetchUsers(status: null | boolean = null): void {
     this.listLoaded = false;
-    this.shareServ.getUsers(this.paginate, "", "", status).subscribe({
+    this.shareServ.getUsers(this.paginate, this.searchText.value, "", status).subscribe({
       next: (value) => {
         this.userList = value.data.docs;
         this.totalDocs = value.data.total;
         this.isNext = ((this.paginate.skip+1)*this.paginate.limit)+this.userList.length < this.totalDocs;
         this.listLoaded = true;
+        this.isSearching = false;
       },
       error: (err) => {
         const {status, statusText, error} = err;
         this.listLoaded = true;
+        this.isSearching = false;
         this.toast.error(error);
       },
     });

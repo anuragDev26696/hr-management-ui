@@ -36,6 +36,8 @@ export class DashboardComponent implements OnDestroy {
     'bi-hourglass-split',
     'bi-hourglass-top'
   ];
+  public isWorkingDay: boolean = false;
+  private daysArray: string[] = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
   iconClass: string = this.iconClasses[0];
   public datePipe = inject(DatePipe);
   private toastr = inject(ToastService);
@@ -47,6 +49,8 @@ export class DashboardComponent implements OnDestroy {
       next: (value) => {
         this.loggedinUser = value;
         this.userRole = value?.role ?? "";
+        const currentDay = this.daysArray[new Date().getDay()];
+        this.isWorkingDay =  (value?.workingDays || []).includes(currentDay);
         if(value != null){
           let hasFetched: boolean = false;
           this.apiSubscriber = this.attendanceServ.lastClockin.subscribe({

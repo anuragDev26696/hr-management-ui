@@ -21,6 +21,7 @@ export class MyProfileComponent implements OnInit, OnDestroy{
   public isPending: boolean = true;
   public addressForm: FormGroup = new FormGroup({});
   public profileForm: FormGroup = new FormGroup({});
+  public passwordForm: FormGroup = new FormGroup({});
   private auth = inject(AuthService);
   private apiSubscriber = new Subscription;
   public formType: string = "";
@@ -28,6 +29,7 @@ export class MyProfileComponent implements OnInit, OnDestroy{
   public cityList: Array<any> = [];
   public bloodGroupArray: Array<string> = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
   public maxDate: string = "";
+  passwordRegex = /^(?=.*\d)(?=.*[a-zA-Z])(?=.*[!@#$%^&*(),.?":{}|<>])[A-Za-z\d!@#$%^&*(),.?":{}|<>]+$/;
 
   constructor(
     private toast: ToastService,
@@ -51,6 +53,10 @@ export class MyProfileComponent implements OnInit, OnDestroy{
   ngOnInit(): void {
     this.buildForms();
     this.fetchStates();
+    this.passwordForm = new FormGroup({
+      oldPassword: new FormControl<string|null>({value: '', disabled: false}, [Validators.required]),
+      newPassword: new FormControl<string|null>({value: '', disabled: false}, [Validators.required, Validators.pattern(this.passwordRegex), Validators.minLength(8), Validators.maxLength(20)]),
+    });
   }
 
   ngOnDestroy(): void {
@@ -73,7 +79,10 @@ export class MyProfileComponent implements OnInit, OnDestroy{
       gender: new FormControl<string | null>({value: null, disabled: false}, [Validators.required]),
       bloodGroup: new FormControl<string | null>({value: null, disabled: false}, [Validators.required]),
       maritalStatus: new FormControl<string | null>({value: null, disabled: false}, [Validators.required,]),
-      dateOfBirth: new FormControl<string | null>({value: null, disabled: false}, [Validators.required,]),
+      dateOfBirth: new FormControl<string | null>({value: null, disabled: false}, Validators.required),
+      facebookUrl: new FormControl<string>({value: '', disabled: false}, Validators.pattern(/^(https?:\/\/)(www\.)?[\w\-]+(\.[\w\-]+)+([\/?#][^\s]*)?$/)),
+      linkedinUrl: new FormControl<string>({value: '', disabled: false},Validators.pattern(/^(https?:\/\/)(www\.)?[\w\-]+(\.[\w\-]+)+([\/?#][^\s]*)?$/)),
+      githubUrl: new FormControl<string>({value: '', disabled: false},Validators.pattern(/^(https?:\/\/)(www\.)?[\w\-]+(\.[\w\-]+)+([\/?#][^\s]*)?$/)),
     });
     if (this.employee) {
       if(this.formType === 'currentAddress'){
@@ -90,8 +99,10 @@ export class MyProfileComponent implements OnInit, OnDestroy{
         }
       } else {
         this.profileForm.patchValue(this.employee);
-        const dateStr = this.shareServ.dateForInput(new Date(this.employee.dateOfBirth));
-        this.profileForm.controls['dateOfBirth'].patchValue(dateStr);
+        if(this.employee.dateOfBirth != null){
+          const dateStr = this.shareServ.dateForInput(new Date(this.employee.dateOfBirth));
+          this.profileForm.controls['dateOfBirth'].patchValue(dateStr);
+        }
       }
     }
   }
@@ -133,7 +144,7 @@ export class MyProfileComponent implements OnInit, OnDestroy{
   public inputClass(ctrlName: string, isProfileForm: boolean = false): string {
     const ctrl: AbstractControl | null = isProfileForm ? this.profileForm.get(ctrlName) : this.addressForm.get(ctrlName);
     if(!ctrl) return '';
-    if(ctrl.valid) return 'is-valid';
+    if(ctrl.valid && ctrl.value != '') return 'is-valid';
     if(ctrl.untouched) return '';
     if(ctrl.touched && ctrl.invalid || ctrl.errors) return 'is-invalid';
     return '';
@@ -191,6 +202,13 @@ export class MyProfileComponent implements OnInit, OnDestroy{
         this.profileForm.enable();
       },
     });
+  }
+
+  public onSubmitPassword(event: Event): void {
+    if(!event.isTrusted) return;
+    // this.passwordForm.valid;
+    document.getElementById('passModalCloseBtn')?.click();
+    this.passwordForm.reset();
   }
 
   public getAddressString(address: Object): string {

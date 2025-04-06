@@ -114,7 +114,7 @@
                                     </td>
                                 }
                             </tr>
-                            <tr class="d-none" #trDetail>
+                            <tr class="d-none" #trDetail (mouseenter)="trDetail.classList.remove('d-none')" (mouseleave)="trDetail.classList.add('d-none')">
                                 <td class="bg-body-tertiary"></td>
                                 <td class="bg-body-tertiary" style="white-space: pre-line;" [colSpan]="tableColumns.length-1">{{item.reason}}</td>
                             </tr>

@@ -7,9 +7,9 @@
   </a>
   <div class="collapse navbar-collapse" id="navbarSupportedContent">
     <ul class="navbar-nav ms-auto mb-2 gap-xl-3 mb-lg-0 navbar-nav-scroll">
-      <li class="nav-item">
+      <!-- <li class="nav-item">
         <a class="nav-link" [routerLink]="['/']" [routerLinkActive]="'active'" [routerLinkActiveOptions]="{exact: true}" aria-current="page">Home</a>
-      </li>
+      </li> -->
       <li class="nav-item">
         <a class="nav-link" [routerLink]="['/employees']" [routerLinkActive]="'active'" [routerLinkActiveOptions]="{exact: true}" [ariaCurrentWhenActive]="'page'">Employees</a>
       </li>
@@ -21,7 +21,7 @@
           <a class="nav-link" [routerLink]="['departments']" [routerLinkActive]="'active'" [routerLinkActiveOptions]="{exact: true}" [ariaCurrentWhenActive]="'page'">Departments</a>
         </li>
       }
-      @if (user && user.permissions.includes('payroll')) {
+      <!-- @if (user && user.permissions.includes('payroll')) {
         <li class="nav-item dropdown">
           <a class="nav-link dropdown-toggle" href="javascript:void(0);" role="button" data-bs-toggle="dropdown" aria-expanded="false">Payroll Management</a>
           <ul class="dropdown-menu dropdown-menu-lg-end border-light shadow rounded-3" data-bs-theme="light">
@@ -30,14 +30,14 @@
           </ul>
         </li>
 
-      }
+      } -->
       <li class="nav-item dropdown">
         <a class="nav-link dropdown-toggle" href="javascript:void(0);" role="button" data-bs-toggle="dropdown" aria-expanded="false">Attendance Management</a>
         <ul class="dropdown-menu dropdown-menu-lg-end border-light shadow rounded-3" data-bs-theme="light">
           <li><a class="dropdown-item" [routerLink]="['attendance']" [routerLinkActive]="'active'" [routerLinkActiveOptions]="{exact: true}" [ariaCurrentWhenActive]="'page'">Attendance</a></li>
           <li><a class="dropdown-item" [routerLink]="['regularizations']" [routerLinkActive]="'active'" [routerLinkActiveOptions]="{exact: true}" [ariaCurrentWhenActive]="'page'">Regularization</a></li>
           <li><a class="dropdown-item" [routerLink]="['holidays']" [routerLinkActive]="'active'" [routerLinkActiveOptions]="{exact: true}" [ariaCurrentWhenActive]="'page'">Holidays</a></li>
-          <li><a class="dropdown-item" [routerLink]="['calendar']" [routerLinkActive]="'active'" [routerLinkActiveOptions]="{exact: true}" [ariaCurrentWhenActive]="'page'">Calendar</a></li>
+          <!-- <li><a class="dropdown-item" [routerLink]="['calendar']" [routerLinkActive]="'active'" [routerLinkActiveOptions]="{exact: true}" [ariaCurrentWhenActive]="'page'">Calendar</a></li> -->
         </ul>
       </li>
     </ul>
@@ -54,7 +54,6 @@
         </div></li>
         <li><hr class="dropdown-divider"></li>
         <li><a class="dropdown-item" [routerLink]="['my-account']">My Profile</a></li>
-        <li><a class="dropdown-item" href="#">Change Password</a></li>
         <li><span class="dropdown-item danger-item" role="button" [tabIndex]="-1" (click)="signout($event)">Logout</span></li>
       </ul>
     }
