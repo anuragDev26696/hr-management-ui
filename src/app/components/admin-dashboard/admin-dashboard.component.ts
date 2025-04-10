@@ -1,5 +1,4 @@
 import { Component, inject, OnDestroy, OnInit } from '@angular/core';
-import { AttendanceService } from '../../services/attendance.service';
 import { Subscription } from 'rxjs';
 import { DatePipe, DecimalPipe, KeyValuePipe } from '@angular/common';
 import { AdminService } from '../../services/admin.service';
@@ -9,15 +8,16 @@ import { IActivity } from '../../interfaces/IDashboard';
 import { DashboardService } from '../../services/dashboard.service';
 import { IUserRes } from '../../interfaces/IUser';
 import { AuthService } from '../../services/auth.service';
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { EmployeeFormComponent } from '../employee-form/employee-form.component';
 import { ToastService } from '../../services/toast.service';
 import { LoaderService } from '../../services/loader.service';
 import { EmployeeService } from '../../services/employee.service';
+import { AssignRoleComponent } from '../assign-role/assign-role.component';
 
 @Component({
   selector: 'app-admin-dashboard',
-  imports: [DecimalPipe, KeyValuePipe, DatePipe, ReactiveFormsModule, EmployeeFormComponent],
+  imports: [DecimalPipe, KeyValuePipe, DatePipe, ReactiveFormsModule,FormsModule, EmployeeFormComponent, AssignRoleComponent],
   templateUrl: './admin-dashboard.component.html',
   styleUrl: './admin-dashboard.component.scss'
 })
@@ -50,7 +50,7 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
     this.fetchAttendanceSummary();
     this.fetchMasterSummary();
     this.fetchActivities();
-    this.buildForm();
+    this.employeeForm = this.userService.getForm;
   }
 
   ngOnDestroy(): void {
@@ -122,41 +122,6 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
 
   public formatDate(dateStr: Date|string): Date {return new Date(dateStr);}
 
-  private buildForm(): void {
-    this.employeeForm = new FormGroup({
-      name: new FormControl<string | null>({value: null, disabled: false}, [Validators.required, Validators.minLength(2), Validators.maxLength(35), Validators.pattern(/^[a-zA-Z ]*$/)]),
-      email: new FormControl<string | null>({value: null, disabled: false}, [Validators.required, Validators.minLength(2), Validators.maxLength(35), Validators.email]),
-      mobile: new FormControl<string | null>({value: null, disabled: false}, [Validators.required, Validators.minLength(10), Validators.maxLength(10)]),
-      gender: new FormControl<string>({value: 'Male', disabled: false}, Validators.required),
-      dateOfBirth: new FormControl<string|null>({value: null, disabled: false}),
-      bloodGroup: new FormControl<string>({value: '', disabled: false}),
-      role: new FormControl<string>({value: 'employee', disabled: false}, Validators.required),
-      employeeId: new FormControl<string | null>({value: null, disabled: false}, [Validators.required, Validators.pattern(/^[a-zA-Z0-9]+(-[a-zA-Z0-9]+)*$/)]),
-      designation: new FormControl<string | null>({value: null, disabled: false}, Validators.required),
-      position: new FormControl<string | null>({value: null, disabled: false}, Validators.required),
-      department: new FormControl<string | null>({value: null, disabled: false}, Validators.required),
-      subDepartment: new FormControl<string | null>({value: null, disabled: false}, [Validators.required]),
-      joiningDate: new FormControl<Date | null>({value: null, disabled: false}, [Validators.required]),
-      resignationDate: new FormControl<Date| null>({value: null, disabled: false}),
-      isActive: new FormControl<boolean>({value: true, disabled: false}, [Validators.required]),
-      orgId: new FormControl<string | null>({value: null, disabled: false}),
-      permissions: new FormControl<Array<string>>({value: [], disabled: false}),
-      currentAddress: this.buildAddressForm,
-      permanentAddress: this.buildAddressForm,
-    });
-  }
-
-  private get buildAddressForm(): FormGroup {
-    return new FormGroup({
-      addressLine1: new FormControl<string | null>({value: null, disabled: false}, [Validators.required, Validators.minLength(2), Validators.maxLength(15), Validators.pattern(/^[a-zA-Z0-9 ,.-]+$/)]),
-      addressLine2: new FormControl<string | null>({value: null, disabled: false}, [Validators.required, Validators.minLength(2), Validators.maxLength(15), Validators.pattern(/^[a-zA-Z0-9 ,.-]+$/)]),
-      district: new FormControl<string | null>({value: null, disabled: false}, [Validators.required, Validators.minLength(2), Validators.maxLength(25), Validators.pattern(/^[a-zA-Z ]+$/)]),
-      state: new FormControl<string | null>({value: null, disabled: false}, [Validators.required]),
-      city: new FormControl<string | null>({value: null, disabled: true}, [Validators.required,]),
-      pincode: new FormControl<string | null>({value: null, disabled: false}, [Validators.pattern(/^[0-9]{6}$/)]),
-    });
-  }
-
   public openUserModal(event: Event): void {
     if(!event.isTrusted) return;
     event.stopImmediatePropagation();
@@ -170,7 +135,7 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
     this.userService.submitForm().subscribe({
       next: (value) => {
         this.toast.success(value.message);
-        document.getElementById('closeModalBtn')?.click();
+        document.getElementById('empFormCloseBtn')?.click();
       },
       error: (err) => {
         this.toast.error(err.error || err.message);

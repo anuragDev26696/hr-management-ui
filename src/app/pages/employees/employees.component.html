@@ -183,11 +183,11 @@
 </ng-template>
 
 <!-- Employee Modal -->
-<div class="modal fade" id="employeeModal" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="modalLabel" aria-hidden="true" tabindex="-1">
+<div class="modal fade" id="employeeModal" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="empModalLabel" aria-hidden="true" tabindex="-1">
     <div class="modal-dialog modal-fullscreen-md-down modal-dialog-centered modal-dialog-scrollable">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="modalLabel">{{employeeId.trim() === '' ? 'Add' : 'Update'}} Employee</h5>
+          <h5 class="modal-title" id="empModalLabel">{{employeeId.trim() === '' ? 'Add' : 'Update'}} Employee</h5>
           <button type="button" class="btn-close" [tabIndex]="-1" data-bs-dismiss="modal" aria-label="Close" data-bs-toggle="tooltip" title="Close modal" aria-label="Close table"[id]="'closeModalBtn'"></button>
         </div>
         <div class="modal-body">

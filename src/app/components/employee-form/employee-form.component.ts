@@ -54,7 +54,14 @@ export class EmployeeFormComponent implements OnInit, AfterContentChecked {
           }
         }
       },
-    })
+    });
+    // this.employeeForm.controls['isActive'].valueChanges.subscribe({
+    //   next: (value) => {
+    //     Object.keys(this.employeeForm.value).forEach((ctrlStr) => {
+    //       console.log(this.employeeForm.controls[ctrlStr].errors);
+    //     });
+    //   },
+    // })
   }
 
   ngAfterContentChecked(): void {

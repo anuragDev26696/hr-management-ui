@@ -1,0 +1,47 @@
+<div class="modal-content">
+  <div class="modal-header">
+    <h5 class="modal-title" id="assignRoleModalLabel">Assign Role</h5>
+    <button type="button" class="btn-close" [tabIndex]="-1" data-bs-dismiss="modal" aria-label="Close" data-bs-toggle="tooltip" title="Close modal" aria-label="Close table"[id]="'closeModalBtn'"></button>
+  </div>
+  <form class="modal-body has-validate">
+    <form class="row gy-2 hasValidate" [formGroup]="roleAssignForm">
+      <!-- @let empIdsCtrl = roleAssignForm.get('employeeIds'); -->
+      <div class="col-12">
+        <label for="empListCtrl">Employee(s) <i class="text-danger">*</i></label>
+        <app-muli-select id="empListCtrl" [multiple]="false" class="{{inputClass('employeeIds')}}" formControlName="employeeIds" (onsearch)="searchUser($event)">
+          @for(item of userList; track item.uuid){
+            <app-option [value]="item.uuid" [label]="item.name">{{item.name}}</app-option>
+          }
+        </app-muli-select>
+        <!-- @let add1 = addressForm.controls['addressLine1'];
+        <p class="invalid-feedback" id="addressLine1Feed">{{add1.hasError('pattern') ? 'Accept only character, space, digit, -' : add1.hasError('invalid') || add1.hasError('maxlength') ? 'Address legth should be max 15' : 'Address line 1 is required.'}}</p> -->
+      </div>
+      <div class="col-12">
+        <label for="assignRoleCtrl">Role <i class="text-danger">*</i></label>
+        <select name="role" id="assignRoleCtrl" aria-placeholder="Select" class="form-select {{inputClass('role')}}" formControlName="role" [required]="true"aria-describedby="asignRoleFeed" (change)="changeRole($event)" #roleSelect>
+            <option value="hr">HR</option>
+            <option value="employee">Employee</option>
+        </select>
+        <p class="invalid-feedback" id="asignRoleFeed">Role is required.</p>
+      </div>
+      <div class="col-12">
+        <p class="h6">Permissions</p>
+        @for (item of permissions; track $index) {
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" [disabled]="roleAssignForm.disabled" [checked]="isPermit(item)" (change)="selectPermision($event)" [id]="item+'_per_roleAsign'" [value]="item">
+                <label class="form-check-label" [for]="item+'_per_roleAsign'">{{item | titlecase}}</label>
+            </div>
+        }
+      </div>
+    </form>
+  </form>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal">Close</button>
+    <button type="button" class="btn btn-primary" [disabled]="roleAssignForm.invalid || roleAssignForm.disabled" (click)="onSubmit($event)">
+      @if (roleAssignForm.disabled) {
+        <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+        <span role="status">Submitting...</span>
+      }@else {Save changes}
+    </button>
+  </div>
+</div>

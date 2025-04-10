@@ -14,8 +14,8 @@
                             <circle cx="19" cy="28" r="1" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="2"></circle>
                         </svg>
                         @if (isClockein) {
-                            <small class="small fw-medium mb-1"><i class="bi {{iconClass}}"></i> Your working time</small>
-                            <div class="clearfix clear-fix clock-container fw-medium fs-4 overflow-hidden">
+                            <small class="small text-end fw-medium mb-1"><i class="bi {{iconClass}}"></i> Your working time</small>
+                            <div class="clearfix text-end clock-container fw-medium fs-4 overflow-hidden">
                                 <span [class]="workingTime.seconds === 0 && workingTime.minutes === 0 ? 'slide-down digit' : 'digit'">
                                 {{ workingTime.hours < 10 ? '0' + workingTime.hours : workingTime.hours }}
                                 </span> :
@@ -26,7 +26,7 @@
                                 {{ workingTime.seconds < 10 ? '0' + workingTime.seconds : workingTime.seconds }}
                                 </span>
                             </div>
-                            <button class="btn btn-sm rounded fw-medium shadow-sm me-auto mt-1 btn-danger px-3" (click)="clockOut($event)">Clock Out &nbsp;<i class="bi bi-pause-fill"></i></button>
+                            <button class="btn btn-sm rounded fw-medium shadow-sm ms-auto mt-1 btn-danger px-3" (click)="clockOut($event)">Clock Out &nbsp;<i class="bi bi-pause-fill"></i></button>
                         } @else {
                             <span class="h5 card-title text-end">Mark Attendance</span>
                             @if (isWorkingDay) {
@@ -172,6 +172,12 @@
             </div>
         </section>
     }
+    <section class="d-lg-none container actions">
+        <a class="actionCard card p-3">
+            
+            <p class="mb-0 fw-medium">Leaves</p>
+        </a>
+    </section>
 } @placeholder {
     <section class="hero-section">
         <div class="container-xl">

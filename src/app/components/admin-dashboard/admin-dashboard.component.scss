@@ -8,8 +8,18 @@
 .modal {--bs-modal-width: 700px;}
 .topCards svg, .topCards img {width: 100px; grid-row: 1/4;}
 .text-wrap-balance{text-wrap-style: balance;}
-.addEmpCard{--bs-card-bg: rgba(63, 81, 181, 1);}
-[data-bs-target="#employeeModal"]{width: clamp(180px, 90vw, 250px);}
+.addEmpCard{--bs-card-bg: rgba(63, 81, 181, 1); background-image: linear-gradient(to left, #3041a5, rgba(63, 81, 181, 1));}
+[data-bs-target="#employeeModal"]{width: clamp(180px, 90vw, 250px);
+    --bs-btn-bg: #1a237e;
+    --bs-btn-border-color: #1a237e;
+    --bs-btn-color: #fff;
+    --bs-btn-hover-bg: #141d71;
+    --bs-btn-hover-border-color: #141d71;
+    --bs-btn-hover-color: #fff;
+    --bs-btn-active-bg: #fff;
+    --bs-btn-active-border-color: #fff;
+    --bs-btn-active-color: #141d71;
+}
 @media screen and (max-width: 550px) {
     .topCards{flex-direction: row; gap: 1rem; justify-content: space-between;}
 }
