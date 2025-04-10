@@ -109,11 +109,13 @@ export class EmployeeService {
   submitForm(): Observable<any> {
     if (!this.employeeForm.valid) return of({ error: 'Invalid form data' });
     // this.isSubmittingSubject.next(true);
+    console.log(this.employeeId, this.employeeForm.getRawValue());
     this.employeeForm.disable();
+    console.log(this.employeeId, this.employeeForm.getRawValue());
     // Simulate API request
-    const apiSubsc = this.formModeSubject.getValue() === 'add' ? this.shareServ.craeteNewUser(this.employeeForm.value) : this.shareServ.updateUser(this.employeeId, this.employeeForm.value);
+    const apiSubsc = this.formModeSubject.getValue() === 'add' ? this.shareServ.craeteNewUser(this.employeeForm.getRawValue()) : this.shareServ.updateUser(this.employeeId, this.employeeForm.getRawValue());
     return apiSubsc.pipe(
-      tap(() => {this.employeeForm.enable();}),
+      tap(() => {this.employeeForm.enable(); this.employeeId = '';}),
       catchError((error) => {
         // this.isSubmittingSubject.next(false);
         this.employeeForm.enable();

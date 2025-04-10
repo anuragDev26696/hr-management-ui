@@ -1,0 +1,103 @@
+<!-- <div class="dropdown" #dropdown>
+    <button type="button" class="form-control d-flex align-items-center justify-content-between gap-2" [disabled]="isDisabled" (click)="toggleDropdown($event)">
+        <p class="mb-0 d-flex gap-1 overflow-hidden">
+            @for (val of selectedValues.slice(0, maxVisibleTags); track val) {
+                <span class="badge-bg-primary">
+                    {{getKeyItem(val)}}
+                    <span class="ms-1" style="cursor: pointer;" (click)="removeValue(val)">&times;</span>
+                </span>
+            }@empty {
+                {{placeholder}}
+            }
+            @if (selectedValues.length > maxVisibleTags) {
+                <span class="badge bg-secondary">+{{ selectedValues.length - maxVisibleTags }} more</span>
+            }
+        </p>
+        <i class="bi bi-caret-down-fill ms-auto"></i>
+    </button>
+
+    @if (isOpen) {
+        <div class="dropdown-menu show w-100 mt-1 shadow-sm">
+            <span class="px-2 d-block">
+                <input type="text" class="form-control mb-2" placeholder="Search..." #searchInput [(ngModel)]="searchTerm" />
+            </span>
+            <button class="btn btn-sm btn-outline-primary mx-2" (click)="selectAll()">Select All</button>
+            <button class="btn btn-sm btn-outline-danger" (click)="clearAll()">Clear All</button>
+            <ul class="list-unstyled mb-0 overflow-auto mt-3" style="max-height: 200px;">
+                @for (option of filteredOptions; track $index) {
+                    <li class="form-check" [class.bg-light]="$index === focusedOptionIndex" class="rounded px-2 py-1"
+                    (mouseenter)="focusedOptionIndex = $index">
+                        <input type="checkbox" class="form-check-input" [checked]="isSelected(option)" (change)="selectOption(option)" [id]="getOptionId(option)" />
+                        Render custom template if passed
+                        @if (optionTemplate) {
+                            <ng-container *ngTemplateOutlet="optionTemplate; context: { $implicit: option }"></ng-container>
+                        } @else {
+                            <label class="form-check-label" [for]="getOptionId(option)">{{ option[displayKey] }}</label>
+                        }
+                    </li>
+                } @empty {
+                    <li class="text-muted text-center py-2">No options found</li>
+                }
+                    @for(option of optionList; track option){
+                        <li class="dropdown-item d-flex align-items-center gap-2" [class.disabled]="option.disabled" (click)="toggleOption(option)">
+                            <input type="checkbox" class="form-check-input" [checked]="isSelected(option)" [disabled]="option.disabled"
+                            (click)="$event.stopPropagation()" />
+                            <ng-container *ngTemplateOutlet="option.content"></ng-container>
+                        </li>
+                    }
+            </ul>
+        </div>
+    }
+</div> -->
+<!-- app-multi-select.component.html -->
+<div class="dropdown" [class.show]="dropdownOpen" #dropdownRoot>
+    <button
+      class="form-control w-100 text-truncate text-start d-flex align-items-center {{statusClass}}"
+      type="button"
+      (click)="toggleDropdown()"
+      [disabled]="disabled"
+      [attr.aria-expanded]="dropdownOpen"
+    >
+    <span class="text-truncate me-2">{{ selectedLabels.length ? selectedLabels.join(', ') : 'Select options' }}</span>
+      <i class="bi ms-auto bi-chevron-{{dropdownOpen ? 'up' : 'down'}}"></i>
+    </button>
+  
+    <ul
+      class="dropdown-menu w-100"
+      [class.show]="dropdownOpen"
+      [style.max-height.px]="220"
+      [style.overflowY]="'auto'"
+      [style]="{top:  autoPosition === 'top' ? 'auto' : '100%', bottom: autoPosition === 'top' ? '100%' : 'auto'}"
+    >
+      <li class="py-2 px-3 sticky-top bg-white">
+        <input
+          type="text"
+          class="form-control form-control-sm"
+          placeholder="Search..."
+          [(ngModel)]="searchText"
+          (ngModelChange)="onSearchChange($event)"
+          (keydown)="$event.stopPropagation()"
+        />
+      </li>
+  
+      @for(option of filteredOptions; track option){
+          <ng-container *ngTemplateOutlet="option.templateRef"></ng-container>
+          <!-- <li class="dropdown-item d-flex align-items-center gap-2"
+              [class.active]="focusedIndex === i"
+              [class.disabled]="option.disabled"
+              (click)="toggleOption(option)"
+              (keydown.enter)="toggleOption(option)"
+              tabindex="0"
+              (focus)="focusedIndex = i"
+          ></li> -->
+      }@empty{
+        <li class="dropdown-item text-muted">No options found</li>
+      } 
+      @if(filteredOptions.length > 0 && multiple){
+        <li class="d-flex gap-2 px-3 mt-3 bg-white position-sticky bottom-0">
+            <button class="btn btn-sm btn-primary ms-auto" (click)="selectAll()">Select All</button>
+            <button class="btn btn-sm btn-outline-danger" (click)="clearAll()">Clear All</button>
+        </li>
+      } 
+    </ul>
+</div>  

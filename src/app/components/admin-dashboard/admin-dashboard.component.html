@@ -2,7 +2,7 @@
     <div class="row g-3">
         @defer (when isMasterSummaryLoaded) {
             <aside class="col-sm-6 col-md-4 col-xl-3">
-                <div class="card topCards p-3 employeeCountCard text-end">
+                <div class="card topCards p-3 text-bg-primary text-end">
                     <img src="cover/pie-chart.png" alt="Pie Chart" [width]="100" [height]="100" loading="lazy" class="object-fit-contain">
                     <p class="h5 mb-1">Employees</p>
                     <p class="mb-0">
@@ -78,7 +78,7 @@
                     </svg> -->
                     <h4>Add New Employee</h4>
                     <p class="text-wrap-balance w-75 mx-auto">Easily onboard new team members by filling out their essential details. Make sure to provide accurate information for seamless integration into the organization.</p>
-                    <button class="btn btn-primary mx-auto btn-lg shadow" data-bs-toggle="modal" data-bs-target="#employeeModal" (click)="openUserModal($event)">
+                    <button class="btn mx-auto btn-lg shadow" data-bs-toggle="modal" data-bs-target="#employeeModal" (click)="openUserModal($event)">
                         <i class="bi bi-person-plus"></i> Add Employee
                     </button>
                 </div>
@@ -104,13 +104,6 @@
                 </div>
             </div>
         }
-        <div class="col-sm-6 col-md-4">
-            <div class="card p-3 shadow-sm border-light">
-                <h5>Payroll Summary</h5>
-                <p class="mb-1">Upcoming Payroll: 5 days</p>
-                <p class="mb-0">Salary Disbursed: 90%</p>
-            </div>
-        </div>
     </div>
     
     <!-- Recent Activity -->
@@ -154,12 +147,18 @@
     }
 
     <!-- Quick Actions -->
-    <div class="row g-2 mt-3">
+    <!-- <div class="row g-2 mt-3">
         <div class="col-6 col-md-4 col-lg-3">
-            <button class="btn btn-warning w-100"><i class="bi bi-people"></i> Assign Roles</button>
+            <button class="btn btn-warning w-100" data-bs-target="#assignRoleModal" data-bs-toggle="modal"><i class="bi bi-people"></i> Assign Roles</button>
         </div>
         <div class="col-6 col-md-4 col-lg-3">
             <button class="btn btn-info w-100"><i class="bi bi-file-earmark-text"></i> Generate Report</button>
+        </div>
+    </div> -->
+    <!-- Assing Role Modal -->
+    <div class="modal fade" id="assignRoleModal" data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true" tabindex="-1" aria-labelledby="assignRoleModalLabel">
+        <div class="modal-dialog modal-fullscreen-sm-down modal-dialog-centered modal-dialog-scrollable">
+          <app-assign-role/>
         </div>
     </div>
 </section>
@@ -170,7 +169,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="modalLabel">Add Employee</h5>
-                    <button type="button" class="btn-close" [tabIndex]="-1" data-bs-dismiss="modal" aria-label="Close" data-bs-toggle="tooltip" title="Close modal" aria-label="Close table"[id]="'closeModalBtn'"></button>
+                    <button type="button" class="btn-close" [tabIndex]="-1" data-bs-dismiss="modal" aria-label="Close" data-bs-toggle="tooltip" title="Close modal" aria-label="Close table" [id]="'empFormCloseBtn'"></button>
                 </div>
                 <div class="modal-body">
                     <app-employee-form />

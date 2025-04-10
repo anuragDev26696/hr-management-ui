@@ -70,8 +70,9 @@ export class DashboardComponent implements OnDestroy {
               this.updateWorkingTime(value);
             },
           });
-          this.fetchTodayStatus();
           this.fetchTodayEvents();
+          if(!['admin', 'hr'].includes(this.userRole))
+            this.fetchTodayStatus();
         } else {
           setTimeout(() => {
             this.isEventLoading = false;
