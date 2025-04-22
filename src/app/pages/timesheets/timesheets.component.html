@@ -1,0 +1,393 @@
+<div class="container-xl py-3">
+    @if (timesheetLoading) {
+        <div class="fixed-top top-0 start-0 w-100 h-100 d-flex align-items-center z-2 text-bg-dark bg-opacity-75">
+            <p class="text-center fs-4 mx-auto">
+                <span class="spinner-border spinner-border" aria-hidden="true"></span>&nbsp;
+                <span role="status">Loading...</span>
+            </p>
+        </div>
+    }
+    <header class="d-flex flex-wrap mb-3 gap-2">
+        <div class="input-group monthSearchBar">
+            <span class="input-group-text"><i class="bi bi-search"></i></span>
+            <input type="month" class="form-control" [formControl]="monthCtrl" aria-label="Timesheet month" aria-describedby="timesheetSearchBtn">
+            <!-- <button class="btn btn-primary" id="timesheetSearchBtn">Search</button> -->
+        </div>
+        <span class="d-flex gap-2 flex-wrap justify-content-end flex-grow-1">
+            @if (isPermit) {
+                <button class="btn bg-primary bg-opacity-10 text-primary fw-medium me-auto" data-bs-toggle="modal" data-bs-target="#filterModal"><i class="bi bi-funnel-fill"></i>&nbsp; Filter</button>
+            }
+            <div class="btn-group bg-body" role="group" aria-label="Basic radio toggle button group">
+                <input type="radio" class="btn-check" value="Table" [formControl]="viewType" id="btnradio1" autocomplete="off">
+                <label class="btn btn-outline-primary" [class.active]="viewType.value === 'Table'" for="btnradio1"><i class="bi bi-table"></i>&nbsp; Table</label>
+              
+                <input type="radio" class="btn-check" value="Calendar" [formControl]="viewType" id="btnradio2" autocomplete="off">
+                <label class="btn btn-outline-primary" [class.active]="viewType.value === 'Calendar'" for="btnradio2"><i class="bi bi-calendar3"></i>&nbsp; Calendar</label>
+            </div>
+            <button class="btn btn-primary" (click)="downloadExcel($event)"><i class="bi bi-cloud-download"></i>&nbsp; Download Excel</button>
+            <button type="button" class="btn btn-primary" (click)="rebuildForm($event)" data-bs-toggle="modal" data-bs-target="#timesheetFormModal"><i class="bi bi-file-earmark-plus"></i>&nbsp; Create New</button>
+        </span>
+    </header>
+    @if (viewType.value == 'Table') {
+        <aside class="card border pb-3">
+            <div class=" table-responsive">
+                <table class="table table-striped table-hover caption-top">
+                    <caption class="h5 px-3">Timesheet in {{selectedDate | date:"MMMM, yyyy"}}</caption>
+                    <thead>
+                        <tr>
+                            <th>Date</th><th class="text-nowrap">Project Name</th><th>User</th><th class="text-nowrap">Total Time</th><th class="text-center">Status</th><th class="text-center">Remark</th><th class="text-end">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (item of timesheetList; track item.uuid) {
+                            <tr>
+                                <td class="text-nowrap">{{item.timesheetDate | date:"dd, EEEE"}}</td>
+                                <td>{{item.project.name}}</td>
+                                <td>{{item.user.name.slice(0, 20)}}</td>
+                                <!-- <td class="text-truncate">{{item.tasks.length}} Task<br> <small>{{tasksTitles(item.tasks)}}</small></td> -->
+                                <td>{{item.timeTaken | timeFormat }}</td>
+                                <td class="text-center"><span class="badge text-bg-{{item.isRejected || item.status === 'rejected' ? 'danger' : item.status === 'approved' ? 'success' : 'warning'}}">{{item.status.toLocaleUpperCase()}}</span></td>
+                                <td class="text-truncate text-center"><small class="text-muted">{{item.remark || '-'}}</small></td>
+                                <td class="text-end">
+                                    <div class="btn-group">
+                                        <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#timesheetDetailModal" (click)="viewTimesheet($event, item)">View</button>
+                                        <button type="button" class="btn btn-primary btn-sm dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false" [tabIndex]="-1" [attr.aria-controls]="'#event_'+$index" aria-label="Options" data-bs-auto-close="true" data-bs-reference="parent">
+                                            <span class="visually-hidden">Toggle Dropdown</span>
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-end border-light shadow rounded-3" [id]="'event_'+$index">
+                                            <li><button class="dropdown-item small" [disabled]="item.status == 'approved'" data-bs-toggle="modal" data-bs-target="#timesheetFormModal" (click)="actionUpdate($event, item)">Update</button></li>
+                                            <li><button class="dropdown-item small danger-item" [disabled]="loggedinUserID != item.createdBy" (click)="requestTrash($event, item.uuid)">Delete</button></li>
+                                        </ul>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </aside>
+    } @else {
+        <app-custom-calendar class="d-block mb-3 rounded overflow-hidden shadow-sm" [calendarDate]="calendarDate" (monthChange)="onMonthChange($event)" (dateEvent)="onDateEvent($event)"/>
+        <button type="button" data-bs-toggle="modal" id="timesheetDetailBtn" data-bs-target="#timesheetDetailModal" class="visually-hidden">View Detail</button>
+        <button type="button" data-bs-toggle="modal" id="openTimesheetFormBtn" data-bs-target="#timesheetFormModal" class="visually-hidden">Open Form</button>
+    }
+    <!-- <section class="row gy-3">
+        <div class="col-lg-5">
+            @if (isDateChanged) {
+                <p class="border text-bg-light text-black-50 p-2 rounded">Calendar date changed. Do you want to fill or update timesheet for new date? <a href="#" title="Fill or Update timesheet" (click)="rebuildForm($event)">Yes</a></p>
+            }
+            <div class="card border">
+                <div class="card-header border-light">
+                    <h5 class="card-title">{{formAction}} Timesheet</h5>
+                    @let timesheetDa = timesheetForm.controls['timesheetDate'].value;
+                    <p class="card-subtitle fs-6">Timesheet for {{(formAction === 'Update' ? timesheetDa: selectedDate) | date}}</p>
+                </div>
+                <form novalidate class="card-body" id="timesheetForm" [formGroup]="timesheetForm" (ngSubmit)="submitForm($event)">
+                    @let projectCtrl= timesheetForm.controls['projectId'];
+                    <div class="mb-3">
+                        <label for="projectIdCtrl" class="form-label">Project <span class="text-danger">*</span></label>
+                        <select id="projectIdCtrl" class="form-select" formControlName="projectId" [class.is-valid]="projectCtrl?.valid" [class.is-invalid]="projectCtrl?.touched && projectCtrl?.invalid" aria-describedby="projectFeed">
+                            <option value="">Select</option>
+                            @for (item of projectList; track item.projectId) {
+                                <option [value]="item.projectId">{{item.projectDetail.name}}</option>
+                            }
+                        </select>
+                        <p class="invalid-feedback" id="projectFeed">Project is required.</p>
+                        @if (projectLoading) {
+                            <div class="progress mt-3" role="progressbar" style="height: 5px;" aria-label="Animated striped example" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100">
+                                <div class="progress-bar progress-bar-striped progress-bar-animated w-100"></div>
+                            </div>
+                        } @else if(projectList.length < 1) {
+                            <p class="text-muted">You haven't assigned any project.</p>
+                        }
+                    </div>
+                    <article formArrayName="tasks" class="pt-3">
+                        @for (ctrl of taskFormArray.controls; track arrayItemId($index)) {
+                            <fieldset class="border px-3 rounded mb-3" [formGroupName]="$index">
+                                <legend class="fs-6 mb-0 bg-white">Task {{$index+1}}</legend>
+                                <div class="row gy-2 mb-2">
+                                    @let titleCtrl = arrayItemCtrl($index, 'title');
+                                    @let descCtrl = arrayItemCtrl($index, 'description');
+                                    @let timeCtrl = arrayItemCtrl($index, 'timeTaken');
+                                    <div class="col-12">
+                                        <label class="visually-hidden" [for]="'task_title_ctrl_'+{$index}">Title</label>
+                                        <input type="text" [id]="'task_title_ctrl_'+{$index}" [class.is-valid]="titleCtrl?.valid" [class.is-invalid]="titleCtrl?.touched && titleCtrl?.invalid" class="form-control" [minLength]="5" [maxLength]="100" [attr.aria-describedby]="'task_title_hint'+$index + ' task_title_feed'+$index" placeholder="Title" formControlName="title" [required]="true">
+                                        <small class="form-text" [id]="'task_title_hint'+$index">Add Subject about task.</small>
+                                        <p class="invalid-feedback mb-1" [id]="'task_title_feed'+$index">{{titleCtrl?.hasError('required') ? 'Title is required' : 'Title length should be 5-100.'}}</p>
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="visually-hidden" [for]="'task_title_ctrl_'+{$index}">Description</label>
+                                        <textarea [rows]="3" [maxLength]="1500" class="form-control" [class.is-valid]="descCtrl?.valid" [class.is-invalid]="descCtrl?.touched && descCtrl?.invalid" [required]="true" formControlName="description" placeholder="message" [attr.aria-describedby]="'task_desc_hint'+$index + ' task_desc_feed'+$index"></textarea>
+                                        <small class="form-text" [id]="'task_desc_hint'+$index">Add description or details what you did.</small>
+                                        <p class="invalid-feedback mb-1" [id]="'task_desc_feed'+$index">{{descCtrl?.hasError('required') ? 'Description is required' : 'Description\'s max length should be max 1500.'}}</p>
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="visually-hidden" [for]="'task_time_ctrl_'+{$index}">Time Taken <small>(In minutes)</small></label>
+                                        <input type="number" inputmode="numeric" [id]="'task_time_ctrl_'+{$index}" class="form-control" [class.is-valid]="timeCtrl?.valid" [class.is-invalid]="timeCtrl?.touched && timeCtrl?.invalid" [min]="1" [max]="480" placeholder="Time taken" formControlName="timeTaken" [required]="true" [attr.aria-describedby]="'task_time_feed'+$index + ' task_time_hint'+$index" [step]="10">
+                                        <small class="form-text" [id]="'task_time_hint'+$index">Time taken <i>(In Minutes)</i></small>
+                                        <p class="invalid-feedback mb-1" [id]="'task_time_feed'+$index">{{timeCtrl?.hasError('required') ? 'Time duration is requird.' : 'Time duration should be 1-480.'}}</p>
+                                    </div>
+                                </div>
+                                @if ($count > 1) {
+                                    <p class="text-end">
+                                        <button class="btn btn-sm btn-danger" type="button" (click)="removeTaskItem($event, $index)">
+                                            <i class="bi bi-trash"></i>&nbsp; Delete
+                                        </button>
+                                    </p>
+                                }
+                            </fieldset>
+                            @if ($last) {
+                                <p class="text-end">
+                                    <button class="btn btn-sm btn-outline-primary" type="button" [disabled]="ctrl.invalid" (click)="addNewTask($event)">
+                                        <i class="bi bi-plus"></i>&nbsp; Add New Task
+                                    </button>
+                                </p>
+                            }
+                        }
+                    </article>
+                </form>
+                <div class="card-footer d-flex justify-content-end gap-2 bg-white">
+                    <button type="reset" form="timesheetForm" class="btn btn-secondary" (click)="rebuildForm($event)">Cancel</button>
+                    <button type="submit" form="timesheetForm" class="btn btn-primary" [disabled]="timesheetForm.invalid || timesheetForm.disabled">Submit</button>
+                </div>
+            </div>
+        </div>
+    </section> -->
+</div>
+
+<!-- Timesheet Form modal -->
+<div class="modal fade" id="timesheetFormModal" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="timesheetFormLabel" tabindex="-1">
+    <div class="modal-dialog modal-fullscreen-md-down modal-dialog-centered modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="timesheetFormLabel">{{formAction}} Timesheet</h5>
+          <button type="button" class="btn-close" [tabIndex]="-1" data-bs-dismiss="modal" aria-label="Close" data-bs-toggle="tooltip" title="Close modal" aria-label="Close table" [id]="'timesheetFormModalCloseBtn'"></button>
+        </div>
+        <form novalidate class="modal-body assignModalBody" id="timesheetForm" [formGroup]="timesheetForm" (ngSubmit)="submitForm($event)">
+            <!-- @let timesheetDa = timesheetForm.controls['timesheetDate'].value;
+            <p class="card-subtitle fs-6">Timesheet for {{(formAction === 'Update' ? timesheetDa: selectedDate) | date}}</p> -->
+            <div class="mb-3">
+                <label for="timesheetDateCtrl" class="form-label">Timesheet Date <span class="text-danger">*</span></label>
+                <input type="date" [max]="maxDate" id="timesheetDateCtrl" class="form-control is-valid" formControlName="timesheetDate" />
+            </div>
+            @let projectCtrl= timesheetForm.controls['projectId'];
+            <div class="mb-3">
+                <label for="projectIdCtrl" class="form-label">Project <span class="text-danger">*</span></label>
+                <select id="projectIdCtrl" class="form-select" formControlName="projectId" [class.is-valid]="projectCtrl?.valid" [class.is-invalid]="projectCtrl?.touched && projectCtrl?.invalid" aria-describedby="projectFeed">
+                    <option value="">Select</option>
+                    @for (item of projectList; track item.projectId) {
+                        <option [value]="item.projectId">{{item.projectDetail.name}}</option>
+                    }
+                </select>
+                <p class="invalid-feedback" id="projectFeed">Project is required.</p>
+                @if (projectLoading) {
+                    <div class="progress mt-3" role="progressbar" style="height: 5px;" aria-label="Animated striped example" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated w-100"></div>
+                    </div>
+                } @else if(projectList.length < 1) {
+                    <p class="text-muted">You haven't assigned any project.</p>
+                }
+            </div>
+            <article formArrayName="tasks" class="pt-3">
+                <!-- <p class="mb-4 h6">Tasks</p> -->
+                @for (ctrl of taskFormArray.controls; track arrayItemId($index)) {
+                    <fieldset class="border px-3 rounded mb-3" [formGroupName]="$index">
+                        <legend class="fs-6 mb-0 bg-white">Task {{$index+1}}</legend>
+                        <div class="row gy-2 mb-2">
+                            @let titleCtrl = arrayItemCtrl($index, 'title');
+                            @let descCtrl = arrayItemCtrl($index, 'description');
+                            @let timeCtrl = arrayItemCtrl($index, 'timeTaken');
+                            <div class="col-12">
+                                <label class="visually-hidden" [for]="'task_title_ctrl_'+{$index}">Title</label>
+                                <input type="text" [id]="'task_title_ctrl_'+{$index}" [class.is-valid]="titleCtrl?.valid" [class.is-invalid]="titleCtrl?.touched && titleCtrl?.invalid" class="form-control" [minLength]="5" [maxLength]="100" [attr.aria-describedby]="'task_title_hint'+$index + ' task_title_feed'+$index" placeholder="Title" formControlName="title" [required]="true">
+                                <small class="form-text" [id]="'task_title_hint'+$index">Add Subject about task.</small>
+                                <p class="invalid-feedback mb-1" [id]="'task_title_feed'+$index">{{titleCtrl?.hasError('required') ? 'Title is required' : 'Title length should be 5-100.'}}</p>
+                            </div>
+                            <div class="col-12">
+                                <label class="visually-hidden" [for]="'task_title_ctrl_'+{$index}">Description</label>
+                                <textarea [rows]="3" [maxLength]="1500" class="form-control" [class.is-valid]="descCtrl?.valid" [class.is-invalid]="descCtrl?.touched && descCtrl?.invalid" [required]="true" formControlName="description" placeholder="message" [attr.aria-describedby]="'task_desc_hint'+$index + ' task_desc_feed'+$index"></textarea>
+                                <small class="form-text" [id]="'task_desc_hint'+$index">Add description or details what you did.</small>
+                                <p class="invalid-feedback mb-1" [id]="'task_desc_feed'+$index">{{descCtrl?.hasError('required') ? 'Description is required' : 'Description\'s max length should be max 1500.'}}</p>
+                            </div>
+                            <div class="col-12">
+                                <label class="visually-hidden" [for]="'task_time_ctrl_'+{$index}">Time Taken <small>(In minutes)</small></label>
+                                <input type="number" inputmode="numeric" [id]="'task_time_ctrl_'+{$index}" class="form-control" [class.is-valid]="timeCtrl?.valid" [class.is-invalid]="timeCtrl?.touched && timeCtrl?.invalid" [min]="1" [max]="480" placeholder="Time taken" formControlName="timeTaken" [required]="true" [attr.aria-describedby]="'task_time_feed'+$index + ' task_time_hint'+$index" [step]="10">
+                                <small class="form-text" [id]="'task_time_hint'+$index">Time taken <i>(In Minutes)</i></small>
+                                <p class="invalid-feedback mb-1" [id]="'task_time_feed'+$index">{{timeCtrl?.hasError('required') ? 'Time duration is requird.' : 'Time duration should be 1-480.'}}</p>
+                            </div>
+                        </div>
+                        @if ($count > 1) {
+                            <p class="text-end">
+                                <button class="btn btn-sm btn-danger" type="button" (click)="removeTaskItem($event, $index)">
+                                    <i class="bi bi-trash"></i>&nbsp; Delete
+                                </button>
+                            </p>
+                        }
+                    </fieldset>
+                    @if ($last) {
+                        <p class="text-end">
+                            <button class="btn btn-sm btn-outline-primary" type="button" [disabled]="ctrl.invalid" (click)="addNewTask($event)">
+                                <i class="bi bi-plus"></i>&nbsp; Add New Task
+                            </button>
+                        </p>
+                    }
+                }
+            </article>
+        </form>
+        <div class="modal-footer">
+          <button  type="reset" form="timesheetForm" class="btn btn-outline-danger" data-bs-dismiss="modal" (click)="rebuildForm($event)">Close</button>
+          <button type="submit" form="timesheetForm" class="btn btn-primary" [disabled]="timesheetForm.invalid || timesheetForm.disabled">
+            @if(timesheetForm.disabled){
+                <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+                <span role="status">Loading...</span>
+            } @else {Submit}
+          </button>
+        </div>
+      </div>
+    </div>
+</div>
+
+<!-- Project Detail -->
+<div class="modal fade" id="timesheetDetailModal" aria-labelledby="timesheetDetailLabel" aria-hidden="true" tabindex="-1">
+    <div class="modal-dialog modal-fullscreen-md-down modal-dialog-centered modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="timesheetDetailLabel">Timesheet Detail</h5>
+            <button type="button" class="btn-close" [tabIndex]="-1" data-bs-dismiss="modal" aria-label="Close" data-bs-toggle="tooltip" title="Close modal" aria-label="Close table" [id]="'detailModalCloseBtn'"></button>
+        </div>
+        @if (selectedTimesheet) {
+            <div class="modal-body">
+                <!-- <p>
+                    <profile-image [size]="30" [textImg]="selectedTimesheet.user.name.slice(0,1) || ''" [showStatus]="false"/>
+                    {{selectedTimesheet.user.name}}
+                </p> -->
+                <p class="d-flex flex-wrap gap-2 align-items-start">
+                    <span class="border fw-semibold bg-primary-subtle text-primary rounded px-2 py-1"><i class="bi bi-person"></i> {{ selectedTimesheet.user.name || "User" }}</span>
+                    <span class="border bg-body-secondary rounded px-2 py-1"><i class="bi bi-calendar-event"></i> {{ selectedTimesheet.timesheetDate | date:'fullDate' }}</span>
+                    <span class="border rounded px-2 py-1"><i class="bi bi-stopwatch"></i> {{ selectedTimesheet.timeTaken | timeFormat }}</span>
+                </p>
+                <p class="mb-1"><strong>Project:</strong> {{ selectedTimesheet.project.name || "Project" }}</p>
+                <p class="mb-1"><strong>Status:</strong> 
+                    &nbsp;<span class="badge bg-secondary">{{ selectedTimesheet.status.toLocaleUpperCase() }}</span>
+                </p>
+                @if (selectedTimesheet.remark) {
+                    <p><strong>Remark:</strong> {{ selectedTimesheet.remark }}</p>
+                }
+
+                <strong>Tasks:</strong>
+                <hr class="mt-1">
+                @for (item of selectedTimesheet.tasks; track item.title) {
+                    <details class="mb-3" [open]="$first">
+                        <summary><strong>{{item.title}}</strong> | <small class="text-muted"><em>{{item.timeTaken | timeFormat}}</em></small></summary>
+                        <p class="ps-3 small taskDesc">{{item.description}}</p>
+                    </details>
+                }
+                <!-- <div class="table-responsive">
+                    <table class="table table-sm caption-top table-bordered">
+                        <caption class="h6">Tasks</caption>
+                        <thead class="table-light">
+                            <tr>
+                                <th>#</th>
+                                <th>Title</th>
+                                <th>Description</th>
+                                <th>Time</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @for (task of selectedTimesheet.tasks; track task.title) {
+                                <tr>
+                                    <td>{{ $index + 1 }}</td>
+                                    <td>{{ task.title }}</td>
+                                    <td>{{ task.description }}</td>
+                                    <td>{{ task.timeTaken | timeFormat }}</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div> -->
+                @if (isPermit) {
+                    <div class="mt-4">
+                        <label for="remark" class="form-label">Remark:</label>
+                        <textarea class="form-control" [class.is-valid]="remarkCtrl.valid" [class.is-invalid]="remarkCtrl.touched && remarkCtrl.invalid" [formControl]="remarkCtrl" id="remark" aria-describedby="remarkHint remarkFeed" rows="3"></textarea>
+                        <p class="form-text mb-1" id="remarkHint">Add Remark when you reject the timesheet.</p>
+                        <p class="invalid-feedback" id="remarkFeed">Remark is required</p>
+              
+                        <div class="mt-3 d-flex gap-2">
+                          <button class="btn btn-success" [disabled]="remarkCtrl.disabled" (click)="updateStatus($event, 'approved')">
+                            @if(timesheetForm.disabled){
+                                <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+                                <span role="status">Submitting...</span>
+                            } @else {Approve}
+                        </button>
+                          <button class="btn btn-danger" [disabled]="remarkCtrl.invalid || remarkCtrl.disabled" (click)="updateStatus($event, 'rejected')">
+                            @if(timesheetForm.disabled){
+                                <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+                                <span role="status">Submitting...</span>
+                            } @else {Reject}</button>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+</div>
+
+<!-- Filter modal -->
+<div class="modal fade" id="filterModal" aria-labelledby="filterModalLabel" aria-hidden="true" tabindex="-1">
+    <div class="modal-dialog modal-fullscreen-sm-down modal-dialog-centered modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="filterModalLabel">Add Filters</h5>
+            <button type="button" class="btn-close" [tabIndex]="-1" data-bs-dismiss="modal" aria-label="Close" title="Close modal" aria-label="Close filter" [id]="'filterModalCloseBtn'"></button>
+        </div>
+        <div class="modal-body" style="min-height: 300px;">
+            <div class="dropdown mb-1">
+                <p class="mb-1">Employee:</p>
+                <button class="form-control d-flex border justify-content-between align-items-center text-truncate dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false"><span class="text-truncate">{{selectedUser.name || 'Select user'}}</span></button>
+                <div class="dropdown-menu shadow border-light" #userListDropdown>
+                    <div class="px-2 pb-2">
+                        <input type="search" placeholder="Search..." (search)="onSearchUser($event)" class="form-control">
+                    </div>
+                    <ul class="px-0">
+                        <li class="dropdown-item text-truncate" (click)="clearfilter($event, 'user')">Select</li>
+                        @for (item of userList$ | async; track item.uuid) {
+                            <li class="dropdown-item text-truncate" [class.active]="item.uuid === selectedUserId" (click)="selectUser($event, item)">{{item.name}}</li>
+                        }
+                    </ul>
+                </div>
+                <!-- <button class="btn btn-primary" [disabled]="selectedUser.uuid === ''" (click)="employeeFilter($event)" type="button">Search</button> -->
+            </div>
+            <div class="dropdown mt-3">
+                <p class="mb-1">Project:</p>
+                <button class="form-control d-flex border justify-content-between align-items-center text-truncate dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false"><span class="text-truncate">{{selectedUser.name || 'Select user'}}</span></button>
+                <div class="dropdown-menu shadow border-light" #userListDropdown>
+                    <div class="px-2 pb-2">
+                        <input type="search" placeholder="Search..." (search)="onSearchUser($event)" class="form-control">
+                    </div>
+                    <ul class="px-0">
+                        <li class="dropdown-item text-truncate" (click)="clearfilter($event, 'project')">Select</li>
+                        @for (item of userList$ | async; track item.uuid) {
+                            <li class="dropdown-item text-truncate" [class.active]="item.uuid === selectedUserId" (click)="selectUser($event, item)">{{item.name}}</li>
+                        }
+                    </ul>
+                </div>
+            </div>
+            <p class="mb-1 mt-3">Status:</p>
+            <select name="statusFilter" id="statusFilter" class="form-select" aria-label="Status Filter">
+                <option value="">Select</option>
+                <option value="Approved">Approved</option>
+                <option value="Rejected">Rejected</option>
+                <option value="Pending">Pending</option>
+            </select>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary" (click)="applyFilter($event)">Apply Filter</button>
+        </div>
+      </div>
+    </div>
+</div>

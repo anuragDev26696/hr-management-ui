@@ -1,0 +1,17 @@
+.itemCard {
+    transition: transform 0.3s ease, box-shadow 0.3s ease; box-shadow: var(--bs-box-shadow-sm);
+    &:not(.active):hover {
+      // transform: translateY(-10px);
+      box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    &.active{
+      --bs-card-bg: #f6f6fa; --bs-card-cap-bg: #f6f6fa;
+      box-shadow: 0px 0px 0px 1px var(--bs-primary-border-subtle), 0px 4px 12px rgba(0, 7, 65, 0.321);
+    }
+  }
+  .form-select.listFilter{width: fit-content;}
+  .table-active{ --bs-table-bg-state: rgb(62 97 148 / 10%); }
+  .yearGroup{width: 120px;}
+  .dropdown-toggle-split{border-left-color: var(--bs-btn-active-bg); --bs-btn-bg: var(--bs-btn-active-bg);}
+  datalist{max-height: 300px;}
+.assignModalBody{min-height: 500px;}

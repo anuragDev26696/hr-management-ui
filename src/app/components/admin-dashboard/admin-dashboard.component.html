@@ -121,7 +121,7 @@
                 </thead>
                 <tbody>
                     @for (item of activitis; track item.uuid) {
-                        @let newDate = formatDate(item.createdAt);
+                        @let newDate = formatDate(item.updatedAt);
                         <tr>
                             <td>{{$index+1}}</td>
                             <td>{{item.userName}}</td>

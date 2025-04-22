@@ -63,6 +63,24 @@ export const routes: Routes = [
         loadComponent: () => import('./pages/my-profile/my-profile.component').then(m => m.MyProfileComponent),
         canActivate: [authGuard],
       },
+      {
+        path: 'projects',
+        title: 'All Projects | PeoplePulse',
+        loadComponent: () => import('./pages/projects/projects.component').then(m => m.ProjectsComponent),
+        canActivate: [authGuard],
+      },
+      {
+        path: 'projects/:id',
+        title: 'Project Details | PeoplePulse',
+        loadComponent: () => import('./pages/projects/project-detail/project-detail.component').then(m => m.ProjectDetailComponent),
+        canActivate: [authGuard],
+      },
+      {
+        path: 'timesheets',
+        title: 'Timesheet | PeoplePulse',
+        loadComponent: () => import('./pages/timesheets/timesheets.component').then(m => m.TimesheetsComponent),
+        canActivate: [authGuard],
+      },
     ]
   },
   {

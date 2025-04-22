@@ -9,10 +9,11 @@ import { DashboardService } from '../../services/dashboard.service';
 import { DashboardEvents } from '../../interfaces/IDashboard';
 import { DatePipe } from '@angular/common';
 import { ToastService } from '../../services/toast.service';
+import { RouterLinkWithHref } from '@angular/router';
 
 @Component({
   selector: 'app-dashboard',
-  imports: [AdminDashboardComponent, HrDashboardComponent],
+  imports: [AdminDashboardComponent, HrDashboardComponent, DatePipe, RouterLinkWithHref,],
   providers: [DatePipe],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss'
@@ -160,6 +161,7 @@ export class DashboardComponent implements OnDestroy {
     this.apiSubscriber = this.attendanceServ.clockin().subscribe({
       next: (value) => {
         this.attendanceServ.lastClockin.next(value.data);
+        this.fetchTodayStatus();
       },
       error: (err) => {this.toastr.error(err.error.error || err.error.message)},
     });

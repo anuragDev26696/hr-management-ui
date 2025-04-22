@@ -12,6 +12,7 @@ import { IUserRes } from '../interfaces/IUser';
 })
 export class AuthService {
   public header: HttpHeaders = new HttpHeaders();
+  public fileHeader: HttpHeaders = new HttpHeaders();
   private tokenSub: BehaviorSubject<string> = new BehaviorSubject(""); // Get initial value from localstorage if available
   private userId: BehaviorSubject<string> = new BehaviorSubject('');  // assuming 'userId' might be used elsewhere
   public loggedinUser: BehaviorSubject<IUserRes | null> = new BehaviorSubject<IUserRes | null>(null);
@@ -27,6 +28,10 @@ export class AuthService {
         this.header = new HttpHeaders({
           'Content-Type': 'application/json',
           'Authorization': `${value}`
+        });
+        this.fileHeader = new HttpHeaders({
+          // 'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+          'Authorization': `${value}`,
         });
       },
     });

@@ -1,0 +1,18 @@
+:host{user-select: none;}
+.container-xl{min-height: calc(60dvh + 12px);}
+// app-custom-calendar{box-shadow: 2px 13px 16px #aaa;}
+.modal .table-responsive{min-height: auto;}
+.dropdown-toggle-split{border-left-color: var(--bs-btn-active-bg); --bs-btn-bg: var(--bs-btn-active-bg);}
+// form article { max-height: 70dvh; overflow-y: auto; }
+legend {
+    margin-block-start: -14px;
+    margin-inline-start: -6px;
+    display: inline-block;
+    max-width: fit-content;
+    padding-inline: 5px;
+}
+@media screen and (min-width: 450px) {
+    .monthSearchBar{flex-basis: 250px;}    
+}
+#timesheetDetailModal {--bs-modal-width: 700px}
+.taskDesc{white-space: break-spaces;}

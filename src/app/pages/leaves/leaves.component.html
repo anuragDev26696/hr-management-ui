@@ -34,8 +34,8 @@
         </div>
         <div class="card-body">
             @if (selectedLeaves.length > 0 && isPermit) {
-                <button class="btn btn-sm mb-2 me-2 btn-success btn-shadow-sm" type="button"><i class="bi bi-check"></i> {{allChecked.isAll ? 'Accept All' : 'Accept' }}</button>
-                <button class="btn btn-sm mb-2 me-2 btn-danger btn-shadow-sm" type="button"><i class="bi bi-x"></i> {{allChecked.isAll ? 'Reject All' : 'Reject' }}</button>
+                <button class="btn btn-sm mb-2 me-2 btn-success btn-shadow-sm" type="button" (click)="updateStatus($event, selectedLeaves, 'approve')"><i class="bi bi-check"></i> {{allChecked.isAll ? 'Accept All' : 'Accept' }}</button>
+                <button class="btn btn-sm mb-2 me-2 btn-danger btn-shadow-sm" type="button" (click)="updateStatus($event, selectedLeaves, 'reject')"><i class="bi bi-x"></i> {{allChecked.isAll ? 'Reject All' : 'Reject' }}</button>
             }
             <div class="table-responsive mt-2">
                 <table class="table table-hover table-sm align-middle">

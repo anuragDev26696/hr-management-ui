@@ -57,7 +57,7 @@
                 @if (events && events.holidays) {
                     @let month = eventDate(events.holidays.date).split(' ')[0];
                     @let date = eventDate(events.holidays.date).split(' ')[1];
-                    <article class="col-sm-6 col-md-4">
+                    <article class="col-sm-6 col-lg-4">
                         <div class="card holidayCard p-3 shadow-sm">
                             <p class="card-title h5">Holidays <a href="/holidays" class="rounded-circle px-2 py-1 small float-end d-flex align-items-center"><i class="bi bi-arrow-right"></i></a></p>
                             <strong>{{month}}</strong>
@@ -88,7 +88,7 @@
             <div class="row g-3">
                 <!-- Profile Overview -->
                 <div class="col-sm-6 col-lg-4">
-                    <div class="card p-3 rounded-3 shadow-sm border-light placeholder-glow">
+                    <div class="card p-3 rounded-3 shadow-sm border-light placeholder-glow h-100">
                         @defer (when loggedinUser) {
                             <p class="h5">Profile Overview</p>
                             <p class="card-text mb-1"><strong>Name:</strong> {{loggedinUser.name}}</p>
@@ -106,14 +106,14 @@
                 
                 <!-- Attendance Status -->
                 <div class="col-sm-6 col-lg-4">
-                    <div class="card p-3 rounded-3 shadow-sm border-light placeholder-glow">
+                    <div class="card p-3 rounded-3 shadow-sm border-light placeholder-glow h-100">
                         @defer (when dayStatus) {
                             <p class="h5">Attendance Status</p>
                             <p class="card-text mb-1"><strong>Today's Status:</strong> 
-                                @if(dayStatus.todayAttendance){Checked In (9:00 AM)}@else { You haven't clock in yet.}
+                                @if(dayStatus.todayAttendance != null){ Checked In ({{dayStatus.todayAttendance.clockInTime | date:'h:mm a'}})}@else { You haven't clock in yet.}
                             </p>
                             <p class="card-text"><strong>Monthly Summary:</strong> {{dayStatus.monthAttendance}} Days Present</p>
-                            <button class="btn btn-primary">Request Leave</button>
+                            <a [routerLink]="['/attendance']" routerLinkActive="router-link-active" class="btn btn-indigo  mt-auto">View Attendance &nbsp;<i class="bi bi-arrow-right"></i></a>
                         } @placeholder {
                             <p class="h5 col-10 placeholder rounded-1"></p>
                             @for (item of [11,10,15,17]; track item;) {
@@ -131,7 +131,8 @@
                             <p class="h5">Leave Status</p>
                             <p class="card-text mb-1"><strong>Pending Requests:</strong> {{dayStatus.leaveRequest}}</p>
                             <p class="card-text mb-1"><strong>Leave Balance:</strong> {{dayStatus?.leaveBalanceDoc?.remainingCL || 0}} Days</p>
-                            <p class="card-text mb-1"><strong>Leave History:</strong> {{leaveCount}} Days Taken</p>
+                            <p class="card-text"><strong>Leave History:</strong> {{leaveCount}} Days Taken</p>
+                            <a [routerLink]="['/leaves']" routerLinkActive="router-link-active"  class="btn btn-primary mt-auto">Request Leave &nbsp;<i class="bi bi-arrow-right"></i></a>
                         } @placeholder {
                             <p class="h5 col-10 placeholder rounded-1"></p>
                             @for (item of [11,10,15,17]; track item;) {
@@ -143,41 +144,25 @@
                 
                 <!-- Payroll Information -->
                 <div class="col-sm-6 col-md-4">
-                    <div class="card p-3 rounded-3 shadow-sm border-light">
+                    <div class="card p-3 rounded-3 shadow-sm border-light h-100">
                         <p class="h5">Payroll Information</p>
                         <p class="card-text mb-1"><strong>Salary:</strong> $5000</p>
                         <p class="card-text"><strong>Payroll Status:</strong> Processed</p>
-                        <button class="btn btn-secondary">Download Payslip</button>
+                        <button class="btn btn-secondary mt-auto"><i class="bi bi-download"></i>&nbsp; Download Payslip</button>
                     </div>
                 </div>
                 
                 <!-- Assigned Tasks -->
                 <div class="col-sm-6 col-md-4">
-                    <div class="card p-3 rounded-3 shadow-sm border-light">
+                    <div class="card p-3 rounded-3 shadow-sm border-light h-100">
                         <p class="h5">Assigned Tasks</p>
-                        <p><strong>Ongoing Projects:</strong> 3</p>
+                        <p class="mb-1"><strong>Ongoing Projects:</strong> 3</p>
                         <p><strong>Next Deadline:</strong> June 15, 2024</p>
                     </div>
-                </div>
-                
-                <!-- Quick Actions -->
-                <div class="col">
-                    <p class="h5">Quick Actions</p>
-                    @if (!isFetchingClockin) {
-                        <button class="btn btn-success mb-2 me-2" [disabled]="clockinData != null">Mark Attendance</button>
-                    }
-                    <button class="btn btn-info mb-2 me-2">Apply for Leave</button>
-                    <button class="btn btn-warning mb-2 me-2">View Payslip</button>
                 </div>
             </div>
         </section>
     }
-    <section class="d-lg-none container actions">
-        <a class="actionCard card p-3">
-            
-            <p class="mb-0 fw-medium">Leaves</p>
-        </a>
-    </section>
 } @placeholder {
     <section class="hero-section">
         <div class="container-xl">
