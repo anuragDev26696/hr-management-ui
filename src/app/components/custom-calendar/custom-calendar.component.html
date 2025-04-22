@@ -1,0 +1,86 @@
+<header class="text-center d-sm-flex aling-items-center flex-wrap gap-2 p-2 bg-white">
+  <p class="d-flex h5 justify-content-center gap-2 py-3 py-sm-0 mb-sm-0 flex-grow-1 align-items-center fw-medium">
+    <button (click)="prev($event)" class="btn border-0" aria-label="Go to Previous" title="Previous"><i class="bi bi-chevron-left"></i></button>
+    <span>{{ selectedDate | date: 'MMMM yyyy' }}</span>
+    <button (click)="next($event)" class="btn border-0" aria-label="Go to Next" title="Next"><i class="bi bi-chevron-right"></i></button>
+  </p>
+  
+  <div class="btn-group me-2 me-sm-0 mb-3 mb-sm-0" role="group" aria-label="View mode toggle button group">
+    @for (mode of viewModes; track mode) {
+      <input type="radio" class="btn-check" [value]="mode" [(ngModel)]="currentView" [id]="mode+'_view'" autocomplete="off">
+      <label (click)="changeView(mode)" class="btn btn-outline-primary" [for]="mode+'_view'">{{ mode | titlecase }}</label>
+    }
+  </div>
+  <button (click)="reset()" [disabled]="isCurrentMonth" class="btn btn-outline-primary mb-3 mb-sm-0">Today</button>
+
+  <!-- <div class="filter-buttons">
+    <button (click)="filterByType('meeting')">Meetings</button>
+    <button (click)="filterByType('task')">Tasks</button>
+    <button (click)="filterByType('')">All</button>
+  </div> -->
+</header>
+<!-- <div class="calendar-grid bg-secondary {{currentView}}">
+  @for (item of ['Sun', "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]; track item) {
+    <p class="h5 text-center py-3 px-sm-3 mb-0 bg-primary-subtle">{{item}}</p>
+  }
+  @for (day of days; track trackDay(day)) {
+      <div role="button" [tabIndex]="-1" class="calendar-day {{isToday(day) ? 'today' : isSelected(day) ? 'selected' : ''}}" (click)="selectDate($event, day)">
+        <a class="date-label" (click)="createEvent($event, day)">
+          {{ day | date: 'd' }}
+        </a>
+        @for (event of filteredEvents; track event.id) {
+          @if ((event.start | date: 'yyyy-MM-dd') === (day | date: 'yyyy-MM-dd')) {
+            <p class="event mb-0" [style.background]="event.color" (click)="openEditModal(event)">{{ event.title }}</p>
+          }
+        }
+      </div>
+  }
+</div> -->
+<div class="calendar-grid bg-tertiary {{currentView}}">
+    <!-- Day headers -->
+    @for (item of ['Sun', "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]; track item) {
+      <p class="fw-medium text-center py-3 px-sm-3 mb-0 bg-primary-subtle">{{item}}</p>
+    }
+  
+    <!-- Weeks and days -->
+    @for (week of weeks; track week[0]) {
+      <!-- 1. Render week days -->
+      @for (day of week; track trackDay(day)) {
+        <a href="#" role="button" [class.otherMonth]="isFromOtherMonth(day) || isFutureDate(day)" class="calendar-day {{isToday(day) ? 'today' : isSelected(day) && !isFutureDate(day) ? 'selected' : ''}}" (click)="selectDate($event, day)">
+          {{ day | date: 'd' }}
+          <span class="dots">
+            @for (item of eventArray(day); track item.id) {
+              <s [style.backgroundColor]="item.color"></s>
+            }
+          </span>
+        </a>
+      }
+  
+      <!-- 2. Expanded details row (below this week only if selected date is in this week) -->
+      @if ( isExpanded(week) ) {
+        <div class="calendar-expanded-row px-2 bg-light">
+          <!-- <h5>Events on {{ expandedDate | date: 'fullDate' }}</h5> -->
+          @for (event of expandedFilter; track event.id) {
+            <div class="event-detail clearfix my-2 p-2" [style.--color]="event.color" (click)="event.eventActions($event, event, 'View')">
+              <strong>{{ event.title }}</strong>
+              @if (!event.hideActions) {
+                <span role="button" tabindex="-1" class="actions delete" title="Delete" (click)="event.eventActions($event, event, 'Delete')"><i class="bi bi-trash"></i></span>
+                <span role="button" tabindex="-1" class="actions edit" title="Edit" (click)="event.eventActions($event, event, 'Edit')"><i class="bi bi-pencil"></i></span>
+              }
+              <br />
+              @if (event.description && event.description.trim() !== '') {
+                <small class="text-muted">{{event.description}}</small>
+              }
+              @if (event.showTimes) {
+                <small>{{ event.start | date: 'shortTime' }} - {{ event.end | date: 'shortTime' }}</small>
+              }
+            </div>
+            <!-- @if ((event.start | date: 'yyyy-MM-dd') === (expandedDate | date: 'yyyy-MM-dd')) {
+            } -->
+          } @empty {
+            <p class="text-muted">No events for this day.</p>
+          }
+        </div>
+      }
+    }
+</div>      

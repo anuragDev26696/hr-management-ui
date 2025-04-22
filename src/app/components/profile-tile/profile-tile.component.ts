@@ -1,4 +1,5 @@
-import { AfterContentInit, Component, ContentChildren, ElementRef, HostBinding, Input, OnChanges, QueryList, Renderer2, SimpleChanges} from "@angular/core";
+import { AfterContentInit, Component, ContentChild, ContentChildren, ElementRef, HostBinding, Input, OnChanges, QueryList, Renderer2, SimpleChanges} from "@angular/core";
+import { generateInitialSVG } from "../utils";
 
 @Component({
   selector: "profile-image",
@@ -6,7 +7,7 @@ import { AfterContentInit, Component, ContentChildren, ElementRef, HostBinding, 
   template: ` @if(icon.trim() !== ''){
     <i [class]="icon + ' d-flex'"></i>
     } @else {
-    <img [src]="bg" [alt]="alt" [width]="size" [height]="size" loading="lazy" fetchpriority="high" />
+    <img [src]="src" [alt]="alt" [width]="size" [height]="size" loading="lazy" fetchpriority="high" />
     }
     @if(showStatus){
       <span class="position-absolute status translate-middle p-1 bg-{{status}} border border-2 border-light rounded-circle">
@@ -21,11 +22,12 @@ import { AfterContentInit, Component, ContentChildren, ElementRef, HostBinding, 
 })
 export class ProfileImageComponent implements OnChanges {
   @Input() size: number = 35;
-  @Input() bg: string = "#fff";
+  @Input() src: string = "#fff";
   @Input() alt: string = "";
   @Input() shape: "circle" | "square" = "circle";
   @Input() fit: "cover" | "contain" = "cover";
   @Input() icon: string = "";
+  @Input() textImg: string = "";
   @Input() showStatus: boolean = false;
   @Input() status: 'success' | 'danger' = 'success';
 
@@ -36,12 +38,16 @@ export class ProfileImageComponent implements OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
     this.elementRef.nativeElement.style.setProperty('--size', `${this.size}px`);
+    if(this.textImg.trim() !== ''){
+      this.src = generateInitialSVG(this.textImg, this.size);
+    }
   }
 
   constructor(private elementRef: ElementRef, private renderer: Renderer2) {
     renderer.addClass(elementRef.nativeElement, 'profile-image');
     // renderer.setStyle(elementRef.nativeElement, '--tile-avatar-shape', this.shape);
   }
+
 }
 
 // Profile Title Component

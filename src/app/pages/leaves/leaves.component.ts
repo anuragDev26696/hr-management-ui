@@ -127,7 +127,7 @@ export class LeavesComponent {
     const input = event.target as HTMLInputElement;
     console.log(input.checked, input.indeterminate);
     if (input.checked) {
-      this.selectedLeaves = this.leaveList.map((item) => item.uuid);
+      this.selectedLeaves = this.leaveList.filter(item => item.status === 'pending').map((item) => item.uuid);
     } else {
       this.selectedLeaves = [];
     }
@@ -183,6 +183,7 @@ export class LeavesComponent {
           }
         });
         this.selectedLeaves = [];
+        this.isAllDisabled = this.leaveList.every((item) => item.status !== 'pending');
         this.toastr.success(value.message);
       },
       error: (err) => {

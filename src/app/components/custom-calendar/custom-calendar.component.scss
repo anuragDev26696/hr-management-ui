@@ -1,0 +1,70 @@
+:host { user-select: none; }
+.calendar-grid { display: grid; gap: 1px; }
+.calendar-expanded-row{grid-column: 1/8;}
+@media screen and (min-width: 768px) {
+  .calendar-expanded-row{display: flex; flex-wrap: wrap; gap: 0.5rem; &>* {flex: 1 1 calc(50% - 1rem);}}
+}
+.calendar-grid.month { grid-template-columns: repeat(7, 1fr); }
+.calendar-grid.week { grid-template-columns: repeat(7, 1fr); }
+.calendar-grid.day { grid-template-columns: 1fr; }
+.calendar-day {
+  min-height: 60px;
+  padding: 0.5rem;
+  position: relative;
+  background-color: #fff;
+  color: inherit;
+}
+.calendar-day.today{background-color: #5b168a; color: #fff;}
+.calendar-day.otherMonth{color: #ddd; pointer-events: none;}
+.calendar-day:not(.today).selected{background-color: #0d6efd; color: #fff;}
+.calendar-day:not(.today, .selected):hover{background-color: #bdbdbd;}
+
+.date-label {
+  font-weight: bold;
+  text-decoration: none;
+  outline: none;
+  color: inherit; display: block;
+}
+
+.event {
+  background: #1976d2;
+  color: #fff;
+  margin: 0.2rem 0;
+  padding: 0.2rem;
+  font-size: 0.8rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+  
+.view-switch button, .filter-buttons button { margin-left: 0.5rem; }
+.dots{display: block; white-space: nowrap; overflow: hidden;}
+.dots s{display: inline-block; width: 5px; height: 5px; border-radius: 5px;}
+.dots s + s{margin-inline-start: 3px;}
+.event-detail {
+  position: relative;
+  border-left: 3px solid var(--color, #dee2e6);
+  border-radius: 5px;
+  transition: transform 0.3s ease-in-out;
+  overflow: hidden;
+}
+.event-detail:hover{box-shadow: 0 3px 5px -2px rgba(0,0,0,0.3); transform: translateY(-3px); transition: transform 0.3s ease-in-out;}
+.event-detail::before, .actions::before{
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: 0.1;
+  z-index: 0;
+  background-color: var(--color);
+}
+.event-detail>*, .actions>*{ position: relative;  z-index: 1; }
+.actions{
+  --color: blue;
+  color: var(--color);
+  background-color: rgba($color: var(--color), $alpha: 0.1);
+  float: inline-end;
+  padding: 0px 5px; text-align: center; border-radius: 5px;
+  overflow: hidden;
+}
+.delete{--color: red;}
+.actions:not(:hover)::before{opacity: 0; transition: opacity 0.3s ease;}
+// .actions:hover::before{opacity: 1; transition: opacity 0.3s ease;}

@@ -8,6 +8,6 @@ main {height: calc(100dvh - 100px)}
 .avatar{font-size: 60px;}
 .actions{--transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94); transform-style: preserve-3d; backdrop-filter: blur(5px); height: 0; width: 100%; inset: 0; transition: var(--transition); transform: translate3d(0, 105%, 0);}
 .userItem:hover .actions, .actions:hover {transform: translate3d(0, 0, 0); height: 100%; transform-style: preserve-3d; transition: var(--transition);} 
-.dropdown-toggle-split{border-left-color: var(--bs-btn-active-bg); --bs-btn-bg: var(--bs-btn-active-bg);}
+table .dropdown-toggle-split{border-left-color: var(--bs-btn-active-bg); --bs-btn-bg: var(--bs-btn-active-bg);}
 .avatar.placeholder{width: 60px; height: 60px;}
 .searchGroup{flex-basis: 350px;}

@@ -8,7 +8,7 @@ import { AbstractControl, ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR, 
     <ng-template #tpl>
       <li class="dropdown-item d-flex align-items-center gap-2 overflow-hidden" [class.active]="focused || selected" [class.disabled]="disabled" (click)="handleClick()" [attr.aria-selected]="selected" role="option">
         @if (multiple) {
-          <input type="checkbox" class="form-check-input" [id]="value" [checked]="selected" (click)="$event.stopPropagation()" [disabled]="disabled"/>
+          <input type="checkbox" class="form-check-input mt-0" [id]="value" [checked]="selected" (click)="$event.stopPropagation()" [disabled]="disabled"/>
           <label [for]="value"><ng-content>{{label}}</ng-content></label>
         } @else {
           <ng-content></ng-content>
@@ -207,7 +207,6 @@ export class MuliSelectComponent implements AfterContentInit, ControlValueAccess
 
   @HostListener('keydown', ['$event'])
   handleKeyDown(event: KeyboardEvent) {
-    console.log(event.key);
     if (!this.dropdownOpen || this.filteredOptions.length < 1) return;
 
     const count = this.filteredOptions.length;
