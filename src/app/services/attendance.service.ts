@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { AuthService } from './auth.service';
 import { BehaviorSubject, Observable } from 'rxjs';
@@ -53,10 +53,11 @@ export class AttendanceService {
     date: Date = new Date(),
     status: AttendanceStatus | null = null,
   ): Observable<APIResponse<IAttendanceList>> {
+    const params = new HttpParams().set('skip', page.skip).set('limit', page.limit).set('status', status||"");
     return this.http.get<APIResponse<IAttendanceList>>(
       `${environment.api}attendance/day/${date.toISOString()}?skip=${page.skip}&limit=${page.limit}&status=${status}`,
       {
-        headers: this.authServ.header
+        headers: this.authServ.header, params
       }
     );
   }
@@ -85,8 +86,9 @@ export class AttendanceService {
     );
   }
   public getRequestList(page: pagination): Observable<APIResponse<IRegularizationList>> {
-    return this.http.get<APIResponse<IRegularizationList>>(`${environment.api}regularization/requests?skip=${page.skip}&limit=${page.limit}`,
-      {headers: this.authServ.header},
+    const params = new HttpParams().set('skip', page.skip).set('limit', page.limit);
+    return this.http.get<APIResponse<IRegularizationList>>(`${environment.api}regularization/requests`,
+      {headers: this.authServ.header, params},
     );
   }
   public changeStatus(requestId: string, status: RegularizationStatus): Observable<APIResponse<IRegularizationRes>> {
@@ -98,6 +100,14 @@ export class AttendanceService {
   public deleteRequest(requestId: string): Observable<APIResponse<IRegularizationReq>> {
     return this.http.delete<APIResponse<IRegularizationReq>>(`${environment.api}regularization/${requestId}`,
       {headers: this.authServ.header},
+    );
+  }
+  public getChartData(chartDate: Date, employeeId: string = ""): Observable<APIResponse<any>> {
+    const params = new HttpParams().set('year', chartDate.getFullYear()).set('month', chartDate.getMonth()+1).set('employeeId', employeeId);
+    return this.http.get<APIResponse<any>>(`${environment.api}attendance/summary`,
+      {headers: this.authServ.header,
+        params,
+      },
     );
   }
   

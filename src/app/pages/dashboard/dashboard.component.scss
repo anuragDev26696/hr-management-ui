@@ -2,7 +2,7 @@
 section{--gutter-y: 1.5rem; padding-block: var(--gutter-y) calc(var(--gutter-y) + 1.5vw);}
 .clockinCard{grid-template-columns: 100px 1fr;}
 #cuckoo-clock{max-height: 100px; margin-inline-end: auto; color: #3592f0; grid-row: 1/4;}
-.eventItem{background-color: rgba(0, 0, 0, 0.1);}
+.eventItem{background-color: rgba(0, 0, 0, 0.1); min-width: 30px; aspect-ratio: 1; align-items: center; justify-content: center;}
 .holidayCard{
     @include mixins.buildGlowCard(rgb(50,0,182)); 
     a{background-color: rgba($color: rgb(50,0,182), $alpha: 0.1); color: rgb(50,0,182); aspect-ratio: 1;}

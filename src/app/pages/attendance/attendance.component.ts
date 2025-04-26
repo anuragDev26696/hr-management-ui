@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, HostListener } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, HostListener, ViewChild } from '@angular/core';
 import { AttendanceService } from '../../services/attendance.service';
 import { CompressAttendance, IAttendance } from '../../interfaces/IAttendance';
 import { AsyncPipe, DatePipe, TitleCasePipe } from '@angular/common';
@@ -10,14 +10,17 @@ import { ShareService } from '../../services/share.service';
 import { ProfileTileModule } from "../../components/profile-tile/profile-tile.module";
 import { ToastService } from '../../services/toast.service';
 import { AuthService } from '../../services/auth.service';
+import { ChartOptions, ChartData, Chart, BarController, BarElement, CategoryScale, LinearScale, Legend, Tooltip, Title } from 'chart.js';
 
+Chart.register(BarController, BarElement, CategoryScale, LinearScale, Legend, Tooltip, Title);
 @Component({
   selector: 'app-attendance',
-  imports: [TitleCasePipe, ReactiveFormsModule, RegularizationFormComponent, AsyncPipe, DatePipe, ProfileTileModule],
+  imports: [TitleCasePipe, ReactiveFormsModule, RegularizationFormComponent, AsyncPipe, DatePipe, ProfileTileModule,],
   templateUrl: './attendance.component.html',
   styleUrl: './attendance.component.scss'
 })
 export class AttendanceComponent {
+  @ViewChild('attendanceCanvas') attendanceCanvas!: ElementRef<HTMLCanvasElement>;
   totalDocs: Number = 0;
   tableColumns: Array<string> = ["#", "employee", "clock_in", "working_hours", "status"];
   unStructList: Array<IAttendance> = [];
@@ -38,6 +41,30 @@ export class AttendanceComponent {
   maxMonthYear: string = "";
   timeOut: any;
   isLoggedIn: boolean = false;
+  chart: Chart | undefined = undefined;
+  chartLabels: string[] = [];
+  chartData: ChartData<'bar'> = {
+    labels: [],
+    datasets: [],
+  };
+  chartOptions: ChartOptions = {
+    responsive: true,
+    plugins: {
+      legend: {
+        display: true,
+      },
+    },
+    scales: {
+      x: {stacked: true},
+      y: {stacked: true, beginAtZero: true, ticks: {stepSize: 1}}
+    }
+  };
+  viewMode: FormControl = new FormControl<'daily' | 'monthly'>('daily');
+  employeeId: FormControl = new FormControl('');
+  chartDate: FormControl = new FormControl();
+  absentCount: number = 0;
+  presentCount: number = 0;
+  leaveCount: number = 0;
 
   // Use HostListener for beforeunload
   @HostListener('window:beforeunload', ['$event'])
@@ -78,7 +105,7 @@ export class AttendanceComponent {
         isPending = true;
         this.fetchAttendance();
       }
-    })
+    });
     this.buildForm();
     this.maxMonthYear = `${new Date().getFullYear()}-${(new Date().getMonth()+1).toString().padStart(2, '0')}`;
     this.clockinData = attendanceServ.lastClockin;
@@ -96,6 +123,7 @@ export class AttendanceComponent {
       },
     });
     this.fetchMonthData();
+    this.fetchCartData();
     this.todayStr = shareServ.dateForInput(new Date()).substring(0, 7);
     this.todayDateStr = shareServ.dateForInput(new Date()).substring(0, 10);
   }
@@ -129,8 +157,52 @@ export class AttendanceComponent {
         this.attendanceLoaded = true;
       },
       error: (err) => {
-        console.log(err, " :List error");
         this.attendanceLoaded = true;
+      },
+    });
+  }
+  
+  protected fetchCartData(dateStr: Date = new Date()): void {
+    this.presentCount = 0; this.absentCount = 0; this.leaveCount = 0;
+    this.attendanceServ.getChartData(dateStr).subscribe({
+      next: (value) => {
+        console.log(value);
+        const data: Array<any> = value.data || [];
+        this.chartLabels = data.map((d: any) => {
+          return d.day;
+          // const newDate = new Date(d.year, d.month - 1, d.day)
+          // return this.viewMode.value === 'daily' ? `${d.day}` : `${d.month}/${d.year}`;
+          // return newDate.toLocaleString('en-US', { weekday: 'short', month: 'short' });
+        });
+        this.presentCount = data.reduce((val, d: any) => val+d.presentCount,0);
+        this.leaveCount = data.reduce((val, d: any) => val+d.leaveCount, 0);
+        this.absentCount = data.reduce((val, d: any) => val+d.absentCount, 0); //rgba(75, 192, 192, 0.7)
+        this.chartData = {
+          labels: this.chartLabels,
+          datasets: [
+            {
+              label: 'Present',
+              data: data.map((d: any) => d.status === 'Present' ? 1 : 0),
+              backgroundColor: 'rgba(11, 72, 26, 0.7)',
+            },
+            {
+              label: 'Leave',
+              data: data.map((d: any) => d.leaveCount > 0 ? d.leaveCount : 0),
+              backgroundColor: 'rgba(255, 206, 86, 0.7)',
+            },
+            {
+              label: 'Absent',
+              data: data.map((d: any) => d.status === 'Absent' ? d.leaveCount == 0.5 ? 0.5 : d.leaveCount == 1 ? 0 : 1 : 0),
+              backgroundColor: 'rgba(244, 10, 61, 0.7)',
+            },
+          ],
+        };
+        if(this.chart){this.chart.destroy();}
+        this.chart = new Chart(this.attendanceCanvas.nativeElement, {
+          type: 'bar',
+          data: this.chartData,
+          options: this.chartOptions,
+        });
       },
     });
   }
@@ -179,6 +251,7 @@ export class AttendanceComponent {
 
   private get clockinTimeCtrl(): AbstractControl {return this.regularizationForm.controls['clockInTime'];}
   private get clockOutTimeCtrl(): AbstractControl {return this.regularizationForm.controls['clockOutTime'];}
+  public get attendanceDate(): Date {return new Date(this.todayStr);}
 
   public markAttendance(event: Event): void {
     event.stopImmediatePropagation();
@@ -231,8 +304,11 @@ export class AttendanceComponent {
 
   public selectMonth(event: Event): void{
     const input = event.target as HTMLInputElement;
-    if(input.value)
+    if(input.value){
+      this.todayStr = input.value;
       this.fetchMonthData(new Date(input.value));
+      this.fetchCartData(new Date(input.value))
+    }
   }
 
   public selectDate(event: Event): void {

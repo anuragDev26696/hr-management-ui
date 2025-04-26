@@ -15,7 +15,11 @@
         </div>
         <span class="d-flex gap-2 flex-wrap justify-content-end flex-grow-1">
             @if (isPermit) {
-                <button class="btn bg-primary bg-opacity-10 text-primary fw-medium me-auto" data-bs-toggle="modal" data-bs-target="#filterModal"><i class="bi bi-funnel-fill"></i>&nbsp; Filter</button>
+                <button class="btn bg-primary bg-opacity-10 text-primary fw-medium me-auto position-relative" data-bs-toggle="modal" data-bs-target="#filterModal"><i class="bi bi-funnel-fill"></i>&nbsp; Filter
+                @if (badge > 0) {
+                    <span class="position-absolute top-0 start-100 translate-middle rounded-pill bg-opacity-100 badge text-bg-primary">{{badge}}</span>
+                }
+                </button>
             }
             <div class="btn-group bg-body" role="group" aria-label="Basic radio toggle button group">
                 <input type="radio" class="btn-check" value="Table" [formControl]="viewType" id="btnradio1" autocomplete="off">
@@ -348,7 +352,7 @@
             <div class="dropdown mb-1">
                 <p class="mb-1">Employee:</p>
                 <button class="form-control d-flex border justify-content-between align-items-center text-truncate dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false"><span class="text-truncate">{{selectedUser.name || 'Select user'}}</span></button>
-                <div class="dropdown-menu shadow border-light" #userListDropdown>
+                <div class="dropdown-menu shadow border-light w-100" #userListDropdown>
                     <div class="px-2 pb-2">
                         <input type="search" placeholder="Search..." (search)="onSearchUser($event)" class="form-control">
                     </div>
@@ -363,15 +367,15 @@
             </div>
             <div class="dropdown mt-3">
                 <p class="mb-1">Project:</p>
-                <button class="form-control d-flex border justify-content-between align-items-center text-truncate dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false"><span class="text-truncate">{{selectedUser.name || 'Select user'}}</span></button>
-                <div class="dropdown-menu shadow border-light" #userListDropdown>
+                <button class="form-control d-flex border justify-content-between align-items-center text-truncate dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false"><span class="text-truncate">{{selectedProject.name || 'Select Project'}}</span></button>
+                <div class="dropdown-menu shadow border-light w-100" #projectListDropdown>
                     <div class="px-2 pb-2">
-                        <input type="search" placeholder="Search..." (search)="onSearchUser($event)" class="form-control">
+                        <input type="search" placeholder="Search..." (search)="onSearchProject($event)" class="form-control">
                     </div>
                     <ul class="px-0">
-                        <li class="dropdown-item text-truncate" (click)="clearfilter($event, 'project')">Select</li>
-                        @for (item of userList$ | async; track item.uuid) {
-                            <li class="dropdown-item text-truncate" [class.active]="item.uuid === selectedUserId" (click)="selectUser($event, item)">{{item.name}}</li>
+                        <li class="dropdown-item text-truncate" (click)="selectProjectFilter($event, {name: '', uuid: ''})">Select</li>
+                        @for (item of projectList$ | async; track item.projectId) {
+                            <li class="dropdown-item text-truncate" [class.active]="item.projectId === selectedProjectID" (click)="selectProjectFilter($event, item.projectDetail)">{{item.projectDetail.name}}</li>
                         }
                     </ul>
                 </div>

@@ -51,10 +51,10 @@
                                 <span class="visually-hidden">New alerts</span>
                             </span>
                             <div class="actions d-flex align-items-center justify-content-center gap-2 bg-white rounded position-absolute overflow-hidden bg-opacity-25">
-                                <button class="btn btn-sm btn-primary shadow" data-bs-toggle="modal" data-bs-target="#empViewModal" (click)="$event.preventDefault(); selectedEmp = user">View</button>
+                                <button class="btn btn-sm btn-primary shadow" data-bs-toggle="modal" data-bs-target="#empViewModal" (click)="$event.preventDefault(); selectedEmp = user"><i class="bi bi-eye"></i>&nbsp; View</button>
                                 @if (isPermit) {
-                                    <button class="btn btn-sm btn-secondary shadow" data-bs-toggle="modal" data-bs-target="#employeeModal" (click)="openUserModal($event, user)">Edit</button>
-                                    <button class="btn btn-sm btn-danger shadow" (click)="requestTrash($event, user.uuid)">Delete</button>
+                                    <button class="btn btn-sm btn-secondary shadow" data-bs-toggle="modal" data-bs-target="#employeeModal" (click)="openUserModal($event, user)"><i class="bi bi-pencil"></i>&nbsp; Edit</button>
+                                    <button class="btn btn-sm btn-danger shadow" (click)="requestTrash($event, user.uuid)"><i class="bi bi-trash"></i>&nbsp; Delete</button>
                                 }
                             </div>
                         </div>
