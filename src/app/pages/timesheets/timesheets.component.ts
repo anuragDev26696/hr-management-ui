@@ -41,7 +41,11 @@ export class TimesheetsComponent implements OnInit, OnDestroy{
   public selectedTimesheet!: ITimesheetRes;
   public maxDate: string = '';
   public selectedUser: {uuid: string, name: string} = {uuid: "", name: ""};
-  public userList$: ReplaySubject<Array<{ uuid: string, name: string }>> = new ReplaySubject(1);
+  public selectedProject: {uuid: string, name: string} = {uuid: "", name: ""};
+  public userList$: ReplaySubject<Array<{ uuid: string, name: string }>> = new ReplaySubject(10);
+  public projectList$: ReplaySubject<Array<AssignedProject>> = new ReplaySubject(10);
+  public selectedProjectID: string = "";
+  public statusFilter: string = "";
   public searchInput$ = new Subject<string>();
   private destroy$ = new Subject<void>();
 
@@ -157,6 +161,7 @@ export class TimesheetsComponent implements OnInit, OnDestroy{
       next: (value) => {
         if(value.success && Array.isArray(value.data.docs)){
           this.projectList = value.data.docs;
+          this.projectList$.next(this.projectList);
           if(this.projectList.length > 0) this.timesheetForm.controls['projectId'].enable();
         }
         this.projectLoading = false;
@@ -223,16 +228,43 @@ export class TimesheetsComponent implements OnInit, OnDestroy{
     // Close dropdown manually
     document.querySelector('.dropdown-menu.show')?.classList.remove('show');
   }
+  // search Project
+  public onSearchProject(event: Event): void {
+    if(!event.isTrusted) return;
+    event.preventDefault();
+    const inputEle = event.target as HTMLInputElement;
+    if(!inputEle) return;
+    const value = inputEle.value.toString().trim();
+    if(value === '' || value.length > 2){
+      this.projectList$.next(this.projectList.filter((e) => e.projectDetail.name.toLocaleUpperCase().includes(value.toLocaleUpperCase())));
+    }
+  }
+  // Select user from dropdwn
+  public selectProjectFilter(event: Event, item: {name: string, uuid: string}): void {
+    event.stopPropagation();
+    this.selectedProject = item;
+    this.selectedProjectID = item.uuid;
+    // Clear search input
+    const input = (event.target as HTMLElement)?.closest('.dropdown-menu')?.querySelector('input');
+    if (input) (input as HTMLInputElement).value = '';
+
+    // Close dropdown manually
+    document.querySelector('.dropdown-menu.show')?.classList.remove('show');
+    this.projectList$.next(this.projectList);
+  }
   // Clear filter entities
   public clearfilter(event: Event, type: 'project' | 'user'): void{
     event.stopPropagation();
-    if(type === 'project'){
+    if(type !== 'project'){
       this.selectedUser = {uuid: "", name: ""};
       this.selectedUserId  = "";
+    } else {
+      this.selectedProjectID = "";
     }
     // Close dropdown manually
     document.querySelector('.dropdown-menu.show')?.classList.remove('show');
   }
+  public get badge(): number {return (this.selectedUser.name.trim() !== '' ? 1 : 0) + (this.selectedProject.name.trim() !== '' ? 1 : 0) + (this.statusFilter.trim() !== '' ? 1 : 0) ;}
 
   // Function to reset form
   public rebuildForm(event: Event): void {

@@ -74,19 +74,15 @@
                     </div>
                     <nav class="pe-3" aria-label="Daily attendance navigation">
                         <ul class="pagination pagination-sm justify-content-end">
-                          <li class="page-item" [class.disabled]="paginate.skip < 1">
+                            <li class="page-item" [class.disabled]="paginate.skip < 1">
                             <a class="page-link" role="button" [tabindex]="-1">Previous</a>
-                          </li>
-                          <li class="page-item" [class.disabled]="!isNext">
+                            </li>
+                            <li class="page-item" [class.disabled]="!isNext">
                             <a class="page-link" href="#" type="button" [tabindex]="-1">Next</a>
-                          </li>
+                            </li>
                         </ul>
                     </nav>
                 </div>
-            </div>
-        } @else{
-            <div class="col d-none d-lg-block">
-                <img src="cover/cursor-calendar.png" alt="Attenance List" [width]="500" [height]="500" loading="eager" fetchpriority="high" class="img-fluid object-fit-contain col-6 mx-auto d-block">
             </div>
         }
         <div class="col-12 col-lg-6">
@@ -136,6 +132,24 @@
                     }
                 </div>
             </div>
+        </div>
+        <div class="col-12" [class.col-lg-6]="!isPermitApproval">
+            <article class="card p-3 border-light">
+                @if (isPermitApproval) {
+                    <div class="mb-5 d-flex flex-wrap gap-2">
+                        <label>Employee ID: <input type="text" class="form-control" [formControl]="employeeId" /></label>
+                        <button class="btn btn-primary mt-auto">Apply</button>
+                    </div>
+                }
+                <p class="d-flex gap-2 flex-wrap">
+                    <strong>{{attendanceDate | date:'MMMM, yyyy'}}</strong>
+                    <span class="span badge text-bg-success">Present: {{presentCount}}</span>
+                    <span class="span badge text-bg-danger">Absent: {{absentCount}}</span>
+                    <span class="span badge text-bg-warning">Leaves: {{leaveCount}}</span>
+                </p>
+                  
+                <canvas class="d-block w-100 h-100" #attendanceCanvas></canvas>
+            </article>
         </div>
     </div>
 </main>
